@@ -1,0 +1,2029 @@
+/**
+ * @name Orchard
+ * @author Brandon
+ * @version 1.1.2
+ * @description A full Apple-style Discord theme. Liquid Glass materials, SF typography, iOS controls, macOS menus, grouped settings, spring motion. Works in dark and light mode.
+ * @source https://github.com/TheShield2594
+ */
+
+/* ==========================================================================
+   0. OPTIONAL FONT
+   SF Pro ships with macOS/iOS only. On Windows/Linux the stack falls back to
+   Inter, then system UI. If you want Inter without installing it, uncomment
+   the import below (note: this makes a request to rsms.me on every launch).
+   ========================================================================== */
+/* @import url("https://rsms.me/inter/inter.css"); */
+
+
+/* ==========================================================================
+   1. KNOBS — change these to make it yours
+   ========================================================================== */
+:root {
+  /* Feature switches: set to on / off */
+  --orchard-dock: on;            /* server rail as a macOS Dock with magnification */
+  --orchard-traffic-lights: on;  /* red / yellow / green window buttons, top-left */
+  --orchard-liquid-glass: on;    /* specular rim + top sheen on glass panels */
+  --orchard-bubbles: on;         /* iMessage-style message bubbles (cozy mode only) */
+
+  /* Accent: pick any Apple system color (or enable an accent addon file) */
+  --orchard-accent-dark: #0A84FF;   /* Blue. Try #BF5AF2 purple, #FF375F pink, #32D74B green, #FF9F0A orange */
+  --orchard-accent-light: #007AFF;
+
+  /* Wallpaper behind the glass. The main glow follows your accent color.
+     Replace with url("https://...") center / cover for a photo. */
+  --orchard-wallpaper-dark:
+    radial-gradient(1200px 800px at 0% 0%, color-mix(in srgb, var(--orchard-accent-dark) 28%, transparent), transparent 60%),
+    radial-gradient(1000px 700px at 100% 100%, color-mix(in srgb, var(--orchard-accent-dark) 14%, rgba(191, 90, 242, 0.18)), transparent 60%),
+    radial-gradient(800px 600px at 80% 10%, rgba(100, 210, 255, 0.10), transparent 60%),
+    linear-gradient(160deg, #0b0b10 0%, #121218 50%, #0d0d12 100%);
+  --orchard-wallpaper-light:
+    radial-gradient(1200px 800px at 0% 0%, color-mix(in srgb, var(--orchard-accent-light) 16%, transparent), transparent 60%),
+    radial-gradient(1000px 700px at 100% 100%, color-mix(in srgb, var(--orchard-accent-light) 8%, rgba(175, 82, 222, 0.10)), transparent 60%),
+    radial-gradient(800px 600px at 80% 10%, rgba(90, 200, 250, 0.12), transparent 60%),
+    linear-gradient(160deg, #f5f5f7 0%, #eef0f5 50%, #f2f2f7 100%);
+
+  /* Glass strength */
+  --orchard-blur: 40px;
+  --orchard-saturate: 180%;
+
+  /* Shape */
+  --orchard-radius-xs: 6px;
+  --orchard-radius-sm: 10px;
+  --orchard-radius-md: 14px;
+  --orchard-radius-lg: 20px;
+  --orchard-radius-xl: 28px;
+  --orchard-gap: 8px;               /* space between floating panels */
+
+  /* Typography */
+  --orchard-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter var", "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --orchard-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter var", "Inter", "Segoe UI Variable Display", system-ui, sans-serif;
+  --orchard-font-mono: "SF Mono", ui-monospace, "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+
+  /* Motion (Apple-ish springs) */
+  --orchard-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --orchard-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --orchard-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --orchard-fast: 160ms;
+  --orchard-med: 280ms;
+  --orchard-slow: 420ms;
+}
+
+
+/* ==========================================================================
+   2. PALETTES — macOS / iOS system colors
+   ========================================================================== */
+.theme-dark,
+:root.theme-dark,
+.theme-darker,
+.theme-midnight {
+  --o-accent: var(--orchard-accent-dark);
+  --o-accent-hover: color-mix(in srgb, var(--orchard-accent-dark) 85%, white);
+  --o-accent-soft: color-mix(in srgb, var(--orchard-accent-dark) 22%, transparent);
+  --o-accent-softer: color-mix(in srgb, var(--orchard-accent-dark) 12%, transparent);
+
+  --o-red: #FF453A;  --o-orange: #FF9F0A; --o-yellow: #FFD60A; --o-green: #32D74B;
+  --o-mint: #63E6E2; --o-teal: #40C8E0;   --o-cyan: #64D2FF;   --o-indigo: #5E5CE6;
+  --o-purple: #BF5AF2; --o-pink: #FF375F; --o-brown: #AC8E68;  --o-gray: #8E8E93;
+
+  --o-label: #F5F5F7;
+  --o-label-2: rgba(235, 235, 245, 0.64);
+  --o-label-3: rgba(235, 235, 245, 0.36);
+  --o-label-4: rgba(235, 235, 245, 0.18);
+
+  /* Materials (translucent so the wallpaper glows through) */
+  --o-mat-ultrathin: rgba(28, 28, 30, 0.38);
+  --o-mat-thin: rgba(28, 28, 30, 0.52);
+  --o-mat-regular: rgba(30, 30, 33, 0.66);
+  --o-mat-thick: rgba(36, 36, 40, 0.80);
+  --o-mat-chrome: rgba(44, 44, 48, 0.86);
+  --o-solid-1: #1C1C1E;
+  --o-solid-2: #2C2C2E;
+  --o-solid-3: #3A3A3C;
+
+  --o-fill-1: rgba(120, 120, 128, 0.36);
+  --o-fill-2: rgba(120, 120, 128, 0.28);
+  --o-fill-3: rgba(118, 118, 128, 0.20);
+  --o-fill-4: rgba(118, 118, 128, 0.12);
+  --o-hover: rgba(255, 255, 255, 0.06);
+  --o-pressed: rgba(255, 255, 255, 0.10);
+
+  --o-sep: rgba(84, 84, 88, 0.55);
+  --o-sep-soft: rgba(255, 255, 255, 0.07);
+  --o-rim: rgba(255, 255, 255, 0.10);        /* glass edge highlight */
+  --o-rim-strong: rgba(255, 255, 255, 0.16);
+
+  --o-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --o-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.25);
+  --o-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55), 0 8px 20px rgba(0, 0, 0, 0.35);
+
+  --o-wallpaper: var(--orchard-wallpaper-dark);
+  --o-code-bg: rgba(0, 0, 0, 0.35);
+
+  --o-sheen: rgba(255, 255, 255, 0.055);
+  --o-rim-gradient: conic-gradient(from 200deg at 50% 50%,
+      rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.06) 18%,
+      rgba(120, 200, 255, 0.20) 32%, rgba(255, 255, 255, 0.04) 48%,
+      rgba(255, 170, 240, 0.16) 66%, rgba(255, 255, 255, 0.06) 82%,
+      rgba(255, 255, 255, 0.34));
+  --o-bubble: rgba(58, 58, 62, 0.78);
+  --o-bubble-text: var(--o-label);
+  color-scheme: dark;
+}
+
+.theme-light,
+:root.theme-light {
+  --o-accent: var(--orchard-accent-light);
+  --o-accent-hover: color-mix(in srgb, var(--orchard-accent-light) 85%, black);
+  --o-accent-soft: color-mix(in srgb, var(--orchard-accent-light) 16%, transparent);
+  --o-accent-softer: color-mix(in srgb, var(--orchard-accent-light) 9%, transparent);
+
+  --o-red: #FF3B30;  --o-orange: #FF9500; --o-yellow: #FFCC00; --o-green: #34C759;
+  --o-mint: #00C7BE; --o-teal: #30B0C7;   --o-cyan: #32ADE6;   --o-indigo: #5856D6;
+  --o-purple: #AF52DE; --o-pink: #FF2D55; --o-brown: #A2845E;  --o-gray: #8E8E93;
+
+  --o-label: #1D1D1F;
+  --o-label-2: rgba(60, 60, 67, 0.66);
+  --o-label-3: rgba(60, 60, 67, 0.36);
+  --o-label-4: rgba(60, 60, 67, 0.18);
+
+  --o-mat-ultrathin: rgba(255, 255, 255, 0.42);
+  --o-mat-thin: rgba(255, 255, 255, 0.56);
+  --o-mat-regular: rgba(255, 255, 255, 0.70);
+  --o-mat-thick: rgba(250, 250, 252, 0.84);
+  --o-mat-chrome: rgba(248, 248, 250, 0.90);
+  --o-solid-1: #FFFFFF;
+  --o-solid-2: #F2F2F7;
+  --o-solid-3: #E5E5EA;
+
+  --o-fill-1: rgba(120, 120, 128, 0.20);
+  --o-fill-2: rgba(120, 120, 128, 0.16);
+  --o-fill-3: rgba(118, 118, 128, 0.12);
+  --o-fill-4: rgba(116, 116, 128, 0.08);
+  --o-hover: rgba(0, 0, 0, 0.04);
+  --o-pressed: rgba(0, 0, 0, 0.08);
+
+  --o-sep: rgba(60, 60, 67, 0.22);
+  --o-sep-soft: rgba(0, 0, 0, 0.06);
+  --o-rim: rgba(255, 255, 255, 0.70);
+  --o-rim-strong: rgba(255, 255, 255, 0.90);
+
+  --o-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --o-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+  --o-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.18), 0 8px 20px rgba(0, 0, 0, 0.08);
+
+  --o-wallpaper: var(--orchard-wallpaper-light);
+  --o-code-bg: rgba(0, 0, 0, 0.04);
+
+  --o-sheen: rgba(255, 255, 255, 0.45);
+  --o-rim-gradient: conic-gradient(from 200deg at 50% 50%,
+      rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.40) 18%,
+      rgba(120, 190, 255, 0.35) 32%, rgba(0, 0, 0, 0.06) 48%,
+      rgba(255, 160, 230, 0.30) 66%, rgba(255, 255, 255, 0.45) 82%,
+      rgba(255, 255, 255, 0.95));
+  --o-bubble: rgba(233, 233, 235, 0.88);
+  --o-bubble-text: #1D1D1F;
+  color-scheme: light;
+}
+
+
+/* ==========================================================================
+   3. MAP DISCORD'S VARIABLES → ORCHARD
+   Both the classic names and the 2025 "visual refresh" names are covered.
+   ========================================================================== */
+.theme-dark, .theme-light, .theme-darker, .theme-midnight {
+  /* Classic */
+  --background-primary: var(--o-mat-ultrathin);
+  --background-secondary: var(--o-mat-thin);
+  --background-secondary-alt: var(--o-mat-regular);
+  --background-tertiary: transparent;
+  --background-accent: var(--o-fill-1);
+  --background-floating: var(--o-mat-chrome);
+  --background-nested-floating: var(--o-mat-chrome);
+  --background-mobile-primary: var(--o-solid-1);
+  --background-mobile-secondary: var(--o-solid-2);
+  --background-modifier-hover: var(--o-hover);
+  --background-modifier-active: var(--o-pressed);
+  --background-modifier-selected: var(--o-fill-3);
+  --background-modifier-accent: var(--o-sep-soft);
+  --background-mentioned: color-mix(in srgb, var(--o-yellow) 10%, transparent);
+  --background-mentioned-hover: color-mix(in srgb, var(--o-yellow) 14%, transparent);
+  --background-message-hover: var(--o-hover);
+  --background-message-highlight: var(--o-accent-softer);
+  --background-message-highlight-hover: var(--o-accent-soft);
+  --channeltextarea-background: var(--o-mat-thick);
+  --input-background: var(--o-fill-4);
+  --modal-background: var(--o-mat-chrome);
+  --modal-footer-background: transparent;
+  --scrollbar-thin-thumb: var(--o-fill-1);
+  --scrollbar-thin-track: transparent;
+  --scrollbar-auto-thumb: var(--o-fill-1);
+  --scrollbar-auto-track: transparent;
+  --scrollbar-auto-scrollbar-color-thumb: var(--o-fill-1);
+  --scrollbar-auto-scrollbar-color-track: transparent;
+  --deprecated-card-bg: var(--o-fill-4);
+  --deprecated-card-editable-bg: var(--o-fill-4);
+  --deprecated-store-bg: transparent;
+  --home-background: transparent;
+  --bg-overlay-chat: transparent;
+  --bg-overlay-1: transparent; --bg-overlay-2: transparent; --bg-overlay-3: transparent;
+  --bg-overlay-4: transparent; --bg-overlay-5: transparent; --bg-overlay-6: transparent;
+  --bg-overlay-floating: var(--o-mat-chrome);
+
+  /* Visual refresh (2025+) */
+  --background-base-lowest: transparent;
+  --background-base-lower: var(--o-mat-thin);
+  --background-base-low: var(--o-mat-ultrathin);
+  --background-surface-high: var(--o-mat-chrome);
+  --background-surface-higher: var(--o-mat-chrome);
+  --background-surface-highest: var(--o-mat-chrome);
+  --chat-background-default: transparent;
+  --chat-background: transparent;
+  --panel-bg: transparent;
+  --app-frame-background: transparent;
+  --app-frame-border: transparent;
+  --border-subtle: var(--o-sep-soft);
+  --border-normal: var(--o-sep);
+  --border-strong: var(--o-sep);
+  --border-faint: var(--o-sep-soft);
+
+  /* Text */
+  --text-normal: var(--o-label);
+  --text-default: var(--o-label);
+  --text-strong: var(--o-label);
+  --text-muted: var(--o-label-2);
+  --text-subtle: var(--o-label-2);
+  --text-secondary: var(--o-label-2);
+  --text-tertiary: var(--o-label-3);
+  --text-link: var(--o-accent);
+  --text-brand: var(--o-accent);
+  --text-positive: var(--o-green);
+  --text-warning: var(--o-orange);
+  --text-danger: var(--o-red);
+  --text-feedback-critical: var(--o-red);
+  --text-feedback-positive: var(--o-green);
+  --text-feedback-warning: var(--o-orange);
+  --header-primary: var(--o-label);
+  --header-secondary: var(--o-label-2);
+  --channels-default: var(--o-label-2);
+  --channel-icon: var(--o-label-3);
+  --interactive-normal: var(--o-label-2);
+  --interactive-hover: var(--o-label);
+  --interactive-active: var(--o-label);
+  --interactive-muted: var(--o-label-4);
+  --icon-default: var(--o-label-2);
+  --icon-strong: var(--o-label);
+  --icon-muted: var(--o-label-3);
+  --icon-subtle: var(--o-label-3);
+
+  /* Brand / status */
+  --brand-experiment: var(--o-accent);
+  --brand-experiment-560: var(--o-accent-hover);
+  --brand-experiment-600: var(--o-accent-hover);
+  --brand-500: var(--o-accent);
+  --brand-560: var(--o-accent-hover);
+  --brand-600: var(--o-accent-hover);
+  --control-brand-foreground: var(--o-accent);
+  --control-brand-foreground-new: var(--o-accent);
+  --button-filled-brand-background: var(--o-accent);
+  --button-filled-brand-background-hover: var(--o-accent-hover);
+  --button-filled-brand-background-active: var(--o-accent-hover);
+  --button-danger-background: var(--o-red);
+  --button-positive-background: var(--o-green);
+  --button-secondary-background: var(--o-fill-2);
+  --button-secondary-background-hover: var(--o-fill-1);
+  --button-outline-brand-border: var(--o-accent);
+  --status-positive: var(--o-green);
+  --status-positive-background: var(--o-green);
+  --status-warning: var(--o-orange);
+  --status-warning-background: var(--o-orange);
+  --status-danger: var(--o-red);
+  --status-danger-background: var(--o-red);
+  --info-positive-foreground: var(--o-green);
+  --info-warning-foreground: var(--o-orange);
+  --info-danger-foreground: var(--o-red);
+  --info-help-foreground: var(--o-accent);
+  --mention-foreground: var(--o-accent);
+  --mention-background: var(--o-accent-soft);
+  --green-360: var(--o-green);
+  --red-400: var(--o-red);
+  --yellow-300: var(--o-yellow);
+  --status-online: var(--o-green);
+  --status-idle: var(--o-yellow);
+  --status-dnd: var(--o-red);
+  --status-offline: var(--o-gray);
+  --status-streaming: var(--o-purple);
+
+  /* Fonts */
+  --font-primary: var(--orchard-font);
+  --font-display: var(--orchard-font-display);
+  --font-headline: var(--orchard-font-display);
+  --font-code: var(--orchard-font-mono);
+
+  /* Radii (visual refresh uses these) */
+  --radius-xs: var(--orchard-radius-xs);
+  --radius-sm: var(--orchard-radius-sm);
+  --radius-md: var(--orchard-radius-md);
+  --radius-lg: var(--orchard-radius-lg);
+  --radius-xl: var(--orchard-radius-xl);
+}
+
+
+/* ==========================================================================
+   4. FOUNDATION — wallpaper, type, selection, focus
+   ========================================================================== */
+html, body, #app-mount {
+  background: var(--o-wallpaper) !important;
+  background-attachment: fixed !important;
+}
+
+body, #app-mount {
+  font-family: var(--orchard-font) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#app-mount [class*="app_"],
+#app-mount [class*="bg_"],
+#app-mount [class*="layers_"],
+#app-mount [class*="layer_"]:not([class*="clickTrap"]) {
+  background: transparent !important;
+}
+
+::selection {
+  background: var(--o-accent-soft);
+  color: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="switch"]:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--o-accent) 45%, transparent) !important;
+}
+/* Text editors never get a ring — their container handles focus */
+[contenteditable]:focus, [contenteditable]:focus-visible,
+[role="textbox"]:focus, [role="textbox"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+h1, h2, h3,
+[class*="title_"], [class*="header_"] h1,
+[class*="defaultColor_"][class*="heading-xl"],
+[class*="heading-lg"], [class*="heading-xl"], [class*="heading-xxl"] {
+  font-family: var(--orchard-font-display) !important;
+  letter-spacing: -0.022em;
+}
+
+code, pre, kbd, [class*="codeBlock"], .hljs, [class*="inlineCode"] {
+  font-family: var(--orchard-font-mono) !important;
+}
+
+
+/* ==========================================================================
+   5. SCROLLBARS — macOS overlay style
+   ========================================================================== */
+::-webkit-scrollbar { width: 12px; height: 12px; background: transparent; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent !important; border: none !important; }
+::-webkit-scrollbar-thumb {
+  background-color: transparent !important;
+  border: 3px solid transparent !important;
+  background-clip: padding-box !important;
+  border-radius: 999px !important;
+  min-height: 40px;
+}
+*:hover::-webkit-scrollbar-thumb { background-color: var(--o-fill-1) !important; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--o-label-3) !important; border-width: 2px !important; }
+
+[class*="scrollerBase_"], [class*="scroller_"] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--o-fill-1) transparent;
+}
+
+
+/* ==========================================================================
+   6. TITLE BAR — macOS unified toolbar
+   ========================================================================== */
+[class*="titleBar_"],
+[class*="typeWindows_"][class*="titleBar"],
+[class*="bar_"][class*="base_"],
+.visual-refresh [class*="bar_"]:has([class*="trailing_"]) {
+  background: transparent !important;
+  border: none !important;
+}
+
+[class*="titleBar_"] [class*="wordmark"] { color: var(--o-label-3) !important; }
+
+[class*="winButton_"] {
+  border-radius: var(--orchard-radius-xs) !important;
+  transition: background var(--orchard-fast) var(--orchard-ease);
+}
+[class*="winButton_"]:hover { background: var(--o-hover) !important; }
+[class*="winButtonClose_"]:hover { background: var(--o-red) !important; color: #fff !important; }
+
+
+/* ==========================================================================
+   7. LAYOUT — floating glass panels with gutters
+   ========================================================================== */
+[class*="base_"]:has(> [class*="content_"]) > [class*="content_"] {
+  gap: var(--orchard-gap);
+  padding: 0 var(--orchard-gap) var(--orchard-gap) 0;
+}
+
+/* Shared glass recipe */
+[class*="sidebar_"]:not([class*="sidebarList"]):not([class*="sidebarRegion"]):not([class*="Item"]),
+[class*="chat_"]:not([class*="chatContent"]):not([class*="chatLayer"]),
+[class*="container_"][class*="threadSidebar"],
+[class*="userPanelOuter_"],
+[class*="userProfileOuter_"][class*="panel"],
+[class*="privateChannels_"],
+[class*="pageWrapper_"],
+[class*="nowPlayingColumn_"],
+[class*="container_"][class*="activityFeed"],
+[class*="applicationStore_"] {
+  background: var(--o-mat-thin) !important;
+  backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  border: 1px solid var(--o-rim) !important;
+  border-radius: var(--orchard-radius-lg) !important;
+  box-shadow: var(--o-shadow-md), inset 0 1px 0 var(--o-rim);
+  overflow: hidden;
+}
+
+/* Channel list column */
+[class*="sidebar_"]:not([class*="sidebarList"]):not([class*="sidebarRegion"]):not([class*="Item"]) {
+  margin-left: 0;
+}
+
+/* Main chat column is a bit clearer */
+[class*="chat_"]:not([class*="chatContent"]):not([class*="chatLayer"]) {
+  background: var(--o-mat-ultrathin) !important;
+}
+
+[class*="chatContent_"],
+[class*="content_"][class*="chat"],
+[class*="messagesWrapper_"],
+[class*="container_"][class*="members"],
+[class*="members_"],
+[class*="membersWrap_"] [class*="members_"] {
+  background: transparent !important;
+}
+
+/* Kill the old hard separators */
+[class*="sidebar_"]::after,
+[class*="chat_"]::before,
+[class*="divider_"]:not([class*="isUnread"]):not([class*="hasContent"]) {
+  border-color: var(--o-sep-soft) !important;
+}
+
+
+/* ==========================================================================
+   8. SERVER RAIL — squircle app icons, iOS-style pills
+   ========================================================================== */
+[class*="guilds_"] {
+  background: transparent !important;
+  padding-top: 4px;
+}
+
+[class*="guilds_"] [class*="scroller_"] { padding-top: 6px !important; }
+
+/* Replace Discord's SVG masks with a squircle */
+[class*="guilds_"] [class*="listItem_"] foreignObject,
+[class*="guilds_"] [class*="wrapper_"] foreignObject {
+  mask: none !important;
+  -webkit-mask: none !important;
+}
+
+[class*="guilds_"] [class*="listItem_"] [class*="childWrapper_"],
+[class*="guilds_"] [class*="listItem_"] img[class*="icon_"],
+[class*="guilds_"] [class*="listItem_"] [class*="icon_"]:not(svg),
+[class*="guilds_"] [class*="folderIconWrapper_"],
+[class*="guilds_"] [class*="expandedFolderBackground_"],
+[class*="guilds_"] [class*="circleIconButton_"] {
+  border-radius: 30% !important;   /* closest CSS gets to Apple's continuous corner */
+  transition: transform var(--orchard-med) var(--orchard-bounce),
+              box-shadow var(--orchard-med) var(--orchard-ease),
+              background var(--orchard-fast) var(--orchard-ease) !important;
+}
+
+[class*="guilds_"] [class*="listItem_"] [class*="childWrapper_"],
+[class*="guilds_"] [class*="circleIconButton_"] {
+  background: var(--o-mat-regular) !important;
+  box-shadow: var(--o-shadow-sm), inset 0 0 0 1px var(--o-rim);
+  color: var(--o-label) !important;
+}
+
+/* Scale the whole icon box, not the content inside the SVG
+   (transforms inside <foreignObject> get clipped) */
+[class*="guilds_"] [class*="blobContainer_"],
+[class*="guilds_"] [class*="listItem_"] > [class*="wrapper_"] {
+  transition: transform var(--orchard-med) var(--orchard-bounce) !important;
+  transform-origin: center;
+}
+[class*="guilds_"] [class*="listItem_"]:hover [class*="blobContainer_"] { transform: scale(1.08); }
+[class*="guilds_"] [class*="listItem_"]:active [class*="blobContainer_"] {
+  transform: scale(0.92) !important;
+  transition-duration: 90ms !important;
+}
+
+/* Selected server: inset accent ring (an outer ring would be clipped) */
+[class*="guilds_"] [class*="selected_"] [class*="childWrapper_"],
+[class*="guilds_"] [class*="selected_"] img[class*="icon_"] {
+  box-shadow: inset 0 0 0 2px var(--o-accent) !important;
+}
+[class*="guilds_"] [class*="selected_"] img[class*="icon_"] {
+  outline: 2px solid var(--o-accent);
+  outline-offset: -2px;
+}
+
+/* Selection pill → slim rounded indicator */
+[class*="guilds_"] [class*="pill_"] [class*="item_"] {
+  background: var(--o-label) !important;
+  border-radius: 0 999px 999px 0 !important;
+  width: 4px !important;
+  transition: height var(--orchard-med) var(--orchard-spring) !important;
+}
+
+/* Expanded folders: frosted tray */
+[class*="guilds_"] [class*="expandedFolderBackground_"] {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft);
+}
+
+/* Separator */
+[class*="guilds_"] [class*="guildSeparator_"] {
+  background: var(--o-sep) !important;
+  height: 1px !important;
+  width: 28px !important;
+  border-radius: 1px;
+}
+
+/* Unread / mention badges (iOS notification badge) */
+[class*="numberBadge_"],
+[class*="lowerBadge_"] [class*="numberBadge_"],
+[class*="mentionsBadge_"] [class*="numberBadge_"] {
+  background: var(--o-red) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-family: var(--orchard-font) !important;
+  box-shadow: 0 0 0 2px var(--o-solid-1), 0 2px 6px rgba(0,0,0,.25) !important;
+}
+
+[class*="textBadge_"], [class*="iconBadge_"] {
+  border-radius: 999px !important;
+}
+
+
+/* ==========================================================================
+   9. CHANNEL LIST — Finder / Mail sidebar
+   ========================================================================== */
+[class*="sidebar_"] nav,
+[class*="sidebar_"] [class*="container_"][class*="guildChannels"],
+[class*="sidebar_"] [class*="scroller_"] {
+  background: transparent !important;
+}
+
+/* Server header */
+[class*="sidebar_"] header,
+[class*="sidebar_"] [class*="header_"][class*="clickable"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--o-sep-soft) !important;
+}
+[class*="sidebar_"] header [class*="name_"],
+[class*="sidebar_"] [class*="header_"] h2 {
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  letter-spacing: -0.02em;
+}
+
+/* Category headers: small caps like Finder sections */
+[class*="containerDefault_"] [class*="mainContent_"] h3,
+[class*="containerDefault_"] [class*="name_"][class*="overflow"],
+[class*="privateChannelsHeaderContainer_"] h2,
+[class*="privateChannelsHeaderContainer_"] [class*="headerText_"] {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  color: var(--o-label-3) !important;
+}
+
+/* Channel rows */
+[class*="containerDefault_"] [class*="link_"],
+[class*="channel_"] [class*="interactive_"],
+[class*="privateChannels_"] [class*="interactive_"],
+[class*="sidebar_"] [class*="interactive_"] {
+  border-radius: var(--orchard-radius-sm) !important;
+  margin: 1px 8px !important;
+  padding-inline: 8px !important;
+  transition: background var(--orchard-fast) var(--orchard-ease) !important;
+}
+
+[class*="sidebar_"] [class*="interactive_"]:hover,
+[class*="containerDefault_"] [class*="link_"]:hover {
+  background: var(--o-hover) !important;
+}
+
+/* Selected channel: accent-tinted pill, Finder style */
+[class*="modeSelected_"] [class*="link_"],
+[class*="modeSelected_"] [class*="interactive_"],
+[class*="sidebar_"] [class*="interactive_"][class*="selected_"],
+[class*="privateChannels_"] [class*="selected_"] [class*="interactive_"],
+[class*="privateChannels_"] [class*="interactiveSelected_"] {
+  background: var(--o-accent-soft) !important;
+}
+[class*="modeSelected_"] [class*="name_"],
+[class*="modeSelected_"] [class*="icon_"],
+[class*="sidebar_"] [class*="interactive_"][class*="selected_"] * {
+  color: var(--o-accent) !important;
+}
+
+/* Unread dot next to channels */
+[class*="unread_"][class*="unreadImportant"],
+[class*="containerDefault_"] [class*="unread_"] {
+  background: var(--o-label) !important;
+  border-radius: 0 999px 999px 0 !important;
+}
+
+/* Muted channels */
+[class*="modeMuted_"] [class*="name_"] { color: var(--o-label-4) !important; }
+
+/* Voice users in sidebar */
+[class*="voiceUser_"] [class*="content_"] {
+  border-radius: var(--orchard-radius-xs) !important;
+}
+[class*="voiceUser_"] [class*="avatarSpeaking_"] {
+  box-shadow: inset 0 0 0 2px var(--o-green), 0 0 0 2px var(--o-green) !important;
+}
+
+
+/* ==========================================================================
+   10. USER PANEL — the bottom "account" card
+   ========================================================================== */
+[class*="panels_"] {
+  background: var(--o-mat-regular) !important;
+  backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  border: 1px solid var(--o-rim) !important;
+  border-radius: var(--orchard-radius-md) !important;
+  margin: 8px !important;
+  box-shadow: var(--o-shadow-md);
+  overflow: hidden;
+}
+
+[class*="panels_"] [class*="container_"],
+[class*="panels_"] section {
+  background: transparent !important;
+}
+
+[class*="panels_"] [class*="avatarWrapper_"] {
+  border-radius: var(--orchard-radius-sm) !important;
+  transition: background var(--orchard-fast);
+}
+[class*="panels_"] [class*="avatarWrapper_"]:hover { background: var(--o-hover) !important; }
+
+[class*="panels_"] button,
+[class*="panels_"] [class*="button_"] {
+  border-radius: var(--orchard-radius-sm) !important;
+}
+
+/* Voice connected bar */
+[class*="rtcConnectionStatus_"] [class*="labelWrapper"] *,
+[class*="rtcConnectionStatusConnected_"] { color: var(--o-green) !important; }
+
+
+/* ==========================================================================
+   11. CHAT HEADER — toolbar
+   ========================================================================== */
+section[class*="title_"],
+[class*="chat_"] > [class*="title_"],
+[class*="chat_"] section[aria-label],
+[class*="container_"] > section[class*="title_"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--o-sep-soft) !important;
+  min-height: 52px !important;
+}
+
+[class*="toolbar_"] [class*="iconWrapper_"],
+[class*="toolbar_"] [class*="clickable_"] {
+  border-radius: var(--orchard-radius-sm) !important;
+  padding: 4px !important;
+  transition: background var(--orchard-fast), color var(--orchard-fast) !important;
+}
+[class*="toolbar_"] [class*="iconWrapper_"]:hover { background: var(--o-hover) !important; }
+[class*="toolbar_"] [class*="selected_"] { color: var(--o-accent) !important; background: var(--o-accent-softer) !important; }
+
+/* Search: Spotlight capsule */
+[class*="searchBar_"],
+[class*="search_"] [class*="searchBar_"] {
+  background: var(--o-fill-3) !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  height: 28px !important;
+  transition: width var(--orchard-med) var(--orchard-spring), background var(--orchard-fast) !important;
+}
+[class*="searchBar_"]:focus-within {
+  background: var(--o-fill-2) !important;
+  box-shadow: 0 0 0 3px var(--o-accent-soft) !important;
+}
+
+/* Spotlight-style search results */
+[class*="searchResultsWrap_"] {
+  background: transparent !important;
+}
+[class*="searchResultsWrap_"] [class*="searchHeader_"] {
+  background: transparent !important;
+}
+[class*="searchResult_"] {
+  background: var(--o-fill-4) !important;
+  border-radius: var(--orchard-radius-md) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+}
+
+
+/* ==========================================================================
+   12. MESSAGES
+   ========================================================================== */
+[class*="messageListItem_"] { margin-inline: 8px; }
+
+[class*="message_"][class*="cozy_"],
+[class*="message_"][class*="compact_"],
+li[class*="messageListItem_"] > [class*="message_"] {
+  border-radius: var(--orchard-radius-md) !important;
+  transition: background var(--orchard-fast) var(--orchard-ease) !important;
+}
+
+[class*="message_"]:hover,
+[class*="selected_"][class*="message_"] {
+  background: var(--o-hover) !important;
+}
+
+/* Leave avatar geometry alone: decorations and APP tags depend on it */
+[class*="message_"] [class*="avatar_"],
+[class*="message_"] [class*="avatarDecoration_"],
+[class*="message_"] [class*="contents_"],
+[class*="message_"] [class*="header_"] {
+  padding: 0 !important;
+  background: transparent !important;
+}
+[class*="message_"][class*="mentioned_"] [class*="contents_"] { color: var(--o-label) !important; }
+
+/* Name + timestamp */
+[class*="username_"] {
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+}
+[class*="timestamp_"], [class*="timestamp_"] time {
+  color: var(--o-label-3) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Message text */
+[class*="markup_"][class*="messageContent_"],
+[class*="messageContent_"] {
+  line-height: 1.45 !important;
+  font-size: 15px;
+}
+
+/* Mentions of you: yellow wash with a rounded accent bar */
+[class*="mentioned_"] {
+  background: color-mix(in srgb, var(--o-yellow) 8%, transparent) !important;
+}
+[class*="mentioned_"]::before {
+  background: var(--o-yellow) !important;
+  width: 3px !important;
+  border-radius: 999px !important;
+  top: 6px !important;
+  bottom: 6px !important;
+  height: auto !important;
+}
+
+/* @mention chips — scoped to inline spans only, never the message row */
+[class*="markup_"] span.mention,
+[class*="markup_"] span[class*="mention"][class*="wrapper_"],
+[class*="markup_"] [class*="roleMention"],
+[class*="markup_"] [class*="channelMention"] {
+  background: var(--o-accent-soft) !important;
+  color: var(--o-accent) !important;
+  border-radius: var(--orchard-radius-xs) !important;
+  padding: 0 4px !important;
+  font-weight: 500;
+  transition: background var(--orchard-fast);
+}
+[class*="markup_"] span.mention:hover,
+[class*="markup_"] span[class*="mention"][class*="wrapper_"]:hover {
+  background: var(--o-accent) !important;
+  color: #fff !important;
+}
+
+/* Replies */
+[class*="repliedMessage_"] { color: var(--o-label-2) !important; }
+[class*="repliedMessage_"]::before { border-color: var(--o-label-4) !important; border-top-left-radius: 8px !important; }
+
+/* Message hover toolbar: floating glass capsule */
+[class*="buttonsInner_"],
+[class*="buttonContainer_"] [class*="wrapper_"]:has([class*="button_"]) {
+  background: var(--o-mat-chrome) !important;
+  backdrop-filter: blur(24px) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(24px) saturate(var(--orchard-saturate));
+  border: 1px solid var(--o-rim) !important;
+  border-radius: 999px !important;
+  box-shadow: var(--o-shadow-md) !important;
+  padding: 2px !important;
+}
+[class*="buttonsInner_"] [class*="button_"] {
+  border-radius: 999px !important;
+  transition: background var(--orchard-fast), transform var(--orchard-fast) var(--orchard-bounce) !important;
+}
+[class*="buttonsInner_"] [class*="button_"]:hover {
+  background: var(--o-hover) !important;
+  transform: scale(1.08);
+}
+[class*="buttonsInner_"] [class*="dangerous_"]:hover { color: var(--o-red) !important; }
+
+/* Day dividers: centered capsule like iMessage */
+[class*="divider_"][class*="hasContent_"] {
+  border-top: none !important;
+  justify-content: center;
+}
+[class*="divider_"][class*="hasContent_"] [class*="content_"] {
+  background: var(--o-fill-3) !important;
+  color: var(--o-label-2) !important;
+  border-radius: 999px !important;
+  padding: 2px 10px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  margin: 0 auto !important;
+  position: relative !important;
+}
+
+/* "New" unread divider */
+[class*="divider_"][class*="isUnread_"] { border-color: var(--o-red) !important; }
+[class*="unreadPill_"], [class*="divider_"][class*="isUnread_"] [class*="unreadPill"] {
+  background: var(--o-red) !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+}
+
+/* "You have new messages" bar */
+[class*="newMessagesBar_"],
+[class*="jumpToPresentBar_"] {
+  background: var(--o-mat-chrome) !important;
+  backdrop-filter: blur(24px) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(24px) saturate(var(--orchard-saturate));
+  border: 1px solid var(--o-rim) !important;
+  border-radius: 999px !important;
+  box-shadow: var(--o-shadow-md) !important;
+  color: var(--o-label) !important;
+  margin: 8px 16px !important;
+}
+[class*="newMessagesBar_"] *, [class*="jumpToPresentBar_"] * { color: var(--o-accent) !important; }
+
+/* Edited tag, system messages */
+[class*="edited_"] { color: var(--o-label-3) !important; }
+[class*="systemMessage_"] [class*="content_"] { color: var(--o-label-2) !important; }
+
+
+/* ==========================================================================
+   13. EMBEDS, ATTACHMENTS, CODE
+   ========================================================================== */
+[class*="embedFull_"],
+article[class*="embed"] {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-left: 3px solid var(--o-accent) !important;
+  border-radius: var(--orchard-radius-md) !important;
+  box-shadow: var(--o-shadow-sm);
+}
+
+[class*="embedTitle_"], [class*="embedAuthorName_"] { font-weight: 600 !important; }
+[class*="embedImage_"] img, [class*="embedThumbnail_"] img, [class*="embedVideo_"] {
+  border-radius: var(--orchard-radius-sm) !important;
+}
+
+/* Images, videos, attachments */
+[class*="imageWrapper_"],
+[class*="imageContainer_"] img,
+[class*="mosaicItem_"],
+[class*="oneByOneGrid_"],
+[class*="wrapper_"][class*="mediaMosaic"],
+[class*="videoWrapper_"],
+[class*="wrapperPlaying_"] {
+  border-radius: var(--orchard-radius-md) !important;
+  overflow: hidden;
+}
+
+[class*="attachment_"],
+[class*="file_"][class*="newMosaicStyle"],
+[class*="wrapperAudio_"],
+[class*="nonMediaAttachment_"] > div {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-radius: var(--orchard-radius-md) !important;
+}
+
+/* Code blocks: Xcode feel */
+[class*="markup_"] pre,
+[class*="markup_"] code.hljs,
+[class*="codeContainer_"] {
+  background: var(--o-code-bg) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-radius: var(--orchard-radius-sm) !important;
+}
+[class*="markup_"] code.hljs { padding: 12px 14px !important; font-size: 13px !important; line-height: 1.55 !important; }
+
+[class*="markup_"] code.inline,
+[class*="markup_"] :not(pre) > code {
+  background: var(--o-fill-3) !important;
+  border: none !important;
+  border-radius: var(--orchard-radius-xs) !important;
+  padding: 1px 5px !important;
+  font-size: 0.86em !important;
+}
+
+/* Xcode "Default (Dark)" syntax palette */
+.theme-dark .hljs-keyword, .theme-dark .hljs-selector-tag, .theme-dark .hljs-literal { color: #FF7AB2 !important; font-weight: 600; }
+.theme-dark .hljs-string, .theme-dark .hljs-attr-value { color: #FF8170 !important; }
+.theme-dark .hljs-number { color: #D9C97C !important; }
+.theme-dark .hljs-comment, .theme-dark .hljs-quote { color: #7F8C98 !important; font-style: italic; }
+.theme-dark .hljs-title, .theme-dark .hljs-title.function_, .theme-dark .hljs-section { color: #67B7A4 !important; }
+.theme-dark .hljs-type, .theme-dark .hljs-built_in, .theme-dark .hljs-class .hljs-title { color: #DABAFF !important; }
+.theme-dark .hljs-attr, .theme-dark .hljs-attribute, .theme-dark .hljs-variable { color: #6BDFFF !important; }
+.theme-dark .hljs-meta, .theme-dark .hljs-tag { color: #FD8F3F !important; }
+
+/* Xcode "Default (Light)" */
+.theme-light .hljs-keyword, .theme-light .hljs-selector-tag, .theme-light .hljs-literal { color: #AD3DA4 !important; font-weight: 600; }
+.theme-light .hljs-string, .theme-light .hljs-attr-value { color: #D12F1B !important; }
+.theme-light .hljs-number { color: #272AD8 !important; }
+.theme-light .hljs-comment, .theme-light .hljs-quote { color: #707F8C !important; font-style: italic; }
+.theme-light .hljs-title, .theme-light .hljs-title.function_, .theme-light .hljs-section { color: #3E8087 !important; }
+.theme-light .hljs-type, .theme-light .hljs-built_in, .theme-light .hljs-class .hljs-title { color: #4B21B0 !important; }
+.theme-light .hljs-attr, .theme-light .hljs-attribute, .theme-light .hljs-variable { color: #0F68A0 !important; }
+.theme-light .hljs-meta, .theme-light .hljs-tag { color: #78492A !important; }
+
+/* Blockquotes */
+[class*="blockquoteDivider_"] { background: var(--o-label-4) !important; border-radius: 999px !important; width: 3px !important; }
+
+/* Spoilers */
+[class*="spoilerContent_"][class*="hidden_"],
+[class*="spoilerText_"][class*="hidden_"] {
+  background: var(--o-fill-1) !important;
+  border-radius: var(--orchard-radius-xs) !important;
+}
+
+
+/* ==========================================================================
+   14. REACTIONS — Tapback-style pills
+   ========================================================================== */
+[class*="reaction_"] {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-radius: 999px !important;
+  transition: transform var(--orchard-fast) var(--orchard-bounce), background var(--orchard-fast) !important;
+}
+[class*="reaction_"]:hover {
+  background: var(--o-fill-3) !important;
+  transform: translateY(-1px) scale(1.04);
+}
+[class*="reaction_"]:active { transform: scale(0.95); }
+[class*="reaction_"][class*="reactionMe_"] {
+  background: var(--o-accent-soft) !important;
+  border-color: color-mix(in srgb, var(--o-accent) 50%, transparent) !important;
+}
+[class*="reaction_"][class*="reactionMe_"] [class*="reactionCount_"] { color: var(--o-accent) !important; }
+[class*="reactionCount_"] { font-weight: 600 !important; font-variant-numeric: tabular-nums; }
+
+
+/* ==========================================================================
+   15. COMPOSER — floating Messages-style capsule
+   ========================================================================== */
+[class*="form_"] { padding-inline: 12px !important; }
+
+[class*="channelTextArea_"] {
+  background: var(--o-mat-thick) !important;
+  backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  border: 1px solid var(--o-rim) !important;
+  border-radius: var(--orchard-radius-lg) !important;
+  box-shadow: var(--o-shadow-md), inset 0 1px 0 var(--o-rim);
+  transition: box-shadow var(--orchard-med) var(--orchard-ease), border-color var(--orchard-med) !important;
+}
+[class*="channelTextArea_"]:focus-within {
+  border-color: color-mix(in srgb, var(--o-accent) 55%, transparent) !important;
+  box-shadow: var(--o-shadow-md), 0 0 0 4px var(--o-accent-softer) !important;
+}
+
+/* Flatten everything inside the capsule into one surface */
+[class*="channelTextArea_"] [class*="scrollableContainer_"],
+[class*="channelTextArea_"] [class*="inner_"],
+[class*="channelTextArea_"] [class*="textArea_"],
+[class*="channelTextArea_"] [class*="slateContainer_"],
+[class*="channelTextArea_"] [class*="markup_"],
+[class*="channelTextArea_"] [class*="editor_"],
+[class*="channelTextArea_"] [role="textbox"],
+[class*="channelTextArea_"] [class*="attachWrapper_"],
+[class*="channelTextArea_"] [class*="buttons_"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+}
+[class*="channelTextArea_"] [class*="scrollableContainer_"] { border-radius: inherit !important; }
+[class*="channelTextArea_"] [class*="inner_"] { align-items: center; }
+[class*="channelTextArea_"] [class*="textArea_"] { padding-left: 4px !important; }
+
+/* Placeholder: plain, upright, quieter */
+[class*="channelTextArea_"] [class*="placeholder_"],
+[class*="channelTextArea_"] [class*="slateTextArea_"] {
+  font-style: normal !important;
+  letter-spacing: -0.01em !important;
+}
+
+[class*="channelTextArea_"] [class*="placeholder_"] { color: var(--o-label-3) !important; }
+
+[class*="channelTextArea_"] [class*="buttons_"] [class*="button_"],
+[class*="attachButton_"],
+[class*="emojiButton_"] {
+  border-radius: 999px !important;
+  transition: transform var(--orchard-fast) var(--orchard-bounce), color var(--orchard-fast) !important;
+}
+[class*="channelTextArea_"] [class*="buttons_"] [class*="button_"]:hover,
+[class*="attachButton_"]:hover { transform: scale(1.12); color: var(--o-accent) !important; }
+
+/* Reply / attachment bar above composer */
+[class*="attachedBars_"],
+[class*="replyBar_"],
+[class*="channelAttachmentArea_"] {
+  background: transparent !important;
+  border-bottom: 1px solid var(--o-sep-soft) !important;
+}
+[class*="channelTextArea_"] [class*="upload_"] {
+  background: var(--o-fill-4) !important;
+  border-radius: var(--orchard-radius-md) !important;
+  border: 1px solid var(--o-sep-soft);
+}
+
+/* Typing indicator */
+[class*="typing_"] { background: transparent !important; color: var(--o-label-3) !important; }
+
+/* Slow-mode / char count */
+[class*="characterCount_"] { color: var(--o-label-3) !important; }
+
+/* Autocomplete (/commands, @mentions, :emoji:) */
+[class*="autocomplete_"] {
+  background: var(--o-mat-chrome) !important;
+  backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  border: 1px solid var(--o-rim) !important;
+  border-radius: var(--orchard-radius-md) !important;
+  box-shadow: var(--o-shadow-lg) !important;
+  overflow: hidden;
+}
+[class*="autocomplete_"] [class*="base_"],
+[class*="autocomplete_"] [class*="categoryHeader_"] { background: transparent !important; }
+[class*="autocomplete_"] [class*="clickable_"],
+[class*="autocomplete_"] [class*="autocompleteRowVertical"] { border-radius: var(--orchard-radius-sm) !important; margin-inline: 4px; }
+[class*="autocomplete_"] [class*="selected_"] { background: var(--o-accent) !important; }
+[class*="autocomplete_"] [class*="selected_"] * { color: #fff !important; }
+
+
+/* ==========================================================================
+   16. MEMBER LIST & PROFILE PANEL
+   ========================================================================== */
+[class*="members_"] h3,
+[class*="membersGroup_"] {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  color: var(--o-label-3) !important;
+}
+
+[class*="member_"] [class*="layout_"],
+[class*="member_"] > div {
+  border-radius: var(--orchard-radius-sm) !important;
+  transition: background var(--orchard-fast) !important;
+}
+[class*="member_"]:hover [class*="layout_"] { background: var(--o-hover) !important; }
+
+[class*="member_"][class*="offline_"] { opacity: 0.45 !important; }
+
+/* Status dots: crisp Apple colors */
+rect[fill="#23a55a"], rect[fill="#3ba55c"], rect[fill="#43b581"] { fill: var(--o-green) !important; }
+rect[fill="#f0b232"], rect[fill="#faa81a"] { fill: var(--o-yellow) !important; }
+rect[fill="#f23f43"], rect[fill="#ed4245"], rect[fill="#f04747"] { fill: var(--o-red) !important; }
+rect[fill="#80848e"], rect[fill="#747f8d"] { fill: var(--o-gray) !important; }
+rect[fill="#593695"] { fill: var(--o-purple) !important; }
+
+
+/* ==========================================================================
+   17. POPOUTS — user cards, emoji picker, GIF picker, inbox
+   ========================================================================== */
+[class*="userPopoutOuter_"],
+[class*="userProfileOuter_"],
+[class*="userProfileModalOuter_"],
+[class*="userPopoutInner_"],
+[class*="popout_"]:not([class*="popoutContainer"]),
+[class*="contentWrapper_"][class*="emoji"],
+[class*="emojiPicker_"],
+[class*="expressionPicker"],
+[class*="container_"][class*="gifPicker"],
+[class*="recentMentionsPopout_"],
+[class*="messagesPopoutWrap_"],
+[class*="browser_"][class*="quickSwitcher"],
+[class*="quickswitcher_"] {
+  background: var(--o-mat-chrome) !important;
+  backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  border: 1px solid var(--o-rim) !important;
+  border-radius: var(--orchard-radius-lg) !important;
+  box-shadow: var(--o-shadow-lg) !important;
+  overflow: hidden;
+  animation: orchard-pop var(--orchard-med) var(--orchard-spring);
+}
+
+[class*="userPopoutInner_"] [class*="body_"],
+[class*="userProfileInner_"],
+[class*="userPopoutOverlayBackground_"],
+[class*="overlayBackground_"] {
+  background: transparent !important;
+}
+
+/* Profile sections become grouped cards */
+[class*="userPopoutInner_"] section,
+[class*="userProfileInner_"] section,
+[class*="profileCard_"],
+[class*="section_"][class*="userProfile"] {
+  background: var(--o-fill-4) !important;
+  border-radius: var(--orchard-radius-md) !important;
+}
+
+/* Banner corners */
+[class*="banner_"][class*="popout"],
+[class*="bannerSVGWrapper_"] {
+  border-radius: var(--orchard-radius-lg) var(--orchard-radius-lg) 0 0 !important;
+}
+
+/* Emoji picker internals */
+[class*="emojiPicker_"] [class*="header_"],
+[class*="emojiPicker_"] [class*="categoryList_"],
+[class*="emojiPicker_"] [class*="wrapper_"][class*="header"],
+[class*="expressionPicker"] nav,
+[class*="contentWrapper_"] nav {
+  background: transparent !important;
+}
+[class*="emojiItem_"] {
+  border-radius: var(--orchard-radius-sm) !important;
+  transition: transform var(--orchard-fast) var(--orchard-bounce), background var(--orchard-fast) !important;
+}
+[class*="emojiItem_"]:hover,
+[class*="emojiItem_"][class*="emojiItemSelected_"] {
+  background: var(--o-fill-3) !important;
+  transform: scale(1.15);
+}
+
+/* Picker tab bar: segmented control */
+[class*="navList_"] {
+  background: var(--o-fill-3) !important;
+  border-radius: var(--orchard-radius-sm) !important;
+  padding: 2px !important;
+}
+[class*="navButton_"] {
+  border-radius: 7px !important;
+  transition: background var(--orchard-fast), color var(--orchard-fast) !important;
+}
+[class*="navButtonActive_"],
+[class*="navButton_"][aria-selected="true"] {
+  background: var(--o-solid-3) !important;
+  color: var(--o-label) !important;
+  box-shadow: var(--o-shadow-sm);
+}
+.theme-light [class*="navButtonActive_"],
+.theme-light [class*="navButton_"][aria-selected="true"] { background: #fff !important; }
+
+
+/* ==========================================================================
+   18. CONTEXT MENUS — macOS menus
+   ========================================================================== */
+[class*="menu_"]:not([class*="menuIcon"]):not([class*="menuItem"]) {
+  background: var(--o-mat-chrome) !important;
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 1px solid var(--o-rim) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--o-shadow-lg), inset 0 1px 0 var(--o-rim) !important;
+  padding: 5px !important;
+  animation: orchard-menu 180ms var(--orchard-spring);
+}
+
+[class*="menu_"] [class*="scroller_"] { padding: 0 !important; }
+
+[class*="menu_"] [class*="item_"] {
+  border-radius: 6px !important;
+  margin: 0 !important;
+  padding: 5px 10px !important;
+  min-height: 24px !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  color: var(--o-label) !important;
+  transition: none !important;
+}
+
+[class*="menu_"] [class*="item_"][class*="focused_"],
+[class*="menu_"] [class*="item_"]:active {
+  background: var(--o-accent) !important;
+  color: #fff !important;
+}
+[class*="menu_"] [class*="item_"][class*="focused_"] * { color: #fff !important; }
+
+[class*="menu_"] [class*="colorDanger_"] { color: var(--o-red) !important; }
+[class*="menu_"] [class*="colorDanger_"][class*="focused_"] { background: var(--o-red) !important; color: #fff !important; }
+
+[class*="menu_"] [class*="separator_"] {
+  border-color: var(--o-sep) !important;
+  margin: 5px 10px !important;
+}
+
+[class*="menu_"] [class*="hint_"],
+[class*="menu_"] [class*="subtext_"] { color: var(--o-label-3) !important; }
+
+[class*="menu_"] [class*="disabled_"] { opacity: 0.35 !important; }
+
+
+/* ==========================================================================
+   19. TOOLTIPS
+   ========================================================================== */
+[class*="tooltip_"]:not([class*="tooltipPointer"]):not([class*="tooltipContent"]) {
+  background: var(--o-mat-chrome) !important;
+  backdrop-filter: blur(30px) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(30px) saturate(var(--orchard-saturate));
+  color: var(--o-label) !important;
+  border: 1px solid var(--o-rim) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--o-shadow-md) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 5px 9px !important;
+  animation: orchard-fade 140ms var(--orchard-ease);
+}
+[class*="tooltipPointer_"], [class*="tooltipPointerBg_"] { display: none !important; }
+
+
+/* ==========================================================================
+   20. MODALS — sheets
+   ========================================================================== */
+[class*="backdrop_"] {
+  background: rgba(0, 0, 0, 0.32) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[class*="root_"][class*="modal"],
+[class*="modal_"]:not([class*="modalContent"]),
+[role="dialog"] > [class*="root_"],
+[class*="focusLock_"] > [class*="root_"] {
+  background: var(--o-mat-chrome) !important;
+  backdrop-filter: blur(60px) saturate(200%);
+  -webkit-backdrop-filter: blur(60px) saturate(200%);
+  border: 1px solid var(--o-rim) !important;
+  border-radius: var(--orchard-radius-xl) !important;
+  box-shadow: var(--o-shadow-lg), inset 0 1px 0 var(--o-rim) !important;
+  overflow: hidden;
+  animation: orchard-sheet var(--orchard-slow) var(--orchard-spring);
+}
+
+[class*="root_"] [class*="header_"],
+[class*="root_"] [class*="content_"],
+[class*="root_"] [class*="footer_"],
+[class*="modal_"] [class*="footer_"] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+[class*="root_"] [class*="footer_"] { border-top: 1px solid var(--o-sep-soft) !important; }
+
+[class*="root_"] [class*="header_"] h1 {
+  font-weight: 700 !important;
+  font-size: 20px !important;
+}
+
+[class*="closeButton_"], [class*="close_"][role="button"] {
+  border-radius: 999px !important;
+  background: var(--o-fill-3) !important;
+  transition: background var(--orchard-fast) !important;
+}
+[class*="closeButton_"]:hover { background: var(--o-fill-2) !important; }
+
+
+/* ==========================================================================
+   21. BUTTONS — iOS / macOS
+   ========================================================================== */
+button[class*="button_"],
+[class*="button_"][class*="look"] {
+  border-radius: var(--orchard-radius-sm) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+  transition: background var(--orchard-fast) var(--orchard-ease),
+              transform var(--orchard-fast) var(--orchard-bounce),
+              filter var(--orchard-fast) !important;
+}
+button[class*="button_"]:active { transform: scale(0.97); }
+
+[class*="lookFilled_"][class*="colorBrand_"],
+[class*="colorBrand_"][class*="lookFilled"] {
+  background: var(--o-accent) !important;
+  color: #fff !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.18);
+}
+[class*="lookFilled_"][class*="colorBrand_"]:hover { background: var(--o-accent-hover) !important; }
+
+[class*="lookFilled_"][class*="colorRed_"],
+[class*="colorRed_"][class*="lookFilled"] { background: var(--o-red) !important; color: #fff !important; }
+[class*="lookFilled_"][class*="colorGreen_"] { background: var(--o-green) !important; color: #fff !important; }
+
+[class*="lookFilled_"][class*="colorPrimary_"],
+[class*="lookFilled_"][class*="colorGrey_"],
+[class*="colorPrimary_"][class*="lookFilled"] {
+  background: var(--o-fill-2) !important;
+  color: var(--o-label) !important;
+}
+[class*="lookFilled_"][class*="colorPrimary_"]:hover { background: var(--o-fill-1) !important; }
+
+[class*="lookLink_"] { color: var(--o-accent) !important; }
+[class*="lookOutlined_"] { border-radius: var(--orchard-radius-sm) !important; border-color: var(--o-sep) !important; }
+
+/* Visual-refresh button primitives */
+[class*="button_"][class*="primary_"] { background: var(--o-accent) !important; color: #fff !important; }
+[class*="button_"][class*="secondary_"] { background: var(--o-fill-2) !important; color: var(--o-label) !important; }
+[class*="button_"][class*="critical"] { background: var(--o-red) !important; color: #fff !important; }
+
+
+/* ==========================================================================
+   22. FORM CONTROLS — iOS switches, fields, checkboxes, sliders
+   ========================================================================== */
+
+/* Text fields */
+input[class*="input_"],
+[class*="inputDefault_"],
+[class*="inputWrapper_"] input,
+textarea[class*="textArea_"]:not([class*="channelTextArea"] *),
+[class*="select_"][class*="lookFilled"],
+[class*="searchBox_"],
+[class*="container_"][class*="searchBox"] {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-radius: var(--orchard-radius-sm) !important;
+  color: var(--o-label) !important;
+  transition: border-color var(--orchard-fast), box-shadow var(--orchard-fast) !important;
+}
+input[class*="input_"]:focus,
+[class*="inputDefault_"]:focus,
+[class*="inputWrapper_"] input:focus {
+  border-color: var(--o-accent) !important;
+  box-shadow: 0 0 0 3px var(--o-accent-soft) !important;
+}
+
+/* Select popouts */
+[class*="select_"] + [class*="popout_"],
+[class*="popout_"][class*="select"] {
+  border-radius: var(--orchard-radius-md) !important;
+}
+[class*="option_"][aria-selected="true"] { background: var(--o-accent-soft) !important; color: var(--o-accent) !important; }
+
+/* iOS switch: re-draw Discord's toggle */
+[class*="container_"][class*="default_"]:has(> input[type="checkbox"]),
+[class*="switch_"],
+[class*="container_"]:has(> [class*="slider_"]):has(> input[type="checkbox"]) {
+  background: var(--o-fill-1) !important;
+  border-radius: 999px !important;
+  width: 51px !important;
+  height: 31px !important;
+  transition: background var(--orchard-med) var(--orchard-ease) !important;
+  opacity: 1 !important;
+}
+[class*="container_"][class*="checked_"]:has(> input[type="checkbox"]),
+[class*="switch_"][class*="checked_"] {
+  background: var(--o-green) !important;
+}
+[class*="container_"]:has(> input[type="checkbox"]) > svg[class*="slider_"] {
+  display: none !important;   /* hide Discord's knob */
+}
+[class*="container_"][class*="default_"]:has(> input[type="checkbox"])::after,
+[class*="container_"]:has(> [class*="slider_"]):has(> input[type="checkbox"])::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(0,0,0,.15), 0 3px 1px rgba(0,0,0,.06), 0 0 0 0.5px rgba(0,0,0,.04);
+  transition: transform var(--orchard-med) var(--orchard-spring), width var(--orchard-fast) var(--orchard-ease);
+  pointer-events: none;
+}
+[class*="container_"][class*="checked_"]:has(> input[type="checkbox"])::after {
+  transform: translateX(20px);
+}
+[class*="container_"][class*="default_"]:has(> input[type="checkbox"]):active::after { width: 32px; }
+[class*="container_"][class*="checked_"]:has(> input[type="checkbox"]):active::after { transform: translateX(15px); }
+[class*="container_"][class*="disabled_"]:has(> input[type="checkbox"]) { opacity: 0.4 !important; }
+
+/* Checkboxes: rounded square, accent fill */
+[class*="checkbox_"]:not([class*="checkboxWrapper"]) {
+  border-radius: 6px !important;
+  border-color: var(--o-sep) !important;
+}
+[class*="checkboxWrapper_"] [class*="checked_"],
+[class*="checkbox_"][class*="checked_"] {
+  background: var(--o-accent) !important;
+  border-color: var(--o-accent) !important;
+}
+
+/* Radio rows */
+[class*="radioBar_"] {
+  background: var(--o-fill-4) !important;
+  border-radius: var(--orchard-radius-sm) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+}
+[class*="radioBar_"][aria-checked="true"] {
+  background: var(--o-accent-softer) !important;
+  border-color: var(--o-accent) !important;
+}
+
+/* Sliders */
+[class*="slider_"] [class*="bar_"] { background: var(--o-fill-1) !important; border-radius: 999px !important; height: 4px !important; }
+[class*="slider_"] [class*="barFill_"] { background: var(--o-accent) !important; border-radius: 999px !important; }
+[class*="slider_"] [class*="grabber_"] {
+  background: #fff !important;
+  border: none !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25), 0 0 0 0.5px rgba(0,0,0,.08) !important;
+  margin-top: -9px !important;
+}
+
+/* Tab bars: segmented control */
+[class*="tabBar_"][class*="top"],
+[class*="tabBar_"]:has([class*="tabBarItem_"]) {
+  background: var(--o-fill-3);
+  border-radius: var(--orchard-radius-sm);
+  padding: 2px;
+  border: none !important;
+  gap: 2px;
+}
+[class*="tabBarItem_"] {
+  border-radius: 7px !important;
+  border-bottom: none !important;
+  margin: 0 !important;
+  padding: 4px 12px !important;
+  transition: background var(--orchard-fast) !important;
+}
+[class*="tabBarItem_"][aria-selected="true"],
+[class*="tabBarItem_"][class*="selected_"] {
+  background: var(--o-solid-3) !important;
+  color: var(--o-label) !important;
+  box-shadow: var(--o-shadow-sm);
+}
+.theme-light [class*="tabBarItem_"][aria-selected="true"] { background: #fff !important; }
+
+
+/* ==========================================================================
+   23. SETTINGS — System Settings grouped lists
+   ========================================================================== */
+[class*="standardSidebarView_"] {
+  background: transparent !important;
+}
+
+[class*="sidebarRegion_"] {
+  background: var(--o-mat-thin) !important;
+  backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  border-right: 1px solid var(--o-sep-soft) !important;
+}
+[class*="sidebarRegionScroller_"] { background: transparent !important; }
+
+[class*="contentRegion_"],
+[class*="contentRegionScroller_"],
+[class*="contentColumn_"] {
+  background: var(--o-mat-ultrathin) !important;
+}
+
+/* Sidebar items like System Settings */
+[class*="side_"] [class*="item_"],
+[class*="sidebar_"] [class*="item_"][role="tab"] {
+  border-radius: 7px !important;
+  padding: 6px 10px !important;
+  margin-bottom: 1px !important;
+  font-weight: 500 !important;
+  transition: background var(--orchard-fast) !important;
+}
+[class*="side_"] [class*="item_"]:hover { background: var(--o-hover) !important; }
+[class*="side_"] [class*="selected_"],
+[class*="side_"] [class*="item_"][aria-selected="true"] {
+  background: var(--o-accent) !important;
+  color: #fff !important;
+}
+[class*="side_"] [class*="header_"] {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  color: var(--o-label-3) !important;
+  letter-spacing: 0.02em !important;
+}
+[class*="side_"] [class*="separator_"] { background: var(--o-sep-soft) !important; }
+
+/* Close "ESC" button */
+[class*="toolsContainer_"] [class*="closeButton_"] {
+  border: none !important;
+  background: var(--o-fill-3) !important;
+}
+
+/* Grouped cards for settings sections */
+[class*="contentColumn_"] [class*="card_"],
+[class*="contentColumn_"] [class*="cardPrimary"],
+[class*="contentColumn_"] [class*="accountProfileCard_"],
+[class*="contentColumn_"] [class*="background_"][class*="fieldList"],
+[class*="contentColumn_"] [class*="fieldList_"],
+[class*="contentColumn_"] [class*="container_"][class*="vc-settings"],
+.vc-addon-card,
+.vc-plugins-card,
+.vc-settings-card {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-radius: var(--orchard-radius-md) !important;
+  box-shadow: none !important;
+}
+
+[class*="contentColumn_"] [class*="divider_"] {
+  border-color: var(--o-sep-soft) !important;
+  background: var(--o-sep-soft) !important;
+}
+
+/* Section titles */
+[class*="contentColumn_"] h1,
+[class*="contentColumn_"] h2 {
+  font-weight: 700 !important;
+  letter-spacing: -0.022em !important;
+  text-transform: none !important;
+}
+[class*="contentColumn_"] h5,
+[class*="contentColumn_"] [class*="title_"][class*="h5"] {
+  text-transform: none !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--o-label-2) !important;
+  letter-spacing: 0 !important;
+}
+
+/* Vencord plugin cards */
+.vc-addon-card { transition: transform var(--orchard-fast) var(--orchard-ease), box-shadow var(--orchard-fast) !important; }
+.vc-addon-card:hover { transform: translateY(-1px); box-shadow: var(--o-shadow-md) !important; }
+.vc-addon-name-text, .vc-plugins-name { font-weight: 600 !important; }
+
+/* Save-changes notice: floating glass bar */
+[class*="noticeRegion_"] [class*="container_"],
+[class*="noticeRegion_"] > div {
+  background: var(--o-mat-chrome) !important;
+  backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+  border: 1px solid var(--o-rim) !important;
+  border-radius: var(--orchard-radius-lg) !important;
+  box-shadow: var(--o-shadow-lg) !important;
+}
+
+
+/* ==========================================================================
+   24. HOME, FRIENDS, DISCOVERY, NOTICES
+   ========================================================================== */
+[class*="peopleColumn_"],
+[class*="container_"][class*="friends"],
+[class*="nowPlayingColumn_"] [class*="scroller_"] {
+  background: transparent !important;
+}
+
+[class*="peopleListItem_"] {
+  border-radius: var(--orchard-radius-md) !important;
+  border-top: none !important;
+  margin-inline: 8px !important;
+  padding-inline: 10px !important;
+}
+[class*="peopleListItem_"]:hover { background: var(--o-hover) !important; }
+
+[class*="nowPlayingColumn_"] [class*="card_"],
+[class*="itemCard_"] {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-radius: var(--orchard-radius-md) !important;
+}
+
+/* Top banner notices */
+[class*="notice_"] {
+  border-radius: var(--orchard-radius-md) !important;
+  margin: var(--orchard-gap) var(--orchard-gap) 0 !important;
+  font-weight: 500 !important;
+}
+[class*="notice_"][class*="colorDefault"],
+[class*="notice_"][class*="colorBrand"] { background: var(--o-accent) !important; }
+[class*="notice_"][class*="colorDanger"] { background: var(--o-red) !important; }
+[class*="notice_"][class*="colorWarning"] { background: var(--o-orange) !important; }
+
+/* Info/warning callouts inside settings and modals */
+[class*="infoBox_"],
+[class*="container_"][class*="info"][class*="Box"],
+[class*="warningBox"] {
+  border-radius: var(--orchard-radius-md) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+}
+
+
+/* ==========================================================================
+   25. VOICE / VIDEO / STAGE
+   ========================================================================== */
+[class*="callContainer_"],
+[class*="wrapper_"][class*="voiceChannel"],
+[class*="root_"][class*="videoGrid"] {
+  background: transparent !important;
+}
+
+[class*="tile_"][class*="videoTile"],
+[class*="tile_"]:has([class*="videoWrapper"]),
+[class*="tileChild_"] {
+  border-radius: var(--orchard-radius-lg) !important;
+  overflow: hidden;
+  box-shadow: var(--o-shadow-md);
+}
+
+[class*="tile_"] [class*="border_"][class*="speaking_"] {
+  border-radius: var(--orchard-radius-lg) !important;
+  box-shadow: inset 0 0 0 3px var(--o-green) !important;
+}
+
+/* Call controls: FaceTime capsule */
+[class*="controlButton_"],
+[class*="centerButton_"] {
+  border-radius: 999px !important;
+  backdrop-filter: blur(24px) saturate(var(--orchard-saturate));
+  -webkit-backdrop-filter: blur(24px) saturate(var(--orchard-saturate));
+  transition: transform var(--orchard-fast) var(--orchard-bounce) !important;
+}
+[class*="controlButton_"]:hover,
+[class*="centerButton_"]:hover { transform: scale(1.08); }
+[class*="centerButton_"][class*="red"],
+[class*="disconnectButton_"] { background: var(--o-red) !important; }
+
+
+/* ==========================================================================
+   26. MOTION
+   ========================================================================== */
+@keyframes orchard-pop {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes orchard-menu {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes orchard-sheet {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes orchard-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Respect "Reduce Motion" (OS setting or Discord's own) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Respect "Reduce Transparency" — swap glass for solid surfaces */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --orchard-blur: 0px; }
+  .theme-dark, .theme-light {
+    --o-mat-ultrathin: var(--o-solid-1);
+    --o-mat-thin: var(--o-solid-1);
+    --o-mat-regular: var(--o-solid-2);
+    --o-mat-thick: var(--o-solid-2);
+    --o-mat-chrome: var(--o-solid-2);
+  }
+}
+
+
+/* ==========================================================================
+   27. SMALL TOUCHES
+   ========================================================================== */
+/* Links */
+[class*="anchor_"], a[class*="anchor"] { color: var(--o-accent) !important; }
+[class*="anchor_"]:hover { text-decoration-thickness: 1px !important; text-underline-offset: 2px; }
+
+/* Avatars in DMs list get a hairline rim */
+[class*="privateChannels_"] [class*="avatar_"] img { box-shadow: 0 0 0 1px var(--o-sep-soft); border-radius: 50%; }
+
+/* Role pills in profiles */
+[class*="role_"][class*="rolePill"],
+[class*="rolePill_"] {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-radius: 999px !important;
+}
+
+/* Keybind chips */
+kbd, [class*="keybind_"], [class*="key_"][class*="keyCombo"] {
+  background: var(--o-fill-3) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-bottom-width: 2px !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  color: var(--o-label) !important;
+}
+
+/* Loading spinner tint */
+[class*="spinningCircleInner_"] { stroke: var(--o-accent) !important; }
+
+/* Thread previews */
+[class*="threadMessageAccessory_"],
+[class*="container_"][class*="threadSuggestion"] {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-radius: var(--orchard-radius-md) !important;
+}
+
+/* Forum post cards */
+[class*="mainCard_"],
+[class*="container_"][class*="forumPost"] {
+  background: var(--o-fill-4) !important;
+  border: 1px solid var(--o-sep-soft) !important;
+  border-radius: var(--orchard-radius-lg) !important;
+  transition: transform var(--orchard-fast) var(--orchard-ease), box-shadow var(--orchard-fast) !important;
+}
+[class*="mainCard_"]:hover { transform: translateY(-2px); box-shadow: var(--o-shadow-md) !important; }
+
+/* Nitro upsells get toned down to match */
+[class*="premiumPromo"], [class*="upsell"]:not(button) {
+  border-radius: var(--orchard-radius-md) !important;
+}
+
+
+/* ==========================================================================
+   28. DOCK — server rail as a macOS Dock
+   Switch: --orchard-dock
+   ========================================================================== */
+@container style(--orchard-dock: on) {
+  nav[class*="guilds_"] {
+    background: linear-gradient(to bottom, var(--o-sheen), transparent 180px), var(--o-mat-thin) !important;
+    backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+    -webkit-backdrop-filter: blur(var(--orchard-blur)) saturate(var(--orchard-saturate));
+    border: 1px solid var(--o-rim) !important;
+    border-radius: 24px !important;
+    margin: 0 0 var(--orchard-gap) var(--orchard-gap) !important;
+    box-shadow: var(--o-shadow-md), inset 0 1px 0 var(--o-rim);
+    position: relative;
+  }
+
+  /* Magnification: hovered icon grows most, neighbours a little.
+     Transform only, so nothing moves under the pointer and selection stays steady.
+     Sizes are chosen so grown icons never overlap across the 8px gap. */
+  [class*="guilds_"] [class*="listItem_"]:hover {
+    position: relative;
+    z-index: 2;
+  }
+  [class*="guilds_"] [class*="listItem_"]:hover [class*="blobContainer_"] {
+    transform: scale(1.18);
+  }
+  [class*="guilds_"] [class*="listItem_"]:has(+ [class*="listItem_"]:hover) [class*="blobContainer_"],
+  [class*="guilds_"] [class*="listItem_"]:hover + [class*="listItem_"] [class*="blobContainer_"] {
+    transform: scale(1.07);
+  }
+
+  /* Running-app dots instead of Discord's pills */
+  [class*="guilds_"] [class*="pill_"] [class*="item_"] {
+    width: 5px !important;
+    height: 5px !important;
+    margin-left: 2px !important;
+    border-radius: 999px !important;
+    background: var(--o-label-2) !important;
+    transition: opacity var(--orchard-fast) var(--orchard-ease), background var(--orchard-fast) !important;
+  }
+  /* hover pill: Dock has no hover dot */
+  [class*="guilds_"] [class*="pill_"] [class*="item_"][style*="height: 20px"] { opacity: 0 !important; }
+  /* selected: the "active app" dot glows in the accent */
+  [class*="guilds_"] [class*="pill_"] [class*="item_"][style*="height: 40px"] {
+    background: var(--o-accent) !important;
+    box-shadow: 0 0 6px color-mix(in srgb, var(--o-accent) 70%, transparent);
+  }
+}
+
+
+/* ==========================================================================
+   29. TRAFFIC LIGHTS — macOS window controls (Windows & Linux builds)
+   Switch: --orchard-traffic-lights
+   ========================================================================== */
+@container style(--orchard-traffic-lights: on) {
+  [class*="winButton"][aria-label="Close"],
+  [class*="winButton"][aria-label="Minimize"],
+  [class*="winButton"][aria-label="Maximize"],
+  [class*="winButton"][aria-label="Restore"] {
+    position: fixed !important;
+    top: 10px !important;
+    width: 12px !important;
+    min-width: 0 !important;
+    height: 12px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 999px !important;
+    box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.22) !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    -webkit-app-region: no-drag;
+    transition: filter var(--orchard-fast) !important;
+  }
+  [class*="winButton"][aria-label="Close"]    { left: 14px !important; background: #FF5F57 !important; }
+  [class*="winButton"][aria-label="Minimize"] { left: 34px !important; background: #FEBC2E !important; }
+  [class*="winButton"][aria-label="Maximize"],
+  [class*="winButton"][aria-label="Restore"]  { left: 54px !important; background: #28C840 !important; }
+
+  [class*="winButton"][aria-label="Close"] svg,
+  [class*="winButton"][aria-label="Minimize"] svg,
+  [class*="winButton"][aria-label="Maximize"] svg,
+  [class*="winButton"][aria-label="Restore"] svg { display: none !important; }
+
+  /* Glyphs appear when the pointer is over any of the three, like macOS */
+  [class*="winButton"][aria-label]::after {
+    font: 700 10px/1 var(--orchard-font);
+    color: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    transition: opacity 120ms var(--orchard-ease);
+  }
+  [class*="winButton"][aria-label="Close"]::after    { content: "\00D7"; font-size: 11px; }
+  [class*="winButton"][aria-label="Minimize"]::after { content: "\2212"; }
+  [class*="winButton"][aria-label="Maximize"]::after,
+  [class*="winButton"][aria-label="Restore"]::after  { content: "+"; font-size: 11px; }
+  body:has([class*="winButton"][aria-label]:hover) [class*="winButton"][aria-label]::after { opacity: 1; }
+  [class*="winButton"][aria-label]:active { filter: brightness(0.82); }
+
+  /* Make room at the left of the title bar for the lights */
+  [class*="bar_"]:has([class*="winButton"]) [class*="leading_"],
+  [class*="bar_"]:has([class*="winButton"]) > div:has([aria-label="Back"]),
+  [class*="titleBar_"] [class*="wordmark"] {
+    padding-left: 72px !important;
+  }
+}
+
+
+/* ==========================================================================
+   30. LIQUID GLASS — specular rim and top sheen
+   Switch: --orchard-liquid-glass
+   ========================================================================== */
+@container style(--orchard-liquid-glass: on) {
+  [class*="chat_"]:not([class*="chatContent"]):not([class*="chatLayer"]),
+  [class*="privateChannels_"],
+  [class*="channelTextArea_"],
+  nav[class*="guilds_"],
+  [class*="menu_"]:not([class*="menuIcon"]):not([class*="menuItem"]),
+  [class*="autocomplete_"],
+  [class*="userPopoutOuter_"] {
+    position: relative;
+    border-color: transparent !important;
+  }
+
+  [class*="sidebar_"]:not([class*="sidebarList"]):not([class*="sidebarRegion"]):not([class*="Item"]) {
+    border-color: var(--o-rim-strong) !important;
+  }
+
+  /* Light catching the top edge */
+  [class*="sidebar_"]:not([class*="sidebarList"]):not([class*="sidebarRegion"]):not([class*="Item"]),
+  [class*="chat_"]:not([class*="chatContent"]):not([class*="chatLayer"]),
+  [class*="privateChannels_"],
+  [class*="panels_"],
+  [class*="channelTextArea_"] {
+    background-image: linear-gradient(to bottom, var(--o-sheen), transparent 140px) !important;
+  }
+
+  /* Prismatic rim: a 1px gradient ring cut out with a mask */
+  [class*="chat_"]:not([class*="chatContent"]):not([class*="chatLayer"])::after,
+  [class*="privateChannels_"]::after,
+  [class*="panels_"]::after,
+  [class*="channelTextArea_"]::after,
+  nav[class*="guilds_"]::after,
+  [class*="menu_"]:not([class*="menuIcon"]):not([class*="menuItem"])::after,
+  [class*="autocomplete_"]::after,
+  [class*="userPopoutOuter_"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--o-rim-gradient);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
+
+/* ==========================================================================
+   31. MESSAGE BUBBLES — iMessage style (cozy display mode)
+   Switch: --orchard-bubbles
+   ========================================================================== */
+@container style(--orchard-bubbles: on) {
+  [class*="cozy_"] [class*="messageContent_"]:not([class*="repliedTextContent"]):not(:empty) {
+    position: relative;
+    box-sizing: border-box;
+    width: fit-content;
+    max-width: min(720px, 100%);
+    margin-top: 3px;
+    margin-left: 0 !important;
+    padding: 7px 12px !important;
+    text-indent: 0 !important;
+    background: var(--o-bubble);
+    color: var(--o-bubble-text);
+    border-radius: 18px;
+    box-shadow: var(--o-shadow-sm);
+    line-height: 1.38 !important;
+    overflow-wrap: anywhere;
+  }
+
+  /* Tail on the last bubble of each group */
+  li[class*="messageListItem_"]:is(:has(+ li > [class*="groupStart_"]), :has(+ :not(li)), :last-of-type)
+    [class*="cozy_"] [class*="messageContent_"]:not([class*="repliedTextContent"]):not(:empty) {
+    border-bottom-left-radius: 0;
+  }
+  li[class*="messageListItem_"]:is(:has(+ li > [class*="groupStart_"]), :has(+ :not(li)), :last-of-type)
+    [class*="cozy_"] [class*="messageContent_"]:not([class*="repliedTextContent"]):not(:empty)::before {
+    content: "";
+    position: absolute;
+    left: -7px;
+    bottom: 0;
+    width: 7px;
+    height: 12px;
+    background: var(--o-bubble);
+    -webkit-mask: radial-gradient(circle at 0 0, transparent 6.5px, #000 7px);
+    mask: radial-gradient(circle at 0 0, transparent 6.5px, #000 7px);
+    pointer-events: none;
+  }
+
+  /* Emoji-only messages float free, like iMessage */
+  [class*="cozy_"] [class*="messageContent_"]:has(.emoji.jumboable) {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  [class*="cozy_"] [class*="messageContent_"]:has(.emoji.jumboable)::before { display: none !important; }
+
+  /* Bubble picks up the mention tint when you're pinged */
+  [class*="mentioned_"] [class*="messageContent_"]:not([class*="repliedTextContent"]):not(:empty),
+  [class*="mentioned_"] [class*="messageContent_"]::before {
+    background: color-mix(in srgb, var(--o-yellow) 22%, var(--o-bubble)) !important;
+  }
+
+  /* Hover tint goes on the bubble, not the whole row */
+  [class*="cozy_"][class*="message_"]:hover { background: transparent !important; }
+  [class*="cozy_"][class*="message_"]:hover [class*="messageContent_"]:not([class*="repliedTextContent"]):not(:empty) {
+    filter: brightness(1.08);
+  }
+  .theme-light [class*="cozy_"][class*="message_"]:hover [class*="messageContent_"]:not(:empty) {
+    filter: brightness(0.97);
+  }
+
+  /* Embeds and attachments line up with the bubble edge */
+  [class*="cozy_"] [class*="container_"][id^="message-accessories"] { margin-top: 4px; }
+}
+
+
+/* ==========================================================================
+   32. NESTED PANELS — member list and profile live inside the chat card,
+   so they get a divider instead of a second glass frame
+   ========================================================================== */
+[class*="chat_"] [class*="membersWrap_"],
+[class*="chat_"] [class*="profilePanel_"],
+[class*="membersWrap_"],
+[class*="profilePanel_"] {
+  background: transparent !important;
+  border: none !important;
+  border-left: 1px solid var(--o-sep-soft) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+[class*="membersWrap_"]::after,
+[class*="profilePanel_"]::after { content: none !important; }

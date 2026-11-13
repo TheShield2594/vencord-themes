@@ -1,0 +1,871 @@
+/**
+ * @name Nothing
+ * @description Premium Nothing OS–inspired theme. Monochrome, dot-matrix, one red accent. Dark + light.
+ * @author Brandon
+ * @version 2.0.0
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+/* =========================================================
+   SETTINGS: tweak these
+   ========================================================= */
+:root {
+  --n-accent: #d71921;          /* Nothing red; try #ffffff for pure mono */
+  --n-radius: 20px;             /* card roundness */
+  --n-radius-sm: 12px;
+  --n-dot-size: 14px;           /* dot grid spacing */
+  --n-dot-opacity: 1;           /* 0 = dot grid off */
+  --n-gray-icons: 1;            /* 1 = grayscale server icons, 0 = color */
+  --n-blink: 1;                 /* 1 = blinking red dot on active channel, 0 = static */
+  --n-gap: 8px;                 /* floating card layout; set 0px for flush panels */
+  --n-anim: .22s cubic-bezier(.2,.8,.2,1);
+  --n-font-ui: 'Space Grotesk', sans-serif;
+  --n-font-dot: 'Doto', monospace;
+  --n-font-mono: 'Space Mono', monospace;
+}
+
+/* =========================================================
+   PALETTES
+   ========================================================= */
+.theme-dark, .theme-darker, .theme-midnight {
+  --n-bg: #000000;
+  --n-surface: #0b0b0b;
+  --n-raised: #141414;
+  --n-raised-2: #1c1c1c;
+  --n-line: #242424;
+  --n-line-strong: #333333;
+  --n-fg: #ffffff;
+  --n-fg-2: #d9d9d9;
+  --n-muted: #7d7d7d;
+  --n-dotcolor: #1d1d1d;
+  --n-hover: rgba(255,255,255,.045);
+  --n-select: rgba(255,255,255,.09);
+  --n-shadow: 0 20px 60px rgba(0,0,0,.55);
+}
+
+.theme-light {
+  --n-bg: #f2f2f2;
+  --n-surface: #ffffff;
+  --n-raised: #ffffff;
+  --n-raised-2: #f7f7f7;
+  --n-line: #e1e1e1;
+  --n-line-strong: #cfcfcf;
+  --n-fg: #000000;
+  --n-fg-2: #1a1a1a;
+  --n-muted: #7a7a7a;
+  --n-dotcolor: #d6d6d6;
+  --n-hover: rgba(0,0,0,.04);
+  --n-select: rgba(0,0,0,.08);
+  --n-shadow: 0 20px 60px rgba(0,0,0,.12);
+}
+
+/* =========================================================
+   DISCORD VARIABLE MAPPING
+   ========================================================= */
+.theme-dark, .theme-darker, .theme-midnight, .theme-light {
+  --background-primary: var(--n-bg);
+  --background-secondary: var(--n-surface);
+  --background-secondary-alt: var(--n-surface);
+  --background-tertiary: var(--n-bg);
+  --background-accent: var(--n-raised-2);
+  --background-floating: var(--n-raised);
+  --background-nested-floating: var(--n-raised-2);
+  --background-base-low: var(--n-surface);
+  --background-base-lower: var(--n-bg);
+  --background-base-lowest: var(--n-bg);
+  --background-surface-high: var(--n-raised);
+  --background-surface-higher: var(--n-raised-2);
+  --background-surface-highest: var(--n-raised-2);
+  --background-mobile-primary: var(--n-bg);
+  --background-mobile-secondary: var(--n-surface);
+  --background-modifier-hover: var(--n-hover);
+  --background-modifier-active: var(--n-select);
+  --background-modifier-selected: var(--n-select);
+  --background-modifier-accent: var(--n-line);
+  --background-message-hover: var(--n-hover);
+  --background-mentioned: color-mix(in srgb, var(--n-accent) 8%, transparent);
+  --background-mentioned-hover: color-mix(in srgb, var(--n-accent) 12%, transparent);
+  --info-warning-foreground: var(--n-accent);
+  --chat-background: var(--n-bg);
+  --chat-background-default: var(--n-bg);
+  --channeltextarea-background: var(--n-surface);
+  --modal-background: var(--n-raised);
+  --modal-footer-background: var(--n-raised-2);
+  --input-background: var(--n-raised-2);
+  --deprecated-card-bg: var(--n-raised);
+  --home-background: var(--n-bg);
+  --bg-overlay-chat: var(--n-bg);
+  --bg-overlay-app-frame: var(--n-bg);
+
+  --text-normal: var(--n-fg-2);
+  --text-default: var(--n-fg-2);
+  --text-strong: var(--n-fg);
+  --text-muted: var(--n-muted);
+  --text-link: var(--n-fg);
+  --header-primary: var(--n-fg);
+  --header-secondary: var(--n-muted);
+  --interactive-normal: var(--n-muted);
+  --interactive-hover: var(--n-fg);
+  --interactive-active: var(--n-fg);
+  --interactive-muted: var(--n-line-strong);
+  --channels-default: var(--n-muted);
+  --channel-icon: var(--n-muted);
+
+  --brand-500: var(--n-accent);
+  --brand-560: color-mix(in srgb, var(--n-accent) 85%, black);
+  --brand-600: color-mix(in srgb, var(--n-accent) 75%, black);
+  --brand-experiment: var(--n-accent);
+  --brand-experiment-560: color-mix(in srgb, var(--n-accent) 85%, black);
+  --control-brand-foreground: var(--n-accent);
+  --mention-foreground: var(--n-accent);
+  --mention-background: color-mix(in srgb, var(--n-accent) 15%, transparent);
+
+  --border-subtle: var(--n-line);
+  --border-faint: var(--n-line);
+  --border-strong: var(--n-line-strong);
+
+  --status-positive: var(--n-fg);
+  --status-danger: var(--n-accent);
+  --scrollbar-thin-thumb: var(--n-line-strong);
+  --scrollbar-auto-thumb: var(--n-line-strong);
+  --scrollbar-auto-track: transparent;
+
+  --font-primary: var(--n-font-ui);
+  --font-display: var(--n-font-ui);
+  --font-headline: var(--n-font-dot);
+  --font-code: var(--n-font-mono);
+
+  --radius-sm: var(--n-radius-sm);
+  --radius-md: var(--n-radius-sm);
+  --radius-lg: var(--n-radius);
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+@keyframes n-blink {
+  0%, 60%, 100% { opacity: 1; }
+  70%, 90% { opacity: calc(1 - var(--n-blink)); }
+}
+@keyframes n-pop {
+  from { opacity: 0; transform: translateY(4px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes n-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--n-accent) 60%, transparent); }
+  100% { box-shadow: 0 0 0 8px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+* { -webkit-font-smoothing: antialiased; }
+::selection { background: var(--n-accent); color: #fff; }
+
+::-webkit-scrollbar { width: 6px !important; height: 6px !important; }
+::-webkit-scrollbar-thumb { background: var(--n-line-strong) !important; border-radius: 999px !important; border: none !important; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent !important; border: none !important; }
+
+/* Title bar */
+[class*="titleBar"], [class*="bar_"][class*="base"] {
+  background: var(--n-bg) !important;
+}
+
+/* Dot grid backdrop */
+[class*="chatContent"], [class*="chat_"], [class*="container"][class*="pageWrapper"] {
+  background-color: var(--n-bg) !important;
+  background-image: radial-gradient(color-mix(in srgb, var(--n-dotcolor) calc(var(--n-dot-opacity) * 100%), transparent) 1px, transparent 1.2px) !important;
+  background-size: var(--n-dot-size) var(--n-dot-size) !important;
+}
+
+/* =========================================================
+   FLOATING CARD LAYOUT
+   Sidebar, chat and member list become separate rounded cards
+   ========================================================= */
+[class*="sidebar_"] {
+  margin: var(--n-gap) 0 var(--n-gap) 0 !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: var(--n-radius) !important;
+  overflow: hidden;
+}
+main[class*="chat_"], [class*="chat_"]:has(> [class*="content_"]) {
+  margin: var(--n-gap) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: var(--n-radius) !important;
+  overflow: hidden;
+}
+[class*="membersWrap"] {
+  margin: var(--n-gap) var(--n-gap) var(--n-gap) 0 !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: var(--n-radius) !important;
+  overflow: hidden;
+}
+[class*="membersWrap"] [class*="members_"] { border-left: none !important; }
+[class*="base_"], [class*="content_"]:has(> [class*="sidebar_"]) { background: var(--n-bg) !important; }
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+h1, h2,
+[class*="titleWrapper"] h1,
+[class*="title_"][class*="header"],
+[class*="emptyChannelIcon"] + h3,
+[class*="headerContent"] h2 {
+  font-family: var(--n-font-dot) !important;
+  font-weight: 900 !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase;
+}
+
+[class*="containerDefault"] h3,
+[class*="membersGroup"],
+[class*="sectionTitle"],
+[class*="eyebrow"],
+[class*="header_"] [class*="overflow"],
+[class*="privateChannelsHeaderContainer"] {
+  font-family: var(--n-font-mono) !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: .18em !important;
+  text-transform: uppercase !important;
+  color: var(--n-muted) !important;
+}
+
+[class*="timestamp"] time, [class*="timestamp_"] {
+  font-family: var(--n-font-mono) !important;
+  font-size: 10.5px !important;
+  letter-spacing: .05em;
+  color: var(--n-muted) !important;
+}
+
+[class*="username_"] { font-weight: 600 !important; letter-spacing: .01em; }
+
+/* Kill stray italics from font fallbacks (real *italic* markdown still works) */
+[class*="sidebar_"] *:not(em):not(i),
+section[class*="title_"] *:not(em):not(i),
+[class*="placeholder_"] { font-style: normal !important; }
+
+/* Bot / APP tags */
+[class*="botTag"] {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+  border-radius: 999px !important;
+  font-family: var(--n-font-mono) !important;
+  letter-spacing: .08em;
+}
+[class*="botTag"] svg path { fill: var(--n-bg) !important; }
+
+/* =========================================================
+   SERVER LIST
+   ========================================================= */
+nav[class*="guilds"] { background: var(--n-bg) !important; border-right: 1px solid var(--n-line); }
+
+[data-list-id="guildsnav"] img,
+[data-list-id="guildsnav"] [class*="folderIconWrapper"] {
+  filter: grayscale(var(--n-gray-icons));
+  transition: filter var(--n-anim);
+}
+[data-list-id="guildsnav"] [data-list-item-id]:hover img,
+[data-list-id="guildsnav"] [class*="listItem"]:hover img,
+[data-list-id="guildsnav"] [class*="listItem"]:has([class*="selected"]) img,
+[data-list-id="guildsnav"] [class*="listItem"]:has([aria-selected="true"]) img { filter: none; }
+
+/* Hide the empty "new mentions" bars at the top/bottom of the channel list */
+[class*="unreadMentionsIndicator"]:not(:has([class*="unreadMentionsBar"] *)),
+[class*="unreadMentionsBar"]:empty { background: transparent !important; }
+[class*="unreadMentionsBar"] {
+  background: var(--n-accent) !important;
+  border-radius: 999px !important;
+  margin: 4px 8px !important;
+  font-family: var(--n-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+[class*="pill_"] span[class*="item"] {
+  background: var(--n-accent) !important;
+  width: 6px !important;
+  border-radius: 999px !important;
+}
+
+[class*="circleIconButton"], [class*="childWrapper"] {
+  background: var(--n-raised) !important;
+  color: var(--n-fg) !important;
+  border: 1px solid var(--n-line);
+}
+[class*="circleIconButton"]:hover {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+}
+
+[class*="guildSeparator"] {
+  background: var(--n-line) !important;
+  height: 1px !important;
+}
+
+/* Folders */
+[class*="folderIconWrapper"], [class*="expandedFolderBackground"] {
+  background: var(--n-raised) !important;
+  border-radius: var(--n-radius-sm) !important;
+}
+
+/* =========================================================
+   CHANNEL SIDEBAR
+   ========================================================= */
+[class*="sidebar_"] { background: var(--n-surface) !important; border-right: 1px solid var(--n-line); }
+
+[class*="containerDefault"] [class*="link_"] {
+  border-radius: 999px !important;
+  margin: 1px 8px !important;
+  transition: background var(--n-anim);
+}
+[class*="modeSelected"] [class*="link_"] { background: var(--n-select) !important; }
+[class*="modeSelected"] [class*="name_"]::before {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--n-accent);
+  animation: n-blink 2.4s infinite;
+}
+[class*="modeUnread"] [class*="name_"] { color: var(--n-fg) !important; font-weight: 600; }
+
+[class*="sidebar_"] header {
+  border-bottom: 1px solid var(--n-line) !important;
+  box-shadow: none !important;
+}
+
+/* Voice channel users */
+[class*="voiceUser"] { border-radius: 999px !important; }
+[class*="avatarSpeaking"] {
+  box-shadow: inset 0 0 0 2px var(--n-fg), inset 0 0 0 3px var(--n-bg) !important;
+}
+
+/* =========================================================
+   USER PANEL (bottom left)
+   ========================================================= */
+/* --- The widget card --- */
+section[class*="panels"] {
+  /* no position override: Discord anchors this panel to the bottom itself */
+  background-color: var(--n-raised) !important;
+  background-image: radial-gradient(var(--n-dotcolor) 1px, transparent 1.2px) !important;
+  background-size: 10px 10px !important;
+  margin: var(--n-gap, 8px) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: calc(var(--n-radius) + 4px) !important;
+  overflow: hidden;
+  padding-top: 22px !important;
+}
+
+/* Widget header label, like a Nothing home-screen widget */
+section[class*="panels"]::before {
+  content: "● PROFILE";
+  position: absolute;
+  top: 9px; left: 14px;
+  font-family: var(--n-font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .22em;
+  color: var(--n-muted);
+  z-index: 2;
+  pointer-events: none;
+}
+section[class*="panels"]:has([class*="rtcConnectionStatus"])::before {
+  content: "● LIVE";
+  color: var(--n-accent);
+  animation: n-blink 1.6s infinite;
+}
+
+/* Thin divider rows between widget sections */
+section[class*="panels"] > div + div { border-top: 1px dashed var(--n-line) !important; }
+
+/* Avatar ring */
+section[class*="panels"] [class*="avatarWrapper"] [class*="avatar"] {
+  box-shadow: 0 0 0 1px var(--n-line-strong);
+  border-radius: 50%;
+}
+
+/* Name in dot-matrix, status in mono */
+section[class*="panels"] [class*="panelTitleContainer"],
+section[class*="panels"] [class*="nameTag"] [class*="title"] {
+  font-family: var(--n-font-dot) !important;
+  font-weight: 900 !important;
+  font-size: 15px !important;
+  letter-spacing: .05em !important;
+  text-transform: uppercase;
+  color: var(--n-fg) !important;
+}
+section[class*="panels"] [class*="panelSubtextContainer"],
+section[class*="panels"] [class*="nameTag"] [class*="subtext"],
+section[class*="panels"] [class*="hovered"] {
+  font-family: var(--n-font-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase;
+  color: var(--n-muted) !important;
+}
+
+/* Control buttons: outlined circles */
+section[class*="panels"] button {
+  border-radius: 999px !important;
+  background: transparent !important;
+  border: 1px solid var(--n-line-strong) !important;
+  color: var(--n-fg) !important;
+  transition: background var(--n-anim), color var(--n-anim), border-color var(--n-anim) !important;
+}
+section[class*="panels"] button:hover {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+  border-color: var(--n-fg) !important;
+}
+/* The little dropdown carets next to mic/headset: no outline */
+section[class*="panels"] [class*="micButtonParent"] button + button,
+section[class*="panels"] button[class*="caret"],
+section[class*="panels"] button:has(> svg[width="10"]) {
+  border: none !important;
+}
+
+/* Muted / deafened = solid red, like a Glyph alert */
+section[class*="panels"] button[aria-label="Unmute"],
+section[class*="panels"] button[aria-label="Undeafen"],
+section[class*="panels"] button[aria-checked="true"][role="switch"] {
+  background: var(--n-accent) !important;
+  border-color: var(--n-accent) !important;
+  color: #fff !important;
+}
+section[class*="panels"] [class*="strikethrough"] { color: #fff !important; }
+
+/* --- Voice connected section --- */
+[class*="rtcConnectionStatus"] [class*="labelWrapper"],
+[class*="rtcConnectionStatus"] [class*="rtcConnectionStatusLabel"] {
+  font-family: var(--n-font-dot) !important;
+  font-weight: 900 !important;
+  font-size: 14px !important;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+[class*="rtcConnectionStatusConnected"] { color: var(--n-fg) !important; }
+[class*="rtcConnectionStatusConnected"] svg { color: var(--n-accent) !important; }
+[class*="rtcConnectionStatus"] a, [class*="rtcConnectionStatus"] [class*="channel"] {
+  font-family: var(--n-font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--n-muted) !important;
+}
+/* Ping bars become dots */
+[class*="ping"] svg path { fill: var(--n-fg) !important; }
+
+/* Voice action row (camera, screen share, activities, soundboard) */
+[class*="actionButtons"] button {
+  border-radius: 999px !important;
+  background: var(--n-raised-2) !important;
+  border: 1px solid var(--n-line) !important;
+}
+[class*="actionButtons"] button:hover {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+}
+/* Disconnect button */
+section[class*="panels"] button[aria-label="Disconnect"] {
+  background: var(--n-accent) !important;
+  border-color: var(--n-accent) !important;
+  color: #fff !important;
+}
+
+/* =========================================================
+   STATUS DOTS
+   ========================================================= */
+rect[fill="#23a55a"], rect[fill="var(--status-positive)"], [class*="statusOnline"] { fill: var(--n-fg) !important; }
+rect[fill="#f0b232"], [class*="statusIdle"] { fill: var(--n-muted) !important; }
+rect[fill="#f23f43"], rect[fill="#f23f42"], [class*="statusDND"] { fill: var(--n-accent) !important; }
+rect[fill="#80848e"], [class*="statusOffline"] { fill: var(--n-line-strong) !important; }
+
+/* =========================================================
+   CHAT
+   ========================================================= */
+section[class*="title_"], [class*="chat_"] > section {
+  background: var(--n-bg) !important;
+  border-bottom: 1px solid var(--n-line) !important;
+  box-shadow: none !important;
+}
+
+[class*="message_"] { transition: background var(--n-anim); }
+[class*="message_"]:hover { background: var(--n-hover) !important; }
+
+[class*="mentioned_"] {
+  background: var(--background-mentioned) !important;
+  box-shadow: inset 2px 0 0 var(--n-accent) !important;
+}
+[class*="mentioned_"]::before { display: none !important; }
+
+span[class*="mention"] {
+  background: var(--mention-background) !important;
+  color: var(--n-accent) !important;
+  border-radius: 999px !important;
+  padding: 0 6px !important;
+  font-weight: 600;
+}
+
+[class*="divider_"][class*="isUnread"] { border-color: var(--n-accent) !important; }
+[class*="unreadPill"] {
+  background: var(--n-accent) !important;
+  font-family: var(--n-font-mono) !important;
+  border-radius: 999px !important;
+}
+[class*="divider_"] span[class*="content"] {
+  font-family: var(--n-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: 10px !important;
+}
+
+/* "New messages" / "Jump to present" bars */
+[class*="newMessagesBar"], [class*="jumpToPresentBar"] {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+  border-radius: 999px !important;
+  font-family: var(--n-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+article[class*="embedFull"] {
+  background: var(--n-raised) !important;
+  border: 1px solid var(--n-line) !important;
+  border-left: 3px solid var(--n-fg) !important;
+  border-radius: var(--n-radius-sm) !important;
+}
+
+[class*="imageWrapper"], [class*="mosaicItem"], [class*="attachment_"] {
+  border-radius: var(--n-radius-sm) !important;
+  overflow: hidden;
+}
+
+[class*="reaction_"] {
+  background: var(--n-raised) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: 999px !important;
+  transition: transform var(--n-anim);
+}
+[class*="reaction_"]:hover { transform: translateY(-1px); border-color: var(--n-line-strong) !important; }
+[class*="reactionMe"] {
+  border-color: var(--n-accent) !important;
+  background: color-mix(in srgb, var(--n-accent) 10%, var(--n-raised)) !important;
+}
+[class*="reactionCount"] { font-family: var(--n-font-mono) !important; color: var(--n-fg) !important; }
+
+code, pre code, [class*="markup"] code.inline {
+  font-family: var(--n-font-mono) !important;
+  background: var(--n-raised) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: 8px !important;
+}
+pre code { border-radius: var(--n-radius-sm) !important; padding: 12px !important; }
+
+[class*="blockquoteDivider"] { background: var(--n-accent) !important; border-radius: 999px; }
+[class*="repliedMessage"]::before { border-color: var(--n-line-strong) !important; }
+
+[class*="buttonsInner"], [class*="buttons_"] [class*="wrapper_"] {
+  background: var(--n-raised) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+/* Spoilers */
+[class*="spoilerContent"][class*="hidden"], [class*="spoilerText"][class*="hidden"] {
+  background: var(--n-fg) !important;
+  border-radius: 6px !important;
+}
+
+/* Threads & forum cards */
+[class*="threadSidebar"], [class*="mainCard"] {
+  background: var(--n-surface) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: var(--n-radius) !important;
+}
+[class*="mainCard"]:hover { border-color: var(--n-line-strong) !important; }
+
+/* Polls */
+[class*="pollContainer"] {
+  background: var(--n-raised) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: var(--n-radius) !important;
+}
+[class*="pollContainer"] [class*="answer"] { border-radius: 999px !important; }
+
+/* =========================================================
+   MESSAGE INPUT
+   ========================================================= */
+form [class*="channelTextArea"] [class*="scrollableContainer"] {
+  background: var(--n-surface) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: 999px !important;
+  transition: border-color var(--n-anim);
+}
+form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
+  border-color: var(--n-fg) !important;
+}
+[class*="placeholder_"] {
+  font-family: var(--n-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-size: 12px;
+}
+
+[class*="typing_"] [class*="dots"] circle,
+[class*="typingDots"] circle { fill: var(--n-accent) !important; }
+[class*="typing_"] [class*="text"] {
+  font-family: var(--n-font-mono) !important;
+  font-size: 11px !important;
+  letter-spacing: .06em;
+}
+
+/* Character counter */
+[class*="characterCount"] { font-family: var(--n-font-mono) !important; }
+[class*="characterCount"] [class*="error"] { color: var(--n-accent) !important; }
+
+/* =========================================================
+   MEMBER LIST
+   ========================================================= */
+[class*="members_"], [class*="membersWrap"] {
+  background: var(--n-surface) !important;
+  border-left: 1px solid var(--n-line);
+}
+[class*="member_"] [class*="layout_"] { border-radius: 999px !important; margin: 0 8px; }
+
+/* =========================================================
+   POPOUTS, MENUS, MODALS, TOOLTIPS
+   ========================================================= */
+[class*="menu_"], [class*="popout_"], [class*="autocomplete_"],
+[class*="userPopoutOuter"], [class*="userProfileOuter"],
+[class*="root_"][class*="modal"], [class*="focusLock"] [class*="root_"] {
+  background: var(--n-raised) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: var(--n-radius) !important;
+  box-shadow: var(--n-shadow) !important;
+  animation: n-pop var(--n-anim);
+}
+
+[class*="menu_"] [class*="item_"] {
+  border-radius: 999px !important;
+  font-weight: 500;
+}
+[class*="menu_"] [class*="item_"][class*="focused"] {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+}
+[class*="menu_"] [class*="colorDanger"][class*="focused"] {
+  background: var(--n-accent) !important;
+  color: #fff !important;
+}
+
+[class*="tooltip_"] {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+  font-family: var(--n-font-mono) !important;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  border-radius: 999px !important;
+  padding: 6px 12px !important;
+}
+[class*="tooltipPointer"] { border-top-color: var(--n-fg) !important; }
+
+/* Profile banner with dot overlay */
+[class*="banner_"] { position: relative; }
+[class*="banner_"]::after {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(0,0,0,.35) 1px, transparent 1.2px);
+  background-size: 6px 6px;
+  pointer-events: none;
+}
+
+/* Profile badges & roles as pills */
+[class*="role_"], [class*="rolePill"] {
+  background: var(--n-raised-2) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: 999px !important;
+  font-family: var(--n-font-mono) !important;
+  font-size: 11px !important;
+}
+
+/* Modal backdrop */
+[class*="backdrop_"] {
+  background: rgba(0,0,0,.7) !important;
+  backdrop-filter: blur(6px);
+}
+
+/* Quick switcher */
+[class*="quickswitcher"] {
+  background: var(--n-raised) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: var(--n-radius) !important;
+}
+[class*="quickswitcher"] input {
+  font-family: var(--n-font-mono) !important;
+  border-radius: 999px !important;
+}
+
+/* =========================================================
+   BUTTONS, INPUTS, TOGGLES
+   ========================================================= */
+button[class*="button_"][class*="lookFilled"],
+button[class*="button_"] {
+  border-radius: 999px !important;
+  font-family: var(--n-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px !important;
+  transition: transform var(--n-anim), background var(--n-anim);
+}
+button[class*="button_"]:active { transform: scale(.97); }
+
+button[class*="colorBrand"] {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+}
+button[class*="colorBrand"]:hover { background: var(--n-accent) !important; color: #fff !important; }
+button[class*="colorRed"], button[class*="colorDanger"] { background: var(--n-accent) !important; }
+
+input[class*="input_"], [class*="inputDefault"], textarea[class*="textArea"],
+[class*="searchBar"], [class*="search_"] [class*="searchBar"] {
+  background: var(--n-raised-2) !important;
+  border: 1px solid var(--n-line) !important;
+  border-radius: 999px !important;
+  font-family: var(--n-font-ui) !important;
+}
+input[class*="input_"]:focus { border-color: var(--n-fg) !important; }
+
+/* Switches */
+[class*="control_"][class*="container_"] {
+  border-radius: 999px !important;
+}
+[class*="checked"] [class*="slider"] rect,
+div[class*="checked"][class*="container_"] {
+  background-color: var(--n-accent) !important;
+}
+
+/* Checkboxes & radios */
+[class*="checkbox_"][class*="checked"], [class*="radioBar"][class*="selected"] {
+  border-color: var(--n-accent) !important;
+}
+
+/* Sliders */
+[class*="grabber"] {
+  background: var(--n-fg) !important;
+  border: 2px solid var(--n-bg) !important;
+  box-shadow: none !important;
+}
+[class*="barFill"] { background: var(--n-accent) !important; }
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+[class*="numberBadge"] {
+  background: var(--n-accent) !important;
+  font-family: var(--n-font-mono) !important;
+  font-weight: 700;
+}
+[class*="numberBadge"] { animation: n-pulse 1.6s ease-out 2; }
+
+/* =========================================================
+   SETTINGS PAGES
+   ========================================================= */
+[class*="standardSidebarView"] [class*="sidebarRegion"] { background: var(--n-surface) !important; }
+[class*="standardSidebarView"] [class*="contentRegion"] {
+  background-color: var(--n-bg) !important;
+  background-image: radial-gradient(var(--n-dotcolor) 1px, transparent 1.2px);
+  background-size: var(--n-dot-size) var(--n-dot-size);
+}
+[class*="side_"] [class*="item_"] {
+  border-radius: 999px !important;
+  font-weight: 500;
+}
+[class*="side_"] [class*="item_"][class*="selected"] {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+}
+[class*="side_"] [class*="header_"] {
+  font-family: var(--n-font-mono) !important;
+  letter-spacing: .16em;
+  font-size: 10.5px !important;
+}
+[class*="closeButton"] {
+  border-radius: 999px !important;
+  border-color: var(--n-line-strong) !important;
+}
+
+/* =========================================================
+   VOICE / VIDEO CALLS
+   ========================================================= */
+[class*="callContainer"], [class*="videoGrid"] { background: var(--n-bg) !important; }
+[class*="tile_"] {
+  border-radius: var(--n-radius) !important;
+  background: var(--n-raised) !important;
+  border: 1px solid var(--n-line);
+}
+[class*="tile_"][class*="speaking"], [class*="tileSpeaking"] {
+  box-shadow: inset 0 0 0 2px var(--n-fg) !important;
+}
+[class*="controlButton"] { border-radius: 999px !important; }
+[class*="controlButton"][class*="red"], button[class*="disconnect"] {
+  background: var(--n-accent) !important;
+}
+
+/* =========================================================
+   HOME / FRIENDS / DMS
+   ========================================================= */
+[class*="peopleColumn"], [class*="nowPlayingColumn"] { background: var(--n-bg) !important; }
+[class*="peopleListItem"] { border-radius: var(--n-radius-sm) !important; }
+[class*="nowPlayingColumn"] [class*="card"] {
+  background: var(--n-raised) !important;
+  border: 1px solid var(--n-line);
+  border-radius: var(--n-radius) !important;
+}
+[class*="tabBar"] [class*="item_"] {
+  border-radius: 999px !important;
+  font-family: var(--n-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px !important;
+}
+[class*="tabBar"] [class*="item_"][class*="selected"] {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+}
+
+/* =========================================================
+   EMOJI / GIF PICKER
+   ========================================================= */
+[class*="emojiPicker"], [class*="contentWrapper"][class*="picker"] {
+  background: var(--n-raised) !important;
+}
+[class*="emojiItem"] { border-radius: 10px !important; }
+[class*="emojiItem"][class*="Selected"] { background: var(--n-select) !important; }
+[class*="navButton"][class*="navButtonActive"] {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+  border-radius: 999px !important;
+}
+
+/* =========================================================
+   TOASTS & NOTICES
+   ========================================================= */
+[class*="notice_"] {
+  background: var(--n-fg) !important;
+  color: var(--n-bg) !important;
+  font-family: var(--n-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-size: 12px !important;
+}
+[class*="notice_"][class*="colorDanger"] { background: var(--n-accent) !important; color: #fff !important; }
