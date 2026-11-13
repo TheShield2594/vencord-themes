@@ -1699,16 +1699,20 @@ input[class*="input_"]:focus,
 }
 
 /* Respect "Reduce Motion" (OS setting or Discord's own) */
-/* Short single-run animations instead of `none`, so Discord's spinners still render.
+/* Loading indicators are excluded so they keep signalling that something is loading.
    Transforms are left alone: switch knobs and the GIF picker layout depend on them. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
 }
-.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
   animation-duration: .01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: .01ms !important;

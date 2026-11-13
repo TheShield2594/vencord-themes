@@ -12,7 +12,7 @@
    SETTINGS: tweak these
    ========================================================= */
 :root {
-  --n-accent: #d71921;          /* Nothing red; try #ffffff for pure mono */
+  --n-accent: #d71921;          /* Nothing red; any saturated colour works (white text sits on it) */
   --n-radius: 20px;             /* card roundness */
   --n-radius-sm: 12px;
   --n-dot-size: 14px;           /* dot grid spacing */
@@ -167,15 +167,19 @@
   100% { box-shadow: 0 0 0 8px transparent; }
 }
 /* Respect "Reduce Motion" (OS setting or Discord's own toggle).
-   Short single-run animations instead of `none` so Discord's spinners still render. */
+   Loading indicators are excluded so they keep signalling that something is loading. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
 }
-.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
   animation-duration: .01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: .01ms !important;

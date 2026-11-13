@@ -22,6 +22,8 @@ https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Nothing.them
 
 **Local (to customise):** download the `.css` file, open Vencord Settings → Themes → Open Themes Folder, drop it in, and enable it.
 
+**BetterDiscord:** download the `.css` file, open Settings → Themes → Open Themes Folder, drop it in, and enable it. Both files already use the `.theme.css` name BetterDiscord needs.
+
 ## Customise
 
 Each theme has a settings block at the top of the file. To change a setting, edit the value in your local copy, or set it in Vencord's QuickCSS so it survives updates:
@@ -30,7 +32,7 @@ Each theme has a settings block at the top of the file. To change a setting, edi
 :root {
   --orchard-accent-dark: #BF5AF2;   /* Orchard: purple accent */
   --orchard-bubbles: off;           /* Orchard: plain messages */
-  --n-accent: #ffffff;              /* Nothing: pure monochrome */
+  --n-accent: #ff6a00;              /* Nothing: orange accent */
 }
 ```
 
@@ -53,7 +55,7 @@ Orchard respects the OS settings *Reduce motion* and *Reduce transparency*, and 
 
 | Variable | Default | What it does |
 | --- | --- | --- |
-| `--n-accent` | `#d71921` | Accent color (try `#ffffff` for pure monochrome) |
+| `--n-accent` | `#d71921` | Accent color. Pick a saturated color: white text and icons sit on it, so very light colors become unreadable |
 | `--n-dot-opacity` | `1` | Dot-grid strength; `0` turns it off |
 | `--n-dot-size` | `14px` | Dot-grid spacing |
 | `--n-gray-icons` | `1` | Shows server icons in grayscale until you hover them; `0` for color |
