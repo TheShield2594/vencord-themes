@@ -1,0 +1,1146 @@
+/**
+ * @name Operator
+ * @description Pocket-synth hardware for Discord. Anodised aluminium (light) or black edition (dark), four coloured encoder keys, key-cap buttons, LED indicators and a backlit LCD header. Inspired by boutique synth design.
+ * @author Brandon
+ * @version 1.0.0
+ * @source https://github.com/TheShield2594/vencord-themes
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+
+/* =========================================================
+   SETTINGS: tweak these
+   ========================================================= */
+:root {
+  --op-accent: #ff5a00;         /* main accent. Black text sits on it, so keep it bright */
+  --op-blue: #0071bb;           /* encoder 1: links, mic knob */
+  --op-green: #00a85a;          /* encoder 2: online, unread LEDs, headset knob */
+  --op-white: #e8e8e4;          /* encoder 3: neutral key, settings knob */
+  --op-orange: #ff5a00;         /* encoder 4: alerts, mentions */
+  --op-texture: 1;              /* 1 = brushed-metal grain, 0 = flat */
+  --op-radius: 6px;             /* key and module corners */
+  --op-gap: 8px;                /* space between modules; 0px for a flush layout */
+  --op-anim: .14s cubic-bezier(.3,.7,.2,1);
+  --op-font-ui: 'Inter', 'Archivo', system-ui, sans-serif;
+  --op-font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+/* =========================================================
+   PALETTES
+   Light = anodised aluminium chassis. Dark = black edition (graphite).
+   ========================================================= */
+:is(.theme-light, .visual-refresh.theme-light, .visual-refresh .theme-light) {
+  color-scheme: light;
+  --op-chassis: #d9d9d6;        /* body */
+  --op-module: #cfcfcb;         /* inset modules (sidebar, members) */
+  --op-panel: #e3e3df;          /* chat module */
+  --op-raised: #ececea;         /* menus, popouts */
+  --op-raised-2: #f4f4f2;
+  --op-line: #b9b9b4;           /* engraved line */
+  --op-line-strong: #9c9c97;
+  --op-hi: rgba(255,255,255,.65); /* light catch under an engraving */
+  --op-fg: #141414;
+  --op-fg-2: #262626;
+  --op-muted: #55554f;          /* ≥4.5:1 on chassis, module and panel */
+  --op-sheen: #ffffff;
+  --op-hover: rgba(0,0,0,.05);
+  --op-select: rgba(0,0,0,.09);
+  --op-shadow: 0 18px 40px rgba(40,40,30,.22), 0 2px 6px rgba(40,40,30,.12);
+
+  /* Accents used as text need to be darker on aluminium */
+  --op-accent-fg: color-mix(in srgb, var(--op-accent) 60%, black);
+  --op-blue-fg: color-mix(in srgb, var(--op-blue) 70%, black);
+  --op-green-fg: color-mix(in srgb, var(--op-green) 55%, black);
+
+  /* Key caps */
+  --op-key-top: #f2f2ef;
+  --op-key-bottom: #dcdcd8;
+  --op-key-edge: #a6a6a0;
+  --op-key-fg: #1a1a1a;
+}
+
+:is(.theme-dark, .theme-darker, .theme-midnight, .visual-refresh.theme-dark, .visual-refresh .theme-dark) {
+  color-scheme: dark;
+  --op-chassis: #1c1c1e;
+  --op-module: #232326;
+  --op-panel: #202023;
+  --op-raised: #2b2b2f;
+  --op-raised-2: #333338;
+  --op-line: #36363b;
+  --op-line-strong: #4a4a50;
+  --op-hi: rgba(255,255,255,.04);
+  --op-fg: #f0f0ec;
+  --op-fg-2: #d8d8d3;
+  --op-muted: #a1a1a5;          /* ≥4.5:1 on every graphite surface */
+  --op-sheen: #ffffff;
+  --op-hover: rgba(255,255,255,.04);
+  --op-select: rgba(255,255,255,.08);
+  --op-shadow: 0 20px 50px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.4);
+
+  --op-accent-fg: color-mix(in srgb, var(--op-accent) 85%, white);
+  --op-blue-fg: color-mix(in srgb, var(--op-blue) 60%, white);
+  --op-green-fg: color-mix(in srgb, var(--op-green) 70%, white);
+
+  --op-key-top: #3a3a3f;
+  --op-key-bottom: #2c2c30;
+  --op-key-edge: #111113;
+  --op-key-fg: #f0f0ec;
+}
+
+/* =========================================================
+   DISCORD VARIABLE MAPPING
+   ========================================================= */
+:is(.theme-dark, .theme-darker, .theme-midnight, .theme-light,
+    .visual-refresh.theme-dark, .visual-refresh .theme-dark,
+    .visual-refresh.theme-light, .visual-refresh .theme-light) {
+  /* LCD screen: always dark, even on the aluminium body */
+  --op-lcd: #0f110e;
+  --op-lcd-2: #171a15;
+  --op-lcd-line: #2a2e27;
+  --op-lcd-fg: #ff7a2e;         /* backlit orange segments */
+  --op-lcd-fg-2: #b7bdb0;
+  --op-lcd-glow: 0 0 6px color-mix(in srgb, var(--op-lcd-fg) 55%, transparent);
+  --op-on-accent: #000;         /* black on orange: ~6.7:1 */
+
+  /* Brushed-metal grain; honours --op-texture */
+  --op-brush:
+    repeating-linear-gradient(0deg,
+      color-mix(in srgb, var(--op-sheen) calc(var(--op-texture) * 5%), transparent) 0 1px,
+      transparent 1px 3px),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--op-sheen) calc(var(--op-texture) * 14%), transparent),
+      transparent 45%);
+  /* The four-key stripe */
+  --op-stripe: linear-gradient(90deg,
+      var(--op-blue) 0 25%, var(--op-green) 25% 50%,
+      var(--op-white) 50% 75%, var(--op-orange) 75% 100%);
+  --op-engrave: inset 0 1px 0 var(--op-hi);
+  --op-key-shadow: 0 2px 0 var(--op-key-edge), 0 3px 6px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+  --op-key-shadow-down: 0 0 0 var(--op-key-edge), 0 1px 2px rgba(0,0,0,.2), inset 0 1px 2px rgba(0,0,0,.18);
+
+  --background-primary: var(--op-panel);
+  --background-secondary: var(--op-module);
+  --background-secondary-alt: var(--op-module);
+  --background-tertiary: var(--op-chassis);
+  --background-accent: var(--op-raised-2);
+  --background-floating: var(--op-raised);
+  --background-nested-floating: var(--op-raised-2);
+  --background-base-low: var(--op-module);
+  --background-base-lower: var(--op-chassis);
+  --background-base-lowest: var(--op-chassis);
+  --background-surface-high: var(--op-raised);
+  --background-surface-higher: var(--op-raised-2);
+  --background-surface-highest: var(--op-raised-2);
+  --background-mobile-primary: var(--op-panel);
+  --background-mobile-secondary: var(--op-module);
+  --background-modifier-hover: var(--op-hover);
+  --background-modifier-active: var(--op-select);
+  --background-modifier-selected: var(--op-select);
+  --background-modifier-accent: var(--op-line);
+  --background-message-hover: var(--op-hover);
+  --background-mentioned: color-mix(in srgb, var(--op-orange) 10%, transparent);
+  --background-mentioned-hover: color-mix(in srgb, var(--op-orange) 15%, transparent);
+  --info-warning-foreground: var(--op-accent-fg);
+  --chat-background: var(--op-panel);
+  --chat-background-default: var(--op-panel);
+  --channeltextarea-background: var(--op-raised);
+  --modal-background: var(--op-raised);
+  --modal-footer-background: var(--op-module);
+  --input-background: var(--op-raised-2);
+  --deprecated-card-bg: var(--op-raised);
+  --home-background: var(--op-panel);
+  --bg-overlay-chat: var(--op-panel);
+  --bg-overlay-app-frame: var(--op-chassis);
+
+  --text-normal: var(--op-fg-2);
+  --text-default: var(--op-fg-2);
+  --text-strong: var(--op-fg);
+  --text-muted: var(--op-muted);
+  --text-link: var(--op-blue-fg);
+  --header-primary: var(--op-fg);
+  --header-secondary: var(--op-muted);
+  --interactive-normal: var(--op-muted);
+  --interactive-hover: var(--op-fg);
+  --interactive-active: var(--op-fg);
+  --interactive-muted: var(--op-line-strong);
+  --channels-default: var(--op-muted);
+  --channel-icon: var(--op-muted);
+
+  --brand-500: var(--op-accent);
+  --brand-560: color-mix(in srgb, var(--op-accent) 88%, black);
+  --brand-600: color-mix(in srgb, var(--op-accent) 78%, black);
+  --brand-experiment: var(--op-accent);
+  --brand-experiment-560: color-mix(in srgb, var(--op-accent) 88%, black);
+  --control-brand-foreground: var(--op-accent-fg);
+  --mention-foreground: var(--op-accent-fg);
+  --mention-background: color-mix(in srgb, var(--op-orange) 16%, transparent);
+
+  --border-subtle: var(--op-line);
+  --border-faint: var(--op-line);
+  --border-strong: var(--op-line-strong);
+
+  --status-positive: var(--op-green);
+  --status-warning: #f2b500;
+  --status-danger: var(--op-orange);
+  --scrollbar-thin-thumb: var(--op-line-strong);
+  --scrollbar-auto-thumb: var(--op-line-strong);
+  --scrollbar-auto-track: transparent;
+
+  --font-primary: var(--op-font-ui);
+  --font-display: var(--op-font-ui);
+  --font-headline: var(--op-font-ui);
+  --font-code: var(--op-font-mono);
+
+  --radius-xs: calc(var(--op-radius) * .5);
+  --radius-sm: var(--op-radius);
+  --radius-md: var(--op-radius);
+  --radius-lg: calc(var(--op-radius) + 2px);
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+@keyframes op-led {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .45; }
+}
+@keyframes op-pop {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes op-meter {
+  0%, 100% { transform: scaleY(.35); }
+  50% { transform: scaleY(1); }
+}
+/* Respect "Reduce Motion" (OS setting or Discord's own toggle).
+   Loading indicators are excluded so they keep signalling that something is loading. */
+@media (prefers-reduced-motion: reduce) {
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+}
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+* { -webkit-font-smoothing: antialiased; }
+::selection { background: var(--op-accent); color: var(--op-on-accent); }
+
+::-webkit-scrollbar { width: 8px !important; height: 8px !important; }
+::-webkit-scrollbar-thumb {
+  background: var(--op-line-strong) !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+  border-radius: 2px !important;
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--op-muted) !important; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent !important; border: none !important; }
+
+:focus-visible { outline: 2px solid var(--op-accent) !important; outline-offset: 2px; }
+
+/* The chassis: brushed aluminium (or graphite) behind every module */
+[class*="app_"], [class*="bg_"], [class*="base_"],
+[class*="content_"]:has(> [class*="sidebar_"]) {
+  background-color: var(--op-chassis) !important;
+  background-image: var(--op-brush) !important;
+}
+
+/* Title bar: a thin engraved strip */
+[class*="titleBar"], [class*="bar_"][class*="base"] {
+  background: var(--op-chassis) !important;
+  border-bottom: 1px solid var(--op-line);
+  box-shadow: var(--op-engrave);
+}
+[class*="titleBar"] [class*="title_"], [class*="bar_"][class*="base"] [class*="title_"] {
+  font-family: var(--op-font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   MODULE LAYOUT
+   Sidebar, chat and member list sit on the chassis like
+   modules on a front panel: inset, engraved edges.
+   ========================================================= */
+[class*="sidebar_"] {
+  margin: var(--op-gap) 0 var(--op-gap) 0 !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: calc(var(--op-radius) + 2px) !important;
+  box-shadow: var(--op-engrave), 0 1px 0 var(--op-hi);
+  overflow: hidden;
+}
+main[class*="chat_"], [class*="chat_"]:has(> [class*="content_"]) {
+  margin: var(--op-gap) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: calc(var(--op-radius) + 2px) !important;
+  box-shadow: var(--op-engrave), 0 1px 0 var(--op-hi);
+  overflow: hidden;
+}
+[class*="membersWrap"] {
+  margin: var(--op-gap) var(--op-gap) var(--op-gap) 0 !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: calc(var(--op-radius) + 2px) !important;
+  overflow: hidden;
+}
+[class*="membersWrap"] [class*="members_"] { border-left: none !important; }
+
+/* =========================================================
+   TYPOGRAPHY
+   Body in a clean grotesk; every label is tiny mono caps,
+   like silkscreen printing on a panel.
+   ========================================================= */
+body, [class*="markup"] { font-family: var(--op-font-ui); }
+
+h1, h2,
+[class*="titleWrapper"] h1,
+[class*="emptyChannelIcon"] + h3 {
+  font-family: var(--op-font-ui) !important;
+  font-weight: 700 !important;
+  letter-spacing: -.01em !important;
+}
+
+[class*="containerDefault"] h3,
+[class*="membersGroup"],
+[class*="sectionTitle"],
+[class*="eyebrow"],
+[class*="header_"] [class*="overflow"],
+[class*="privateChannelsHeaderContainer"],
+[class*="side_"] [class*="header_"] {
+  font-family: var(--op-font-mono) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: .2em !important;
+  text-transform: uppercase !important;
+  color: var(--op-muted) !important;
+}
+
+[class*="timestamp"] time, [class*="timestamp_"] {
+  font-family: var(--op-font-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: .04em;
+  color: var(--op-muted) !important;
+}
+
+[class*="username_"] { font-weight: 600 !important; }
+
+[class*="botTag"] {
+  background: var(--op-blue) !important;
+  color: #fff !important;   /* #0071bb with white: ~5.1:1 */
+  border-radius: 3px !important;
+  font-family: var(--op-font-mono) !important;
+  letter-spacing: .1em;
+}
+[class*="botTag"] svg path { fill: #fff !important; }
+
+/* =========================================================
+   SERVER LIST
+   ========================================================= */
+nav[class*="guilds"] { background: transparent !important; }
+
+[data-list-id="guildsnav"] [class*="wrapper_"] svg foreignObject,
+[data-list-id="guildsnav"] img {
+  border-radius: var(--op-radius);
+}
+
+/* Selection pill becomes a vertical LED bar */
+[class*="pill_"] span[class*="item"] {
+  background: var(--op-accent) !important;
+  width: 4px !important;
+  border-radius: 2px !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--op-accent) 70%, transparent);
+}
+
+/* Home / add / discover: key caps */
+[class*="circleIconButton"], [class*="childWrapper"] {
+  background: linear-gradient(180deg, var(--op-key-top), var(--op-key-bottom)) !important;
+  color: var(--op-key-fg) !important;
+  border-radius: var(--op-radius) !important;
+  box-shadow: var(--op-key-shadow);
+  transition: transform var(--op-anim), box-shadow var(--op-anim);
+}
+[class*="circleIconButton"]:hover, [class*="childWrapper"]:hover {
+  color: var(--op-accent-fg) !important;
+}
+[class*="circleIconButton"]:active, [class*="childWrapper"]:active {
+  transform: translateY(2px);
+  box-shadow: var(--op-key-shadow-down);
+}
+
+[class*="guildSeparator"] { background: var(--op-line-strong) !important; height: 1px !important; }
+
+[class*="folderIconWrapper"], [class*="expandedFolderBackground"] {
+  background: var(--op-module) !important;
+  border-radius: var(--op-radius) !important;
+  box-shadow: inset 0 0 0 1px var(--op-line);
+}
+
+[class*="unreadMentionsIndicator"]:not(:has([class*="unreadMentionsBar"] *)),
+[class*="unreadMentionsBar"]:empty { background: transparent !important; }
+[class*="unreadMentionsBar"] {
+  background: var(--op-accent) !important;
+  color: var(--op-on-accent) !important;
+  border-radius: var(--op-radius) !important;
+  margin: 4px 8px !important;
+  font-family: var(--op-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+
+/* =========================================================
+   CHANNEL SIDEBAR
+   ========================================================= */
+[class*="sidebar_"] {
+  background-color: var(--op-module) !important;
+  background-image: var(--op-brush) !important;
+}
+[class*="sidebar_"] header {
+  border-bottom: 1px solid var(--op-line) !important;
+  box-shadow: var(--op-engrave) !important;
+}
+
+[class*="containerDefault"] [class*="link_"] {
+  border-radius: var(--op-radius) !important;
+  margin: 1px 8px !important;
+  transition: background var(--op-anim);
+}
+[class*="modeSelected"] [class*="link_"] {
+  background: var(--op-select) !important;
+  box-shadow: inset 0 0 0 1px var(--op-line);
+}
+[class*="modeSelected"] [class*="name_"] { color: var(--op-fg) !important; }
+
+/* LEDs: orange for the selected channel, green for unread */
+[class*="modeSelected"] [class*="name_"]::before,
+[class*="modeUnread"] [class*="name_"]::before {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border-radius: 50%;
+}
+[class*="modeSelected"] [class*="name_"]::before {
+  background: var(--op-accent);
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--op-accent) 70%, transparent);
+}
+[class*="modeUnread"]:not([class*="modeSelected"]) [class*="name_"]::before {
+  background: var(--op-green);
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--op-green) 70%, transparent);
+}
+[class*="modeUnread"] [class*="name_"] { color: var(--op-fg) !important; font-weight: 600; }
+/* Discord's own unread nub is replaced by the LED */
+[class*="modeUnread"] [class*="unread_"] { display: none !important; }
+
+[class*="voiceUser"] { border-radius: var(--op-radius) !important; }
+[class*="avatarSpeaking"] {
+  box-shadow: inset 0 0 0 2px var(--op-green), 0 0 8px color-mix(in srgb, var(--op-green) 60%, transparent) !important;
+}
+
+/* =========================================================
+   USER PANEL (bottom left)
+   A control strip: four-key stripe on top, encoder knobs.
+   Note: never set position here, Discord anchors it.
+   ========================================================= */
+section[class*="panels"] {
+  background-color: var(--op-raised) !important;
+  background-image: var(--op-stripe), var(--op-brush) !important;
+  background-size: 100% 3px, auto !important;
+  background-repeat: no-repeat, repeat !important;
+  background-position: top left, top left !important;
+  margin: var(--op-gap) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: calc(var(--op-radius) + 2px) !important;
+  box-shadow: var(--op-shadow), var(--op-engrave) !important;
+  overflow: hidden;
+  padding-top: 3px !important;
+}
+section[class*="panels"] > div + div { border-top: 1px solid var(--op-line) !important; }
+
+section[class*="panels"] [class*="avatarWrapper"] [class*="avatar"] {
+  border-radius: var(--op-radius);
+}
+
+section[class*="panels"] [class*="panelTitleContainer"],
+section[class*="panels"] [class*="nameTag"] [class*="title"] {
+  font-weight: 700 !important;
+  color: var(--op-fg) !important;
+}
+section[class*="panels"] [class*="panelSubtextContainer"],
+section[class*="panels"] [class*="nameTag"] [class*="subtext"],
+section[class*="panels"] [class*="hovered"] {
+  font-family: var(--op-font-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase;
+  color: var(--op-muted) !important;
+}
+
+/* Encoder knobs: round caps with a tick mark */
+section[class*="panels"] [class*="avatarWrapper"] ~ div button,
+section[class*="panels"] [class*="buttons_"] button {
+  --op-tick: var(--op-accent);
+  position: relative;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  color: var(--op-key-fg) !important;
+  background: radial-gradient(circle at 50% 35%, var(--op-key-top) 0 55%, var(--op-key-bottom) 72%, var(--op-key-edge) 100%) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,.25), inset 0 -1px 0 rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.35) !important;
+  transition: transform .3s cubic-bezier(.3,1.4,.5,1), box-shadow var(--op-anim) !important;
+}
+section[class*="panels"] [class*="avatarWrapper"] ~ div button::after,
+section[class*="panels"] [class*="buttons_"] button::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 50%;
+  width: 2px; height: 6px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--op-tick);
+  pointer-events: none;
+}
+section[class*="panels"] [class*="avatarWrapper"] ~ div button:hover,
+section[class*="panels"] [class*="buttons_"] button:hover { transform: rotate(35deg); }
+section[class*="panels"] [class*="avatarWrapper"] ~ div button:hover svg,
+section[class*="panels"] [class*="buttons_"] button:hover svg { transform: rotate(-35deg); }
+section[class*="panels"] button svg { transition: transform .3s cubic-bezier(.3,1.4,.5,1); }
+section[class*="panels"] [class*="avatarWrapper"] ~ div button:active,
+section[class*="panels"] [class*="buttons_"] button:active {
+  box-shadow: 0 0 1px rgba(0,0,0,.3), inset 0 1px 3px rgba(0,0,0,.3) !important;
+}
+
+/* Each knob gets its encoder colour (English labels; falls back to the accent) */
+section[class*="panels"] button[aria-label="Mute"] { --op-tick: var(--op-blue); }
+section[class*="panels"] button[aria-label="Deafen"] { --op-tick: var(--op-green); }
+section[class*="panels"] button[aria-label="User Settings"] { --op-tick: var(--op-white); }
+
+/* Dropdown carets beside mic/headset are not knobs */
+section[class*="panels"] [class*="micButtonParent"] button + button,
+section[class*="panels"] button[class*="caret"],
+section[class*="panels"] button:has(> svg[width="10"]) {
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+section[class*="panels"] [class*="micButtonParent"] button + button::after,
+section[class*="panels"] button[class*="caret"]::after,
+section[class*="panels"] button:has(> svg[width="10"])::after { display: none; }
+
+/* Muted / deafened: the cap lights up orange */
+section[class*="panels"] button[aria-label="Unmute"],
+section[class*="panels"] button[aria-label="Undeafen"],
+section[class*="panels"] button[aria-checked="true"][role="switch"] {
+  --op-tick: #000;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--op-orange) 80%, white) 0 50%, var(--op-orange) 75%, color-mix(in srgb, var(--op-orange) 70%, black) 100%) !important;
+  color: #000 !important;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--op-orange) 55%, transparent), inset 0 1px 0 rgba(255,255,255,.4) !important;
+}
+section[class*="panels"] [class*="strikethrough"] { color: #000 !important; }
+
+/* --- Voice connected: an LCD readout --- */
+[class*="rtcConnectionStatus"] {
+  background: var(--op-lcd) !important;
+  border: 1px solid #000;
+  border-radius: var(--op-radius);
+  padding: 6px 8px !important;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.6);
+}
+[class*="rtcConnectionStatus"] [class*="labelWrapper"],
+[class*="rtcConnectionStatus"] [class*="rtcConnectionStatusLabel"] {
+  font-family: var(--op-font-mono) !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+}
+[class*="rtcConnectionStatusConnected"] {
+  color: #3ee08f !important;   /* bright green segments: the LCD is dark in both modes */
+  text-shadow: 0 0 6px color-mix(in srgb, var(--op-green) 60%, transparent);
+}
+[class*="rtcConnectionStatus"] a, [class*="rtcConnectionStatus"] [class*="channel"] {
+  font-family: var(--op-font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--op-lcd-fg-2) !important;
+}
+section[class*="panels"] [class*="ping"] svg path { fill: currentColor !important; }
+
+[class*="actionButtons"] button {
+  border-radius: var(--op-radius) !important;
+  background: linear-gradient(180deg, var(--op-key-top), var(--op-key-bottom)) !important;
+  color: var(--op-key-fg) !important;
+  box-shadow: var(--op-key-shadow);
+  transition: transform var(--op-anim), box-shadow var(--op-anim);
+}
+[class*="actionButtons"] button:active { transform: translateY(2px); box-shadow: var(--op-key-shadow-down); }
+
+section[class*="panels"] button[aria-label="Disconnect"] {
+  --op-tick: #000;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--op-orange) 80%, white) 0 50%, var(--op-orange) 75%, color-mix(in srgb, var(--op-orange) 70%, black) 100%) !important;
+  color: #000 !important;
+}
+
+/* =========================================================
+   STATUS LEDs
+   ========================================================= */
+rect[fill="#23a55a"], rect[fill="var(--status-positive)"], [class*="statusOnline"] {
+  fill: var(--op-green) !important;
+  filter: drop-shadow(0 0 2px var(--op-green));
+}
+rect[fill="#f0b232"], [class*="statusIdle"] { fill: #f2b500 !important; }
+rect[fill="#f23f43"], rect[fill="#f23f42"], [class*="statusDND"] {
+  fill: var(--op-orange) !important;
+  filter: drop-shadow(0 0 2px var(--op-orange));
+}
+rect[fill="#80848e"], [class*="statusOffline"] { fill: var(--op-line-strong) !important; }
+
+/* =========================================================
+   CHAT
+   ========================================================= */
+[class*="chatContent"], [class*="chat_"], [class*="container"][class*="pageWrapper"] {
+  background: var(--op-panel) !important;
+}
+
+/* Channel header: the backlit LCD */
+section[class*="title_"], [class*="chat_"] > section {
+  --header-primary: var(--op-lcd-fg);
+  --header-secondary: var(--op-lcd-fg-2);
+  --text-muted: var(--op-lcd-fg-2);
+  --interactive-normal: var(--op-lcd-fg-2);
+  --interactive-hover: #ffffff;
+  --interactive-active: var(--op-lcd-fg);
+  --channel-icon: var(--op-lcd-fg-2);
+  --background-modifier-accent: var(--op-lcd-line);
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, var(--op-lcd-2), var(--op-lcd)) !important;
+  border-bottom: 1px solid #000 !important;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.04), 0 1px 0 var(--op-hi) !important;
+  color: var(--op-lcd-fg-2);
+}
+section[class*="title_"] h1,
+section[class*="title_"] h2,
+section[class*="title_"] [class*="titleWrapper"] [class*="title_"],
+[class*="chat_"] > section h1 {
+  font-family: var(--op-font-mono) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: .12em !important;
+  color: var(--op-lcd-fg) !important;
+  text-shadow: var(--op-lcd-glow);
+}
+section[class*="title_"] [class*="topic"], section[class*="title_"] [class*="children"] [class*="text"] {
+  color: var(--op-lcd-fg-2) !important;
+  font-family: var(--op-font-mono) !important;
+  font-size: 11px !important;
+}
+section[class*="title_"] [class*="divider"] { background: var(--op-lcd-line) !important; }
+section[class*="title_"] [class*="searchBar"], section[class*="title_"] [class*="search_"] [class*="searchBar"] {
+  background: #000 !important;
+  border: 1px solid var(--op-lcd-line) !important;
+  color: var(--op-lcd-fg-2) !important;
+}
+section[class*="title_"] [class*="searchBar"] [class*="placeholder"] { color: var(--op-lcd-fg-2) !important; }
+
+[class*="message_"] { transition: background var(--op-anim); }
+[class*="message_"]:hover { background: var(--op-hover) !important; }
+
+[class*="mentioned_"] {
+  background: var(--background-mentioned) !important;
+  box-shadow: inset 3px 0 0 var(--op-orange) !important;
+}
+[class*="mentioned_"]::before { display: none !important; }
+
+[class*="markup"] span[class*="mention"] {
+  background: var(--mention-background) !important;
+  color: var(--op-accent-fg) !important;
+  border-radius: 3px !important;
+  padding: 0 4px !important;
+  font-weight: 600;
+}
+
+[class*="markup"] a[href] { color: var(--op-blue-fg) !important; }
+[class*="markup"] a[href]:hover { text-decoration: underline !important; text-underline-offset: 2px; }
+
+[class*="divider_"][class*="isUnread"] { border-color: var(--op-orange) !important; }
+[class*="unreadPill"] {
+  background: var(--op-orange) !important;
+  color: #000 !important;
+  font-family: var(--op-font-mono) !important;
+  border-radius: 3px !important;
+}
+[class*="unreadPill"] svg path { fill: #000 !important; }
+[class*="divider_"] span[class*="content"] {
+  font-family: var(--op-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-size: 10px !important;
+}
+
+[class*="newMessagesBar"], [class*="jumpToPresentBar"] {
+  background: var(--op-lcd) !important;
+  color: var(--op-lcd-fg) !important;
+  border-radius: var(--op-radius) !important;
+  font-family: var(--op-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+[class*="newMessagesBar"] *, [class*="jumpToPresentBar"] * { color: var(--op-lcd-fg) !important; }
+
+/* Embeds: a module with an encoder-coloured edge */
+article[class*="embedFull"] {
+  background: var(--op-raised) !important;
+  border: 1px solid var(--op-line) !important;
+  border-left: 4px solid var(--op-blue) !important;
+  border-radius: var(--op-radius) !important;
+}
+
+[class*="imageWrapper"], [class*="mosaicItem"], [class*="attachment_"] {
+  border-radius: var(--op-radius) !important;
+  overflow: hidden;
+}
+
+/* Reactions: little key caps */
+[class*="reaction_"] {
+  background: linear-gradient(180deg, var(--op-key-top), var(--op-key-bottom)) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 0 var(--op-key-edge), inset 0 1px 0 rgba(255,255,255,.3) !important;
+  transition: transform var(--op-anim), box-shadow var(--op-anim);
+}
+[class*="reaction_"]:active { transform: translateY(1px); box-shadow: none !important; }
+[class*="reactionMe"] {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--op-orange) 26%, var(--op-key-top)), color-mix(in srgb, var(--op-orange) 22%, var(--op-key-bottom))) !important;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--op-orange) 60%, black), inset 0 0 0 1px color-mix(in srgb, var(--op-orange) 70%, transparent) !important;
+}
+[class*="reactionCount"] { font-family: var(--op-font-mono) !important; color: var(--op-fg) !important; }
+
+/* Code */
+code, pre code, [class*="markup"] code.inline {
+  font-family: var(--op-font-mono) !important;
+  background: var(--op-module) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: 4px !important;
+}
+pre code {
+  border-radius: var(--op-radius) !important;
+  padding: 12px !important;
+  border-top: 3px solid var(--op-line-strong) !important;
+}
+
+[class*="blockquoteDivider"] { background: var(--op-green) !important; border-radius: 2px; }
+[class*="repliedMessage"]::before { border-color: var(--op-line-strong) !important; }
+
+/* Message action bar */
+[class*="buttonsInner"], [class*="buttons_"] [class*="wrapper_"] {
+  background: var(--op-raised) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: var(--op-radius) !important;
+  box-shadow: 0 2px 0 var(--op-key-edge) !important;
+}
+
+[class*="spoilerContent"][class*="hidden"], [class*="spoilerText"][class*="hidden"] {
+  background: var(--op-lcd) !important;
+  border-radius: 3px !important;
+}
+
+[class*="threadSidebar"], [class*="mainCard"] {
+  background: var(--op-raised) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: calc(var(--op-radius) + 2px) !important;
+}
+[class*="mainCard"]:hover { border-color: var(--op-line-strong) !important; }
+
+[class*="pollContainer"] {
+  background: var(--op-raised) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: calc(var(--op-radius) + 2px) !important;
+}
+[class*="pollContainer"] [class*="answer"] { border-radius: var(--op-radius) !important; }
+
+/* =========================================================
+   MESSAGE INPUT
+   ========================================================= */
+form [class*="channelTextArea"] [class*="scrollableContainer"] {
+  background: var(--op-raised) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: var(--op-radius) !important;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.08);
+  transition: border-color var(--op-anim), box-shadow var(--op-anim);
+}
+form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
+  border-color: var(--op-accent) !important;
+  box-shadow: 0 0 0 1px var(--op-accent), inset 0 1px 3px rgba(0,0,0,.08);
+}
+[class*="placeholder_"] {
+  font-family: var(--op-font-mono) !important;
+  font-size: 12px;
+  letter-spacing: .04em;
+  font-style: normal !important;
+}
+
+[class*="typing_"] [class*="dots"] circle,
+[class*="typingDots"] circle { fill: var(--op-green) !important; }
+[class*="typing_"] [class*="text"] {
+  font-family: var(--op-font-mono) !important;
+  font-size: 11px !important;
+}
+
+[class*="characterCount"] { font-family: var(--op-font-mono) !important; }
+[class*="characterCount"] [class*="error"] { color: var(--op-accent-fg) !important; }
+
+/* =========================================================
+   MEMBER LIST
+   ========================================================= */
+[class*="members_"], [class*="membersWrap"] {
+  background-color: var(--op-module) !important;
+  background-image: var(--op-brush) !important;
+}
+[class*="member_"] [class*="layout_"] { border-radius: var(--op-radius) !important; margin: 0 8px; }
+
+/* =========================================================
+   POPOUTS, MENUS, MODALS, TOOLTIPS
+   ========================================================= */
+[class*="menu_"], [class*="popout_"], [class*="autocomplete_"],
+[class*="userPopoutOuter"], [class*="userProfileOuter"],
+[class*="root_"][class*="modal"], [class*="focusLock"] > [class*="root_"] {
+  background: var(--op-raised) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: calc(var(--op-radius) + 2px) !important;
+  box-shadow: var(--op-shadow), var(--op-engrave) !important;
+  animation: op-pop var(--op-anim);
+}
+
+[class*="menu_"] [class*="item_"] {
+  border-radius: 4px !important;
+  font-weight: 500;
+}
+[class*="menu_"] [class*="item_"][class*="focused"] {
+  background: var(--op-lcd) !important;
+  color: var(--op-lcd-fg) !important;
+}
+[class*="menu_"] [class*="item_"][class*="focused"] * { color: inherit !important; }
+[class*="menu_"] [class*="colorDanger"] { color: var(--op-accent-fg) !important; }
+[class*="menu_"] [class*="colorDanger"][class*="focused"] {
+  background: var(--op-orange) !important;
+  color: #000 !important;
+}
+[class*="menu_"] [class*="separator"] { background: var(--op-line) !important; }
+
+/* Tooltips: small LCD readouts */
+[class*="tooltip_"] {
+  background: var(--op-lcd) !important;
+  color: var(--op-lcd-fg) !important;
+  font-family: var(--op-font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  border: 1px solid #000;
+  border-radius: 4px !important;
+  padding: 6px 10px !important;
+  text-shadow: var(--op-lcd-glow);
+}
+[class*="tooltip_"] * { color: inherit !important; }
+[class*="tooltipPointer"] { border-top-color: var(--op-lcd) !important; }
+
+/* Profile banner: a four-key stripe along the bottom edge */
+[class*="banner_"] { position: relative; }
+[class*="banner_"]::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: var(--op-stripe);
+  pointer-events: none;
+}
+
+[class*="role_"], [class*="rolePill"] {
+  background: var(--op-module) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: 3px !important;
+  font-family: var(--op-font-mono) !important;
+  font-size: 11px !important;
+}
+
+[class*="backdrop_"] {
+  background: rgba(10,10,8,.6) !important;
+  backdrop-filter: blur(4px);
+}
+
+[class*="quickswitcher"] {
+  background: var(--op-raised) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: calc(var(--op-radius) + 2px) !important;
+}
+[class*="quickswitcher"] input {
+  font-family: var(--op-font-mono) !important;
+  background: var(--op-lcd) !important;
+  color: var(--op-lcd-fg) !important;
+  border-radius: var(--op-radius) !important;
+  caret-color: var(--op-lcd-fg);
+}
+
+/* =========================================================
+   BUTTONS, INPUTS, TOGGLES
+   ========================================================= */
+/* Every button is a key cap: raised, and it travels when pressed */
+button[class*="button_"] {
+  border-radius: var(--op-radius) !important;
+  font-family: var(--op-font-mono) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-size: 12px !important;
+  transition: transform var(--op-anim), box-shadow var(--op-anim), background var(--op-anim) !important;
+}
+button[class*="button_"]:is([class*="lookFilled"], [class*="colorBrand"], [class*="colorPrimary"], [class*="colorGreen"], [class*="colorRed"], [class*="colorDanger"]) {
+  /* written out (not var(--op-key-shadow)) so each colour's own --op-key-edge applies */
+  box-shadow: 0 2px 0 var(--op-key-edge), 0 3px 6px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35) !important;
+}
+button[class*="button_"]:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--op-key-edge), 0 1px 2px rgba(0,0,0,.2), inset 0 1px 2px rgba(0,0,0,.18) !important;
+}
+
+button[class*="colorBrand"] {
+  background: var(--op-accent) !important;
+  color: var(--op-on-accent) !important;
+  --op-key-edge: color-mix(in srgb, var(--op-accent) 55%, black);
+}
+button[class*="colorBrand"] * { color: inherit !important; }
+button[class*="colorBrand"]:hover { background: color-mix(in srgb, var(--op-accent) 88%, white) !important; }
+
+button[class*="colorPrimary"], button[class*="colorGrey"], button[class*="colorSecondary"] {
+  background: linear-gradient(180deg, var(--op-key-top), var(--op-key-bottom)) !important;
+  color: var(--op-key-fg) !important;
+}
+
+button[class*="colorGreen"] {
+  background: var(--op-green) !important;
+  color: #000 !important;   /* black on #00a85a: ~7:1 */
+  --op-key-edge: color-mix(in srgb, var(--op-green) 55%, black);
+}
+
+button[class*="colorRed"], button[class*="colorDanger"] {
+  background: var(--op-orange) !important;
+  color: #000 !important;
+  --op-key-edge: color-mix(in srgb, var(--op-orange) 55%, black);
+}
+button[class*="colorRed"] *, button[class*="colorDanger"] *, button[class*="colorGreen"] * { color: inherit !important; }
+
+input[class*="input_"], [class*="inputDefault"], textarea[class*="textArea"],
+[class*="searchBar"], [class*="search_"] [class*="searchBar"] {
+  background: var(--op-raised-2) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: var(--op-radius) !important;
+  font-family: var(--op-font-ui) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.08);
+}
+input[class*="input_"]:focus, textarea[class*="textArea"]:focus {
+  border-color: var(--op-accent) !important;
+}
+
+/* Switches: a slot with a key-cap knob; the slot lights green when on */
+[class*="control_"][class*="container_"] {
+  border-radius: 4px !important;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.3);
+}
+[class*="checked"] [class*="slider"] rect,
+div[class*="checked"][class*="container_"] {
+  background-color: var(--op-green) !important;
+}
+[class*="control_"][class*="container_"] [class*="slider"] rect { rx: 3px; }
+
+[class*="checkbox_"] { border-radius: 3px !important; }
+[class*="checkbox_"][class*="checked"] {
+  background: var(--op-accent) !important;
+  border-color: var(--op-accent) !important;
+  color: #000 !important;
+}
+[class*="radioBar"][class*="selected"] { border-color: var(--op-accent) !important; }
+
+/* Sliders: a fader cap on a groove */
+[class*="grabber"] {
+  width: 12px !important;
+  border-radius: 3px !important;
+  background: linear-gradient(180deg, var(--op-key-top), var(--op-key-bottom)) !important;
+  border: 1px solid var(--op-key-edge) !important;
+  box-shadow: 0 2px 3px rgba(0,0,0,.3), inset 0 -2px 0 var(--op-accent) !important;
+}
+[class*="bar_"][class*="slider"], [class*="track_"] { border-radius: 2px !important; }
+[class*="barFill"] { background: var(--op-accent) !important; }
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+[class*="numberBadge"] {
+  background: var(--op-orange) !important;
+  color: #000 !important;
+  font-family: var(--op-font-mono) !important;
+  font-weight: 800;
+  border-radius: 4px !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--op-orange) 60%, transparent);
+}
+[class*="textBadge"], [class*="premiumBadge"] {
+  font-family: var(--op-font-mono) !important;
+  letter-spacing: .08em;
+  border-radius: 3px !important;
+}
+
+/* =========================================================
+   SETTINGS PAGES
+   ========================================================= */
+[class*="standardSidebarView"] [class*="sidebarRegion"] {
+  background-color: var(--op-module) !important;
+  background-image: var(--op-brush) !important;
+}
+[class*="standardSidebarView"] [class*="contentRegion"] {
+  background: var(--op-panel) !important;
+}
+[class*="side_"] [class*="item_"] {
+  border-radius: var(--op-radius) !important;
+  font-weight: 500;
+}
+[class*="side_"] [class*="item_"][class*="selected"] {
+  background: var(--op-lcd) !important;
+  color: var(--op-lcd-fg) !important;
+  font-family: var(--op-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  text-shadow: var(--op-lcd-glow);
+}
+[class*="side_"] [class*="separator"] { background: var(--op-line) !important; }
+[class*="closeButton"] {
+  border-radius: 50% !important;
+  background: radial-gradient(circle at 50% 35%, var(--op-key-top) 0 55%, var(--op-key-bottom) 80%) !important;
+  border-color: var(--op-line-strong) !important;
+  box-shadow: 0 2px 3px rgba(0,0,0,.2);
+}
+
+/* Settings cards */
+[class*="contentRegion"] [class*="card_"], [class*="settingsCard"] {
+  background: var(--op-raised) !important;
+  border: 1px solid var(--op-line) !important;
+  border-radius: calc(var(--op-radius) + 2px) !important;
+}
+
+/* =========================================================
+   VOICE / VIDEO CALLS
+   ========================================================= */
+[class*="callContainer"], [class*="videoGrid"] {
+  background-color: var(--op-chassis) !important;
+  background-image: var(--op-brush) !important;
+}
+[class*="tile_"] {
+  border-radius: calc(var(--op-radius) + 2px) !important;
+  background: var(--op-lcd) !important;
+  border: 1px solid #000;
+}
+[class*="tile_"][class*="speaking"], [class*="tileSpeaking"] {
+  box-shadow: inset 0 0 0 2px var(--op-green), 0 0 12px color-mix(in srgb, var(--op-green) 45%, transparent) !important;
+}
+[class*="controlButton"] {
+  border-radius: 50% !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.25);
+}
+[class*="controlButton"][class*="red"], button[class*="disconnect"] {
+  background: var(--op-orange) !important;
+  color: #000 !important;
+}
+
+/* =========================================================
+   HOME / FRIENDS / DMS
+   ========================================================= */
+[class*="peopleColumn"], [class*="nowPlayingColumn"] { background: var(--op-panel) !important; }
+[class*="peopleListItem"] { border-radius: var(--op-radius) !important; }
+[class*="nowPlayingColumn"] [class*="card"] {
+  background: var(--op-raised) !important;
+  border: 1px solid var(--op-line);
+  border-radius: calc(var(--op-radius) + 2px) !important;
+}
+
+[class*="privateChannels"] [class*="channel_"] [class*="link_"],
+[class*="privateChannels"] [class*="interactive_"] { border-radius: var(--op-radius) !important; }
+
+/* Friends tabs: a row of keys */
+[class*="tabBar"] [class*="item_"] {
+  border-radius: 4px !important;
+  font-family: var(--op-font-mono) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-size: 11px !important;
+}
+[class*="tabBar"] [class*="item_"][class*="selected"] {
+  background: var(--op-lcd) !important;
+  color: var(--op-lcd-fg) !important;
+  text-shadow: var(--op-lcd-glow);
+}
+[class*="tabBar"] [class*="addFriend"] {
+  background: var(--op-green) !important;
+  color: #000 !important;
+}
+
+/* =========================================================
+   EMOJI / GIF / STICKER PICKER
+   ========================================================= */
+[class*="emojiPicker"], [class*="contentWrapper"][class*="picker"] {
+  background: var(--op-raised) !important;
+}
+[class*="emojiItem"] { border-radius: 4px !important; }
+[class*="emojiItem"][class*="Selected"] {
+  background: var(--op-select) !important;
+  box-shadow: inset 0 0 0 1px var(--op-line-strong);
+}
+[class*="navButton"] {
+  font-family: var(--op-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  border-radius: 4px !important;
+}
+[class*="navButton"][class*="navButtonActive"] {
+  background: var(--op-lcd) !important;
+  color: var(--op-lcd-fg) !important;
+}
+[class*="categoryItem"][class*="selected"] { background: var(--op-select) !important; }
+
+/* =========================================================
+   TOASTS & NOTICES
+   ========================================================= */
+[class*="notice_"] {
+  background: var(--op-lcd) !important;
+  color: var(--op-lcd-fg-2) !important;
+  font-family: var(--op-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px !important;
+  border-bottom: 3px solid transparent;
+  border-image: var(--op-stripe) 1;
+}
+[class*="notice_"] a, [class*="notice_"] button { color: var(--op-lcd-fg) !important; }
+[class*="notice_"][class*="colorDanger"] { background: var(--op-orange) !important; color: #000 !important; }
+[class*="notice_"][class*="colorDanger"] a, [class*="notice_"][class*="colorDanger"] button { color: #000 !important; }
+
+[class*="toast_"] {
+  background: var(--op-lcd) !important;
+  color: var(--op-lcd-fg) !important;
+  border-radius: var(--op-radius) !important;
+  font-family: var(--op-font-mono) !important;
+}
