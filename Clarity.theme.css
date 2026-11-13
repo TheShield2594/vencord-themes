@@ -1,7 +1,7 @@
 /**
  * @name Clarity
  * @author Brandon
- * @version 1.0.0
+ * @version 1.0.1
  * @description Quiet, glassy and minimal. A visionOS-inspired Discord theme: neutral glass lit from above, SF typography, capsule controls and restrained colour. Dark and light.
  * @source https://github.com/TheShield2594/vencord-themes
  */
@@ -451,7 +451,6 @@ code, pre, kbd, [class*="codeBlock"], .hljs, [class*="inlineCode"] {
    follows the corner radius exactly. */
 [class*="chat_"]:not([class*="chatContent"]):not([class*="chatLayer"]),
 [class*="privateChannels_"],
-[class*="panels_"],
 [class*="channelTextArea_"],
 [class*="menu_"]:not([class*="menuIcon"]):not([class*="menuItem"]),
 [class*="autocomplete_"],
@@ -460,7 +459,6 @@ code, pre, kbd, [class*="codeBlock"], .hljs, [class*="inlineCode"] {
 }
 [class*="chat_"]:not([class*="chatContent"]):not([class*="chatLayer"])::after,
 [class*="privateChannels_"]::after,
-[class*="panels_"]::after,
 [class*="channelTextArea_"]::after,
 [class*="menu_"]:not([class*="menuIcon"]):not([class*="menuItem"])::after,
 [class*="autocomplete_"]::after,
@@ -728,7 +726,9 @@ code, pre, kbd, [class*="codeBlock"], .hljs, [class*="inlineCode"] {
   border: none !important;
   border-radius: var(--cl-r-md) !important;
   margin: 8px !important;
-  box-shadow: var(--cl-shadow-2) !important;
+  /* No lit-edge ring here: that needs position: relative, and Discord
+     positions this panel absolutely in the 2025 layout */
+  box-shadow: var(--cl-shadow-2), var(--cl-edge-top), inset 0 0 0 1px var(--cl-sep) !important;
   overflow: hidden;
 }
 [class*="panels_"] [class*="container_"],
