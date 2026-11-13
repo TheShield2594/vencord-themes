@@ -6,7 +6,7 @@ Both support dark, light, Darker and Midnight, and Discord's 2025 visual refresh
 | Theme | Look |
 | --- | --- |
 | **Orchard** (`Orchard.theme.css`) | Apple-style. Liquid Glass materials, SF typography, iOS switches, macOS menus, a Dock-style server rail, iMessage bubbles. |
-| **Nothing** (`nothing_theme.css`) | Nothing OS-inspired. Monochrome, dot-matrix type, a dot-grid backdrop, floating cards, one red accent. |
+| **Nothing** (`Nothing.theme.css`) | Nothing OS-inspired. Monochrome, dot-matrix type, a dot-grid backdrop, floating cards, one red accent. |
 
 ## Install
 
@@ -17,7 +17,7 @@ https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Orchard.them
 ```
 
 ```
-https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/nothing_theme.css
+https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Nothing.theme.css
 ```
 
 **Local (to customise):** download the `.css` file, open Vencord Settings → Themes → Open Themes Folder, drop it in, and enable it.
