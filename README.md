@@ -8,7 +8,7 @@ All of them support dark, light, Darker and Midnight, and Discord's 2025 visual 
 | **Clarity** (`Clarity.theme.css`) | visionOS-inspired and minimal. Neutral glass lit from above, neutral selection instead of colored fills, capsule controls, accent used only for actions. |
 | **Orchard** (`Orchard.theme.css`) | Apple-style. Liquid Glass materials, SF typography, iOS switches, macOS menus, a Dock-style server rail, iMessage bubbles. |
 | **Nothing** (`Nothing.theme.css`) | Nothing OS-inspired. Monochrome, dot-matrix type, a dot-grid backdrop, floating cards, one red accent. |
-| **Mica** (`Mica.theme.css`) | Windows 11 / Fluent-inspired. Mica backdrop, Acrylic flyouts, the accent pill on selected items, Segoe UI Variable, Win11 controls. |
+| **Mica** (`Mica.theme.css`) | Windows 11 / Fluent-inspired. Mica backdrop, Acrylic flyouts, Win11 caption buttons with a Snap layouts preview, a taskbar server rail, a Start-style quick switcher, setting cards, InfoBars and Notification Center toasts. |
 | **Tonal** (`Tonal.theme.css`) | Material You-inspired. One seed colour builds the whole tonal palette; bottom-sheet dialogs, an M3 search view, shape-morphing avatars and loaders, wavy progress bars, chips and cards. |
 | **Operator** (`Operator.theme.css`) | Inspired by boutique synth hardware. Brushed-aluminium chassis (graphite in dark), an LCD channel header, knob buttons, LEDs, four key colours. |
 | **Encore** (`Encore.theme.css`) | Spotify-inspired. Black frame with floating panels, playlist-style channel headers, a numbered track-list member list, green play buttons that slide up on hover, a Now Playing user panel with an equalizer and progress line in voice. |
@@ -114,6 +114,9 @@ Nothing loads Doto, Space Grotesk and Space Mono from Google Fonts.
 | `--mica-radius` | `8px` | Corners of cards, flyouts and dialogs. Controls use half of it |
 | `--mica-gap` | `6px` | Space around the chat card; `0px` for edge-to-edge |
 | `--mica-blur` | `30px` | Acrylic blur strength for menus, popouts and the user panel |
+| `--mica-tiles` | `1` | Taskbar-style tiles behind server icons on hover and selection; `0` for bare icons |
+| `--mica-lift` | `1` | Cards rise slightly on hover; `0` keeps them flat |
+| `--mica-snap-flyout` | `1` | Resting on the maximise button shows a Snap layouts preview (Windows desktop app); `0` turns it off |
 
 Mica loads no web fonts; it uses Segoe UI Variable when your system has it, and falls back to Inter or the system font. It respects *Reduce motion* and *Reduce transparency*; with reduced transparency, Mica and Acrylic become solid.
 
