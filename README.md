@@ -1,16 +1,21 @@
 # Vencord Themes
 
-Two full Discord themes for [Vencord](https://vencord.dev) (also works in Vesktop and BetterDiscord).
-Both support dark, light, Darker and Midnight, and Discord's 2025 visual refresh.
+Three full Discord themes for [Vencord](https://vencord.dev) (also works in Vesktop and BetterDiscord).
+All three support dark, light, Darker and Midnight, and Discord's 2025 visual refresh.
 
 | Theme | Look |
 | --- | --- |
+| **Clarity** (`Clarity.theme.css`) | visionOS-inspired and minimal. Neutral glass lit from above, neutral selection instead of colored fills, capsule controls, accent used only for actions. |
 | **Orchard** (`Orchard.theme.css`) | Apple-style. Liquid Glass materials, SF typography, iOS switches, macOS menus, a Dock-style server rail, iMessage bubbles. |
 | **Nothing** (`Nothing.theme.css`) | Nothing OS-inspired. Monochrome, dot-matrix type, a dot-grid backdrop, floating cards, one red accent. |
 
 ## Install
 
 **Online (auto-updates):** open Vencord Settings → Themes → Online Themes, and paste one of these:
+
+```
+https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Clarity.theme.css
+```
 
 ```
 https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Orchard.theme.css
@@ -22,7 +27,7 @@ https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Nothing.them
 
 **Local (to customise):** download the `.css` file, open Vencord Settings → Themes → Open Themes Folder, drop it in, and enable it.
 
-**BetterDiscord:** download the `.css` file, open Settings → Themes → Open Themes Folder, drop it in, and enable it. Both files already use the `.theme.css` name BetterDiscord needs.
+**BetterDiscord:** download the `.css` file, open Settings → Themes → Open Themes Folder, drop it in, and enable it. All files already use the `.theme.css` name BetterDiscord needs.
 
 ## Customise
 
@@ -30,11 +35,24 @@ Each theme has a settings block at the top of the file. To change a setting, edi
 
 ```css
 :root {
+  --clarity-radius: 16px;           /* Clarity: tighter corners */
   --orchard-accent-dark: #BF5AF2;   /* Orchard: purple accent */
   --orchard-bubbles: off;           /* Orchard: plain messages */
   --n-accent: #c2410c;              /* Nothing: burnt orange (5.2:1 with white text) */
 }
 ```
+
+### Clarity
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `--clarity-accent-dark` / `-light` | `#0A84FF` / `#007AFF` | Accent for buttons, links, focus rings and checkboxes. Selection stays neutral |
+| `--clarity-wallpaper-dark` / `-light` | gradients | The environment behind the glass; use `url(...) center / cover` for a photo |
+| `--clarity-blur`, `--clarity-saturate` | `48px`, `160%` | Glass strength |
+| `--clarity-gap` | `10px` | Space between floating panes |
+| `--clarity-radius` | `22px` | Pane corners. Menus, rows, cards and chips scale from it |
+
+Clarity has no on/off switches, so it looks the same in every Chromium and Firefox build. It respects *Reduce motion* and *Reduce transparency* the same way Orchard does.
 
 ### Orchard
 
