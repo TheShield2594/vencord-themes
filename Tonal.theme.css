@@ -1,8 +1,8 @@
 /**
  * @name Tonal
- * @description Material You–inspired theme. One seed colour builds the whole tonal palette: tinted surfaces, pill indicators, expressive shapes and springy motion. Dark + light.
+ * @description Material You–inspired theme. One seed colour builds the whole tonal palette: tinted surfaces, pill indicators, a navigation rail, search views, bottom sheets, filter chips, wavy progress and shape-morphing avatars. Dark + light.
  * @author Brandon
- * @version 1.0.0
+ * @version 1.1.0
  * @source https://github.com/TheShield2594/vencord-themes
  */
 
@@ -19,6 +19,7 @@
   --tonal-radius: 28px;         /* pane corners; cards, menus and chips scale from it */
   --tonal-gap: 8px;             /* space between floating panes; 0px for flush */
   --tonal-expressive: 1;        /* 1 = squish-and-overshoot shape motion, 0 = calm */
+  --tonal-shapes: 1;            /* 1 = avatars morph into the scalloped M3 "cookie" on hover, 0 = stay round */
   --tonal-font: 'Google Sans Flex', 'Google Sans', 'Roboto Flex', Roboto, system-ui, sans-serif;
   --tonal-font-mono: 'Roboto Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
 }
@@ -36,6 +37,7 @@
   --t-emphasized: cubic-bezier(.2, 0, 0, 1);
   --t-decel: cubic-bezier(.05, .7, .1, 1);
   --t-accel: cubic-bezier(.3, 0, .8, .15);
+  --t-spring: cubic-bezier(.38, 1.6, .55, .9);   /* shape spring, overshoots */
   --t-short: 150ms;
   --t-medium: 300ms;
   --t-long: 500ms;
@@ -237,6 +239,35 @@
 /* =========================================================
    ANIMATIONS
    ========================================================= */
+/* Shape amplitude for the scalloped "cookie": 0 = circle, 1 = full scallops.
+   Registered so it can be transitioned and animated. */
+@property --t-amp {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+@keyframes t-morph {
+  0%, 100% { --t-amp: 0; }
+  50%      { --t-amp: 1.6; }
+}
+@keyframes t-spin { to { transform: rotate(360deg); } }
+@keyframes t-wave { to { -webkit-mask-position: 20px 50%; mask-position: 20px 50%; } }
+@keyframes t-sheet {
+  0%   { opacity: 0; transform: translateY(48px); }
+  60%  { opacity: 1; transform: translateY(calc(-6px * var(--tonal-expressive))); }
+  100% { transform: none; }
+}
+@keyframes t-check {
+  from { width: 0; opacity: 0; margin-right: 0; }
+  to   { width: 14px; opacity: 1; margin-right: 4px; }
+}
+@keyframes t-snack {
+  from { opacity: 0; transform: translateY(16px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes t-collapse {
+  to { font-size: 22px; padding-block: 10px; box-shadow: 0 1px 0 var(--t-outline-variant); }
+}
 /* Squish, then overshoot: the M3 Expressive shape spring.
    --tonal-expressive scales the overshoot; 0 keeps the shape morph but drops the bounce. */
 @keyframes t-squish {
@@ -1225,4 +1256,418 @@ input[class*="input_"]:focus, textarea[class*="textArea"]:focus, [class*="inputD
   color: var(--t-inverse-on-surface) !important;
   border-radius: var(--t-r-sm) !important;
   box-shadow: var(--t-elev-3) !important;
+}
+
+/* #########################################################
+   M3 EXPRESSIVE SIGNATURES
+   Everything below is the "hardware" of Material 3 Expressive:
+   rail, search view, sheets, chips, shapes, wavy progress.
+   ######################################################### */
+
+/* =========================================================
+   NAVIGATION RAIL: active indicator behind the selected server
+   ========================================================= */
+[class*="guilds_"] [class*="listItem_"] { isolation: isolate; }
+[class*="guilds_"] [class*="listItem_"]:has([class*="selected_"])::before,
+[class*="guilds_"] [class*="listItem_"]:has([aria-selected="true"])::before {
+  content: "";
+  position: absolute;
+  top: -2px; bottom: -2px;
+  left: 4px; right: 4px;
+  z-index: -1;
+  border-radius: var(--t-r-lg);
+  background: var(--t-secondary-container);
+  transform-origin: center;
+  animation: t-grow var(--t-medium) var(--t-emphasized);
+  pointer-events: none;
+}
+/* Home: the rail's FAB, a primary-container squircle that never goes round */
+[class*="guilds_"] [class*="tutorialContainer"] [class*="childWrapper_"],
+[class*="guilds_"] [data-list-item-id="guildsnav___home"] [class*="childWrapper_"] {
+  background: var(--t-primary-container) !important;
+  color: var(--t-on-primary-container) !important;
+  border-radius: var(--t-r-lg) !important;
+  box-shadow: var(--t-elev-1);
+}
+[class*="guilds_"] [class*="tutorialContainer"]:hover [class*="childWrapper_"],
+[class*="guilds_"] [class*="tutorialContainer"] [class*="selected_"] [class*="childWrapper_"] {
+  background: var(--t-primary) !important;
+  color: var(--t-on-primary) !important;
+  border-radius: var(--t-r-md) !important;
+  box-shadow: var(--t-elev-2);
+}
+/* Selected rail icons sit on the indicator, so they square up a little more */
+[class*="guilds_"] [class*="selected_"] img[class*="icon_"] { border-radius: 30% !important; }
+/* Rail separator: an inset M3 divider */
+[class*="guildSeparator"] { width: 32px !important; height: 1px !important; }
+
+/* =========================================================
+   TOP APP BAR: dynamic-colour tint behind the chat header
+   ========================================================= */
+section[class*="title_"] {
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--t-primary-container) 55%, var(--t-surface)) 0%,
+      var(--t-surface) 100%) !important;
+}
+section[class*="title_"] h1,
+section[class*="title_"] [class*="titleWrapper"] h1 {
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  font-variation-settings: "opsz" 28;
+}
+/* Channel topic: supporting text */
+section[class*="title_"] [class*="topic"] { color: var(--t-on-surface-variant) !important; }
+/* Server name in the drawer: title-medium */
+[class*="sidebar_"] header h2,
+[class*="sidebar_"] header [class*="name_"] {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+
+/* =========================================================
+   M3 SEARCH BAR & SEARCH VIEW
+   ========================================================= */
+/* Toolbar search: a full pill with room for the leading icon */
+[class*="search_"] [class*="searchBar"] {
+  background: var(--t-surface-high) !important;
+  min-height: 32px;
+  padding-inline: 12px !important;
+  transition: background var(--t-short) var(--t-emphasized), box-shadow var(--t-short) var(--t-emphasized) !important;
+}
+[class*="search_"] [class*="searchBar"]:hover { background: var(--t-surface-highest) !important; }
+
+/* Quick switcher: the full search view sheet */
+[class*="quickswitcher"] {
+  background: var(--t-surface-high) !important;
+  border-radius: var(--t-r-xl) !important;
+  padding: 0 !important;
+  overflow: hidden;
+  animation: t-enter var(--t-long) var(--t-decel);
+}
+[class*="quickswitcher"] input {
+  height: 56px !important;
+  font-size: 16px !important;
+  background-color: var(--t-surface-highest) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 20 20'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: 18px 50% !important;
+  background-size: 22px 22px !important;
+  padding-left: 54px !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+/* The bar sits on its own header strip with a divider below it */
+[class*="quickswitcher"] > :first-child:has(input) {
+  padding: 12px !important;
+  border-bottom: 1px solid var(--t-outline-variant) !important;
+}
+/* Results: list items with a pill state layer */
+[class*="quickswitcher"] [class*="result_"] {
+  border-radius: 999px !important;
+  margin-inline: 8px !important;
+}
+[class*="quickswitcher"] [class*="protip"] {
+  color: var(--t-on-surface-variant) !important;
+  font-size: 12px !important;
+}
+
+/* =========================================================
+   SETTINGS: large top app bar that collapses as you scroll
+   ========================================================= */
+[class*="standardSidebarView"] [class*="contentColumn"] > div > h2:first-child,
+[class*="standardSidebarView"] [class*="contentColumn"] h1 {
+  font-size: 34px !important;
+  line-height: 1.2 !important;
+  font-weight: 400 !important;
+  font-variation-settings: "opsz" 48;
+  letter-spacing: -.01em !important;
+  text-transform: none !important;
+  color: var(--t-on-surface) !important;
+  margin-bottom: 20px !important;
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html:not(.reduce-motion) [class*="standardSidebarView"] [class*="contentColumn"] > div > h2:first-child {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--t-surface);
+      animation: t-collapse linear both;
+      animation-timeline: scroll(nearest);
+      animation-range: 0 140px;
+    }
+  }
+}
+/* Section titles: title-medium in primary */
+[class*="standardSidebarView"] [class*="contentColumn"] :is(h3, h5, [class*="eyebrow"], [class*="sectionTitle"]) {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+  text-transform: none !important;
+  color: var(--t-primary) !important;
+}
+/* Settings rows separated by inset dividers */
+[class*="standardSidebarView"] [class*="divider_"]:not([class*="isUnread"]) {
+  border-color: var(--t-outline-variant) !important;
+  margin-inline: 16px !important;
+}
+
+/* =========================================================
+   BOTTOM SHEETS: dialogs rise from below with a drag handle
+   ========================================================= */
+[class*="root_"][class*="modal"],
+[class*="focusLock"] > [class*="root_"] {
+  position: relative;
+  border-radius: var(--t-r-xl) var(--t-r-xl) var(--t-r-lg) var(--t-r-lg) !important;
+  animation: t-sheet var(--t-long) var(--t-emphasized) !important;
+}
+[class*="root_"][class*="modal"]::before,
+[class*="focusLock"] > [class*="root_"]::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 32px;
+  height: 4px;
+  margin-left: -16px;
+  border-radius: 999px;
+  background: var(--t-on-surface-variant);
+  opacity: .4;
+  z-index: 5;
+  pointer-events: none;
+}
+/* Dialog footer: actions right-aligned, text-button style for cancel */
+[class*="root_"][class*="modal"] [class*="footer"] button[class*="lookLink"] {
+  background: transparent !important;
+  color: var(--t-primary) !important;
+}
+
+/* =========================================================
+   SHAPES: avatars morph circle → scalloped cookie, and the
+   loading indicator morphs and spins (M3 Expressive)
+   ========================================================= */
+[class*="message_"] img[class*="avatar_"],
+[class*="message_"] [class*="avatar_"] img,
+section[class*="panels"] [class*="avatarWrapper"] img,
+[class*="member_"] [class*="avatar_"] img,
+[class*="userPopoutInner"] [class*="avatar_"] img,
+[class*="spinner_"]:has([class*="spinningCircle"])::before {
+  clip-path: polygon(50.00% 0.00%, calc(52.91% - 0.03% * var(--t-amp)) calc(0.08% + 0.53% * var(--t-amp)), calc(55.80% - 0.23% * var(--t-amp)) calc(0.34% + 1.99% * var(--t-amp)), calc(58.68% - 0.69% * var(--t-amp)) calc(0.76% + 3.94% * var(--t-amp)), calc(61.53% - 1.38% * var(--t-amp)) calc(1.35% + 5.84% * var(--t-amp)), calc(64.34% - 2.14% * var(--t-amp)) calc(2.10% + 7.15% * var(--t-amp)), calc(67.10% - 2.74% * var(--t-amp)) calc(3.02% + 7.52% * var(--t-amp)), calc(69.80% - 2.96% * var(--t-amp)) calc(4.09% + 6.85% * var(--t-amp)), calc(72.44% - 2.69% * var(--t-amp)) calc(5.32% + 5.36% * var(--t-amp)), calc(75.00% - 2.00% * var(--t-amp)) calc(6.70% + 3.46% * var(--t-amp)), calc(77.48% - 1.10% * var(--t-amp)) calc(8.23% + 1.67% * var(--t-amp)), calc(79.86% - 0.32% * var(--t-amp)) calc(9.89% + 0.43% * var(--t-amp)), 82.14% 11.70%, calc(84.31% - 0.37% * var(--t-amp)) calc(13.63% + 0.39% * var(--t-amp)), calc(86.37% - 1.45% * var(--t-amp)) calc(15.69% + 1.37% * var(--t-amp)), calc(88.30% - 3.06% * var(--t-amp)) calc(17.86% + 2.57% * var(--t-amp)), calc(90.11% - 4.81% * var(--t-amp)) calc(20.14% + 3.58% * var(--t-amp)), calc(91.77% - 6.24% * var(--t-amp)) calc(22.52% + 4.10% * var(--t-amp)), calc(93.30% - 6.93% * var(--t-amp)) calc(25.00% + 4.00% * var(--t-amp)), calc(94.68% - 6.67% * var(--t-amp)) calc(27.56% + 3.35% * var(--t-amp)), calc(95.91% - 5.51% * var(--t-amp)) calc(30.20% + 2.38% * var(--t-amp)), calc(96.98% - 3.76% * var(--t-amp)) calc(32.90% + 1.37% * var(--t-amp)), calc(97.90% - 1.92% * var(--t-amp)) calc(35.66% + 0.57% * var(--t-amp)), calc(98.65% - 0.52% * var(--t-amp)) calc(38.47% + 0.12% * var(--t-amp)), 99.24% 41.32%, calc(99.66% - 0.53% * var(--t-amp)) calc(44.20% + 0.06% * var(--t-amp)), calc(99.92% - 2.00% * var(--t-amp)) calc(47.09% + 0.12% * var(--t-amp)), calc(100.00% - 4.00% * var(--t-amp)) 50.00%, calc(99.92% - 5.99% * var(--t-amp)) calc(52.91% - 0.35% * var(--t-amp)), calc(99.66% - 7.41% * var(--t-amp)) calc(55.80% - 0.87% * var(--t-amp)), calc(99.24% - 7.88% * var(--t-amp)) calc(58.68% - 1.39% * var(--t-amp)), calc(98.65% - 7.26% * var(--t-amp)) calc(61.53% - 1.72% * var(--t-amp)), calc(97.90% - 5.75% * var(--t-amp)) calc(64.34% - 1.72% * var(--t-amp)), calc(96.98% - 3.76% * var(--t-amp)) calc(67.10% - 1.37% * var(--t-amp)), calc(95.91% - 1.84% * var(--t-amp)) calc(69.80% - 0.79% * var(--t-amp)), calc(94.68% - 0.48% * var(--t-amp)) calc(72.44% - 0.24% * var(--t-amp)), 93.30% 75.00%, calc(91.77% - 0.45% * var(--t-amp)) calc(77.48% - 0.29% * var(--t-amp)), calc(90.11% - 1.60% * var(--t-amp)) calc(79.86% - 1.19% * var(--t-amp)), calc(88.30% - 3.06% * var(--t-amp)) calc(82.14% - 2.57% * var(--t-amp)), calc(86.37% - 4.36% * var(--t-amp)) calc(84.31% - 4.12% * var(--t-amp)), calc(84.31% - 5.12% * var(--t-amp)) calc(86.37% - 5.43% * var(--t-amp)), calc(82.14% - 5.14% * var(--t-amp)) calc(88.30% - 6.13% * var(--t-amp)), calc(79.86% - 4.46% * var(--t-amp)) calc(90.11% - 5.99% * var(--t-amp)), calc(77.48% - 3.30% * var(--t-amp)) calc(91.77% - 5.01% * var(--t-amp)), calc(75.00% - 2.00% * var(--t-amp)) calc(93.30% - 3.46% * var(--t-amp)), calc(72.44% - 0.90% * var(--t-amp)) calc(94.68% - 1.79% * var(--t-amp)), calc(69.80% - 0.21% * var(--t-amp)) calc(95.91% - 0.49% * var(--t-amp)), 67.10% 96.98%, calc(64.34% - 0.15% * var(--t-amp)) calc(97.90% - 0.51% * var(--t-amp)), calc(61.53% - 0.46% * var(--t-amp)) calc(98.65% - 1.95% * var(--t-amp)), calc(58.68% - 0.69% * var(--t-amp)) calc(99.24% - 3.94% * var(--t-amp)), calc(55.80% - 0.70% * var(--t-amp)) calc(99.66% - 5.96% * var(--t-amp)), calc(52.91% - 0.43% * var(--t-amp)) calc(99.92% - 7.45% * var(--t-amp)), 50.00% calc(100.00% - 8.00% * var(--t-amp)), calc(47.09% + 0.43% * var(--t-amp)) calc(99.92% - 7.45% * var(--t-amp)), calc(44.20% + 0.70% * var(--t-amp)) calc(99.66% - 5.96% * var(--t-amp)), calc(41.32% + 0.69% * var(--t-amp)) calc(99.24% - 3.94% * var(--t-amp)), calc(38.47% + 0.46% * var(--t-amp)) calc(98.65% - 1.95% * var(--t-amp)), calc(35.66% + 0.15% * var(--t-amp)) calc(97.90% - 0.51% * var(--t-amp)), 32.90% 96.98%, calc(30.20% + 0.21% * var(--t-amp)) calc(95.91% - 0.49% * var(--t-amp)), calc(27.56% + 0.90% * var(--t-amp)) calc(94.68% - 1.79% * var(--t-amp)), calc(25.00% + 2.00% * var(--t-amp)) calc(93.30% - 3.46% * var(--t-amp)), calc(22.52% + 3.30% * var(--t-amp)) calc(91.77% - 5.01% * var(--t-amp)), calc(20.14% + 4.46% * var(--t-amp)) calc(90.11% - 5.99% * var(--t-amp)), calc(17.86% + 5.14% * var(--t-amp)) calc(88.30% - 6.13% * var(--t-amp)), calc(15.69% + 5.12% * var(--t-amp)) calc(86.37% - 5.43% * var(--t-amp)), calc(13.63% + 4.36% * var(--t-amp)) calc(84.31% - 4.12% * var(--t-amp)), calc(11.70% + 3.06% * var(--t-amp)) calc(82.14% - 2.57% * var(--t-amp)), calc(9.89% + 1.60% * var(--t-amp)) calc(79.86% - 1.19% * var(--t-amp)), calc(8.23% + 0.45% * var(--t-amp)) calc(77.48% - 0.29% * var(--t-amp)), 6.70% 75.00%, calc(5.32% + 0.48% * var(--t-amp)) calc(72.44% - 0.24% * var(--t-amp)), calc(4.09% + 1.84% * var(--t-amp)) calc(69.80% - 0.79% * var(--t-amp)), calc(3.02% + 3.76% * var(--t-amp)) calc(67.10% - 1.37% * var(--t-amp)), calc(2.10% + 5.75% * var(--t-amp)) calc(64.34% - 1.72% * var(--t-amp)), calc(1.35% + 7.26% * var(--t-amp)) calc(61.53% - 1.72% * var(--t-amp)), calc(0.76% + 7.88% * var(--t-amp)) calc(58.68% - 1.39% * var(--t-amp)), calc(0.34% + 7.41% * var(--t-amp)) calc(55.80% - 0.87% * var(--t-amp)), calc(0.08% + 5.99% * var(--t-amp)) calc(52.91% - 0.35% * var(--t-amp)), calc(0.00% + 4.00% * var(--t-amp)) 50.00%, calc(0.08% + 2.00% * var(--t-amp)) calc(47.09% + 0.12% * var(--t-amp)), calc(0.34% + 0.53% * var(--t-amp)) calc(44.20% + 0.06% * var(--t-amp)), 0.76% 41.32%, calc(1.35% + 0.52% * var(--t-amp)) calc(38.47% + 0.12% * var(--t-amp)), calc(2.10% + 1.92% * var(--t-amp)) calc(35.66% + 0.57% * var(--t-amp)), calc(3.02% + 3.76% * var(--t-amp)) calc(32.90% + 1.37% * var(--t-amp)), calc(4.09% + 5.51% * var(--t-amp)) calc(30.20% + 2.38% * var(--t-amp)), calc(5.32% + 6.67% * var(--t-amp)) calc(27.56% + 3.35% * var(--t-amp)), calc(6.70% + 6.93% * var(--t-amp)) calc(25.00% + 4.00% * var(--t-amp)), calc(8.23% + 6.24% * var(--t-amp)) calc(22.52% + 4.10% * var(--t-amp)), calc(9.89% + 4.81% * var(--t-amp)) calc(20.14% + 3.58% * var(--t-amp)), calc(11.70% + 3.06% * var(--t-amp)) calc(17.86% + 2.57% * var(--t-amp)), calc(13.63% + 1.45% * var(--t-amp)) calc(15.69% + 1.37% * var(--t-amp)), calc(15.69% + 0.37% * var(--t-amp)) calc(13.63% + 0.39% * var(--t-amp)), 17.86% 11.70%, calc(20.14% + 0.32% * var(--t-amp)) calc(9.89% + 0.43% * var(--t-amp)), calc(22.52% + 1.10% * var(--t-amp)) calc(8.23% + 1.67% * var(--t-amp)), calc(25.00% + 2.00% * var(--t-amp)) calc(6.70% + 3.46% * var(--t-amp)), calc(27.56% + 2.69% * var(--t-amp)) calc(5.32% + 5.36% * var(--t-amp)), calc(30.20% + 2.96% * var(--t-amp)) calc(4.09% + 6.85% * var(--t-amp)), calc(32.90% + 2.74% * var(--t-amp)) calc(3.02% + 7.52% * var(--t-amp)), calc(35.66% + 2.14% * var(--t-amp)) calc(2.10% + 7.15% * var(--t-amp)), calc(38.47% + 1.38% * var(--t-amp)) calc(1.35% + 5.84% * var(--t-amp)), calc(41.32% + 0.69% * var(--t-amp)) calc(0.76% + 3.94% * var(--t-amp)), calc(44.20% + 0.23% * var(--t-amp)) calc(0.34% + 1.99% * var(--t-amp)), calc(47.09% + 0.03% * var(--t-amp)) calc(0.08% + 0.53% * var(--t-amp)));
+}
+[class*="message_"] img[class*="avatar_"],
+[class*="message_"] [class*="avatar_"] img,
+section[class*="panels"] [class*="avatarWrapper"] img,
+[class*="member_"] [class*="avatar_"] img,
+[class*="userPopoutInner"] [class*="avatar_"] img {
+  --t-amp: 0;
+  transition: --t-amp var(--t-long) var(--t-spring), transform var(--t-long) var(--t-spring) !important;
+}
+[class*="message_"]:hover img[class*="avatar_"],
+[class*="message_"]:hover [class*="avatar_"] img,
+section[class*="panels"] [class*="avatarWrapper"]:hover img,
+[class*="member_"]:hover [class*="avatar_"] img,
+[class*="userPopoutInner"] [class*="avatar_"]:hover img {
+  --t-amp: var(--tonal-shapes);
+  transform: rotate(calc(20deg * var(--tonal-shapes)));
+}
+
+/* Loading indicator: a primary shape that breathes between circle and cookie */
+[class*="spinner_"]:has([class*="spinningCircle"]) { position: relative; }
+[class*="spinner_"] [class*="spinningCircle"] { opacity: 0 !important; }
+[class*="spinner_"]:has([class*="spinningCircle"])::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  background: var(--t-primary);
+  animation: t-morph 1.4s var(--t-emphasized) infinite, t-spin 2.8s linear infinite;
+}
+
+/* =========================================================
+   WAVY PROGRESS (M3 Expressive)
+   ========================================================= */
+[class*="progressBar_"] {
+  height: 10px !important;
+  overflow: visible !important;
+  background: linear-gradient(var(--t-secondary-container), var(--t-secondary-container)) center / 100% 4px no-repeat !important;
+  border-radius: 999px !important;
+}
+[class*="progressBar_"] > div {
+  height: 10px !important;
+  background: var(--t-primary) !important;
+  border-radius: 0 !important;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='10' viewBox='0 0 20 10'%3E%3Cpath d='M0 5 Q5 1 10 5 T20 5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") 0 50% / 20px 10px repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='10' viewBox='0 0 20 10'%3E%3Cpath d='M0 5 Q5 1 10 5 T20 5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") 0 50% / 20px 10px repeat-x;
+  animation: t-wave .9s linear infinite;
+}
+
+/* =========================================================
+   MESSAGE INPUT: connected button group + extended FAB
+   ========================================================= */
+/* Gift, GIF, sticker, emoji: one M3 connected button group */
+form [class*="channelTextArea"] [class*="buttons_"] { gap: 2px; padding-right: 6px; }
+form [class*="channelTextArea"] [class*="buttons_"] > * {
+  background: var(--t-surface-highest);
+  border-radius: var(--t-r-xs) !important;
+  margin: 0 !important;
+  transition: border-radius var(--t-medium) var(--t-spring), background var(--t-short) var(--t-emphasized);
+}
+form [class*="channelTextArea"] [class*="buttons_"] > :first-child { border-radius: 999px var(--t-r-xs) var(--t-r-xs) 999px !important; }
+form [class*="channelTextArea"] [class*="buttons_"] > :last-child  { border-radius: var(--t-r-xs) 999px 999px var(--t-r-xs) !important; }
+form [class*="channelTextArea"] [class*="buttons_"] > :only-child  { border-radius: 999px !important; }
+form [class*="channelTextArea"] [class*="buttons_"] > :hover {
+  background: var(--t-secondary-container);
+  border-radius: var(--t-r-md) !important;
+}
+
+/* "Jump to present": an extended FAB with an arrow */
+[class*="jumpToPresentBar"] button {
+  background: var(--t-primary-container) !important;
+  color: var(--t-on-primary-container) !important;
+  border-radius: var(--t-r-lg) !important;
+  padding: 0 16px !important;
+  font-weight: 600 !important;
+  box-shadow: var(--t-elev-2);
+  transition: border-radius var(--t-medium) var(--t-spring), box-shadow var(--t-short) !important;
+}
+[class*="jumpToPresentBar"] button::before { content: "↓"; margin-right: 6px; font-weight: 700; }
+[class*="jumpToPresentBar"] button:hover { border-radius: var(--t-r-md) !important; box-shadow: var(--t-elev-3); }
+
+/* Big primary actions: extended FAB shape */
+button[class*="colorBrand"]:is([class*="sizeLarge"], [class*="sizeXlarge"]) {
+  border-radius: var(--t-r-lg) !important;
+  box-shadow: var(--t-elev-2);
+}
+button[class*="colorBrand"]:is([class*="sizeLarge"], [class*="sizeXlarge"]):hover { box-shadow: var(--t-elev-3); }
+
+/* =========================================================
+   CARDS: filled, elevated and outlined variants
+   ========================================================= */
+/* Embeds: filled card */
+article[class*="embedFull"] {
+  background: var(--t-surface-highest) !important;
+  border-left-width: 0 !important;
+  box-shadow: inset 4px 0 0 var(--t-primary);
+  padding-left: 16px !important;
+}
+/* Forum posts: elevated cards that lift */
+[class*="mainCard"] {
+  background: var(--t-surface-low) !important;
+  box-shadow: var(--t-elev-1) !important;
+}
+[class*="mainCard"]:hover {
+  background: var(--t-surface-container) !important;
+  box-shadow: var(--t-elev-2) !important;
+  border-radius: var(--t-r-xl) !important;
+}
+/* Files: outlined card */
+[class*="attachment_"], [class*="wrapper_"][class*="file"] {
+  background: transparent !important;
+  border: 1px solid var(--t-outline-variant) !important;
+  border-radius: var(--t-r-lg) !important;
+}
+/* Friends list: outlined cards on hover */
+[class*="peopleListItem"] { border: 1px solid transparent !important; }
+[class*="peopleListItem"]:hover { border-color: var(--t-outline-variant) !important; }
+
+/* =========================================================
+   LISTS: leading avatar, headline + supporting text
+   ========================================================= */
+[class*="member_"] [class*="name_"],
+[class*="privateChannels"] [class*="name_"],
+[class*="peopleListItem"] [class*="username"] {
+  font-weight: 500 !important;
+  color: var(--t-on-surface) !important;
+}
+[class*="member_"] [class*="subText"],
+[class*="member_"] [class*="activity"],
+[class*="privateChannels"] [class*="subText"],
+[class*="peopleListItem"] [class*="subtext"] {
+  font-size: 12px !important;
+  color: var(--t-on-surface-variant) !important;
+}
+[class*="member_"] [class*="layout_"] { padding-block: 4px !important; }
+/* Member group headers: inset subheaders in primary */
+[class*="membersGroup"] {
+  color: var(--t-primary) !important;
+  padding-left: 20px !important;
+}
+
+/* =========================================================
+   CHIPS: filter (reactions), assist (tags), input (roles)
+   ========================================================= */
+/* Selected filter chip gets the check mark that slides in */
+[class*="reactionMe"] [class*="reactionInner"]::before {
+  content: "";
+  display: inline-block;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  background: var(--t-on-secondary-container);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  animation: t-check var(--t-medium) var(--t-emphasized);
+}
+/* Forum tags: assist chips */
+[class*="tagsContainer"] [class*="pill"],
+[class*="forumTag"], [class*="tag_"][class*="pill"] {
+  background: transparent !important;
+  border: 1px solid var(--t-outline-variant) !important;
+  border-radius: var(--t-r-sm) !important;
+  color: var(--t-on-surface-variant) !important;
+}
+/* Roles: input chips with a leading colour dot */
+[class*="role_"], [class*="rolePill"] {
+  height: auto;
+  padding: 2px 8px !important;
+  font-weight: 500;
+  color: var(--t-on-surface-variant) !important;
+}
+[class*="role_"] [class*="roleCircle"], [class*="rolePill"] [class*="roleCircle"] {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+}
+
+/* =========================================================
+   BADGES: small dot vs large number badge
+   ========================================================= */
+/* Small badge: the unread nub becomes a 6px dot */
+[class*="containerDefault"] [class*="unread_"] {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  top: 50% !important;
+  margin-top: -3px !important;
+  left: 4px !important;
+}
+/* Large badge: 16px tall, label-small */
+[class*="numberBadge"] {
+  min-width: 16px !important;
+  height: 16px !important;
+  padding: 0 4px !important;
+  font-size: 11px !important;
+  line-height: 16px !important;
+}
+
+/* =========================================================
+   DIVIDERS, DATES, SNACKBARS
+   ========================================================= */
+[class*="menu_"] [class*="separator"] { margin: 6px 12px !important; }
+/* Date dividers: a tonal date chip floating on an inset divider */
+[class*="divider_"][class*="hasContent"]:not([class*="isUnread"]) span[class*="content"] {
+  background: var(--t-surface-container) !important;
+  border-radius: 999px !important;
+  padding: 2px 12px !important;
+  font-variant-numeric: tabular-nums;
+}
+[class*="divider_"][class*="hasContent"]:not([class*="isUnread"]) {
+  border-color: var(--t-outline-variant) !important;
+  margin-inline: 24px !important;
+}
+/* Snackbars rise in */
+[class*="toast_"], [class*="newMessagesBar"], [class*="jumpToPresentBar"] {
+  animation: t-snack var(--t-medium) var(--t-decel);
 }

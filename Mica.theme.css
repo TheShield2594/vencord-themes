@@ -1,8 +1,8 @@
 /**
  * @name Mica
- * @description Windows 11 / Fluent Design–inspired theme. Mica backdrop, Acrylic flyouts, Segoe UI Variable, accent pill indicators and Win11 controls. Dark + light.
+ * @description Windows 11 / Fluent Design–inspired theme. Mica backdrop, Acrylic flyouts, Win11 caption buttons with a Snap layouts preview, a taskbar-style server rail, a Start-style quick switcher, Settings-app cards and Win11 controls. Dark + light.
  * @author Brandon
- * @version 1.0.0
+ * @version 1.1.0
  * @source https://github.com/TheShield2594/vencord-themes
  */
 
@@ -30,6 +30,10 @@
   --mica-radius: 8px;      /* windows, cards, flyouts; controls use half */
   --mica-gap: 6px;         /* space around the content card; 0px for edge-to-edge */
   --mica-blur: 30px;       /* Acrylic blur strength */
+
+  --mica-tiles: 1;         /* 1 = server icons sit on taskbar-style tiles on hover/selection, 0 = bare icons */
+  --mica-lift: 1;          /* 1 = cards rise slightly on hover, 0 = flat */
+  --mica-snap-flyout: 1;   /* 1 = hovering maximise shows a Snap layouts preview (Windows app), 0 = off */
 
   --mica-font: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
   --mica-font-display: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
@@ -111,6 +115,11 @@
   --mi-shadow-dialog: 0 32px 64px rgba(0, 0, 0, 0.37), 0 2px 21px rgba(0, 0, 0, 0.37);
   --mi-shadow-card: 0 2px 4px rgba(0, 0, 0, 0.26);
   --mi-code: rgba(0, 0, 0, 0.22);
+  --mi-focus-inner: #000000;
+  --mi-tile-hover: rgba(255, 255, 255, 0.06);
+  --mi-tile-select: rgba(255, 255, 255, 0.10);
+  --mi-tile-stroke: rgba(255, 255, 255, 0.08);
+  --mi-snap-tile: rgba(255, 255, 255, 0.20);
 }
 
 :is(.theme-light, .visual-refresh.theme-light, .visual-refresh .theme-light) {
@@ -170,6 +179,11 @@
   --mi-shadow-dialog: 0 32px 64px rgba(0, 0, 0, 0.19), 0 2px 21px rgba(0, 0, 0, 0.15);
   --mi-shadow-card: 0 2px 4px rgba(0, 0, 0, 0.04);
   --mi-code: rgba(0, 0, 0, 0.04);
+  --mi-focus-inner: #ffffff;
+  --mi-tile-hover: rgba(0, 0, 0, 0.05);
+  --mi-tile-select: rgba(255, 255, 255, 0.75);
+  --mi-tile-stroke: rgba(0, 0, 0, 0.08);
+  --mi-snap-tile: rgba(0, 0, 0, 0.16);
 }
 
 /* =========================================================
@@ -271,6 +285,31 @@
   from { transform: translateY(-50%) scaleY(0); }
   to   { transform: translateY(-50%) scaleY(1); }
 }
+/* Context menus: slide down and reveal from the top edge */
+@keyframes mi-menu {
+  from { opacity: 0; transform: translateY(-12px); clip-path: inset(0 0 100% 0 round var(--mi-r)); }
+  to   { opacity: 1; transform: none; clip-path: inset(0 0 0 0 round var(--mi-r)); }
+}
+/* Start menu / search: rises from below */
+@keyframes mi-start {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: none; }
+}
+/* Notification Center toast: slides in from the right edge */
+@keyframes mi-toast {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: none; }
+}
+/* Taskbar launch hop when a server becomes active */
+@keyframes mi-launch {
+  0%   { transform: translateY(0); }
+  35%  { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+@keyframes mi-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
 /* Respect "Reduce Motion" (OS setting or Discord's own toggle).
    Loading indicators are excluded so they keep signalling that something is loading. */
@@ -314,22 +353,29 @@ body, #app-mount {
 * { -webkit-font-smoothing: antialiased; }
 ::selection { background: var(--mi-accent); color: var(--mi-on-accent); }
 
-/* Win11 scrollbars: thin, rounded, no track */
-::-webkit-scrollbar { width: 8px !important; height: 8px !important; }
+/* Win11 overlay scrollbars: hidden at rest, a 2px line while you're over the
+   content, a full 6px bar once you're on the bar itself */
+::-webkit-scrollbar { width: 12px !important; height: 12px !important; background: transparent !important; }
 ::-webkit-scrollbar-thumb {
-  background: var(--mi-scroll) !important;
+  background: transparent !important;
   background-clip: padding-box !important;
-  border: 2px solid transparent !important;
+  border: 5px solid transparent !important;
   border-radius: 999px !important;
+  min-height: 40px;
 }
-::-webkit-scrollbar-thumb:hover { border-width: 1px !important; }
+:hover::-webkit-scrollbar-thumb { background-color: var(--mi-scroll) !important; }
+::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:active {
+  background-color: var(--mi-scroll) !important;
+  border-width: 3px !important;
+}
 ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent !important; border: none !important; }
 
 /* Keyboard focus: the Win11 double focus ring */
 :focus-visible {
+  /* outer 2px ring in the text colour, inner 1px ring in the opposite colour */
   outline: 2px solid var(--mi-text-1) !important;
   outline-offset: 1px;
-  box-shadow: 0 0 0 1px var(--mi-base) !important;
+  box-shadow: 0 0 0 1px var(--mi-focus-inner) !important;
 }
 
 /* =========================================================
@@ -371,17 +417,89 @@ main[class*="chat_"], [class*="chat_"]:has(> [class*="content_"]),
 /* =========================================================
    TITLE BAR & CAPTION BUTTONS
    ========================================================= */
-[class*="titleBar"] [class*="winButton"],
-[class*="bar_"] [class*="winButton"] {
-  border-radius: 0 !important;
-  transition: background var(--mi-t-fast) linear;
+[class*="titleBar"], [class*="base_"] > [class*="bar_"] { overflow: visible !important; }
+
+/* Window title: Win11 caption text, small and quiet */
+[class*="titleBar"] [class*="title_"], [class*="base_"] > [class*="bar_"] [class*="title_"] {
+  font-family: var(--mica-font) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--mi-text-2) !important;
 }
+
+/* Caption buttons: 46px wide, flat, full height, 10px glyphs */
+[class*="winButton"] {
+  position: relative;
+  width: 46px !important;
+  min-width: 46px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--mi-text-1) !important;
+  transition: background var(--mi-t-fast) linear, color var(--mi-t-fast) linear;
+}
+[class*="winButton"] svg { width: 10px !important; height: 10px !important; }
 [class*="winButton"]:hover { background: var(--mi-subtle-hover) !important; }
+[class*="winButton"]:active { background: var(--mi-subtle-press) !important; color: var(--mi-text-2) !important; }
 [class*="winButtonClose"]:hover {
   background: var(--mi-critical) !important;
   color: #fff !important;
 }
-[class*="winButtonClose"]:hover svg { color: #fff !important; fill: #fff !important; }
+[class*="winButtonClose"]:active {
+  background: color-mix(in srgb, var(--mi-critical) 90%, transparent) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+[class*="winButtonClose"]:is(:hover, :active) svg { color: inherit !important; fill: currentColor !important; }
+
+/* Snap layouts preview: rest on maximise and an Acrylic flyout with the
+   three classic layouts fades in after a beat, like Windows 11.
+   Decorative only; it never takes clicks. */
+[class*="winButtonMinMax"]::after {
+  content: "";
+  position: absolute;
+  top: calc(100% + 6px);
+  right: -40px;
+  width: 196px;
+  height: 76px;
+  border-radius: var(--mi-r);
+  border: 1px solid var(--mi-stroke-surface);
+  box-shadow: var(--mi-shadow-flyout);
+  background-color: var(--mi-acrylic);
+  background-image:
+    linear-gradient(var(--mi-snap-tile), var(--mi-snap-tile)),
+    linear-gradient(var(--mi-snap-tile), var(--mi-snap-tile)),
+    linear-gradient(var(--mi-snap-tile), var(--mi-snap-tile)),
+    linear-gradient(var(--mi-snap-tile), var(--mi-snap-tile)),
+    linear-gradient(var(--mi-snap-tile), var(--mi-snap-tile)),
+    linear-gradient(var(--mi-snap-tile), var(--mi-snap-tile)),
+    linear-gradient(var(--mi-snap-tile), var(--mi-snap-tile));
+  background-repeat: no-repeat;
+  background-size:
+    25px 44px, 25px 44px,
+    34px 44px, 16px 44px,
+    16px 44px, 16px 44px, 16px 44px;
+  background-position:
+    12px 16px, 39px 16px,
+    72px 16px, 108px 16px,
+    132px 16px, 150px 16px, 168px 16px;
+  -webkit-backdrop-filter: blur(var(--mica-blur)) saturate(150%);
+  backdrop-filter: blur(var(--mica-blur)) saturate(150%);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity var(--mi-t) var(--mi-ease), transform var(--mi-t-slow) var(--mi-ease), visibility 0s linear var(--mi-t);
+  pointer-events: none;
+  z-index: 1000;
+}
+[class*="winButtonMinMax"]:hover::after {
+  opacity: var(--mica-snap-flyout);
+  visibility: visible;
+  transform: none;
+  transition: opacity var(--mi-t) var(--mi-ease) .5s, transform var(--mi-t-slow) var(--mi-ease) .5s, visibility 0s linear .5s;
+}
 
 /* =========================================================
    TYPOGRAPHY (Win11 type ramp)
@@ -425,12 +543,41 @@ h1, h2,
 /* =========================================================
    SERVER LIST
    ========================================================= */
+/* Taskbar indicator: a short grey dash for unread, a longer accent bar
+   for the active server, like running vs focused apps */
 [class*="pill_"] span[class*="item"] {
   background: var(--mi-accent) !important;
   border-radius: 999px !important;
   width: 3px !important;
   margin-left: 2px !important;
-  transition: height var(--mi-t) var(--mi-ease) !important;
+  transition: height var(--mi-t) var(--mi-ease), background var(--mi-t) linear !important;
+}
+[class*="pill_"] span[class*="item"][style*="height: 8px"] {
+  height: 6px !important;
+  background: var(--mi-text-3) !important;
+}
+[class*="pill_"] span[class*="item"][style*="height: 20px"] { height: 10px !important; background: var(--mi-text-3) !important; }
+[class*="pill_"] span[class*="item"][style*="height: 40px"] { height: 18px !important; }
+
+/* Taskbar tiles behind the icons. Drawn with box-shadow on the container,
+   so they sit outside the icon's mask and never shift the layout. */
+[data-list-id="guildsnav"] [class*="blobContainer"] {
+  border-radius: var(--mi-r);
+  transition: box-shadow var(--mi-t-fast) linear, transform var(--mi-t) var(--mi-ease);
+}
+[data-list-id="guildsnav"] [class*="listItem"]:hover [class*="blobContainer"] {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--mi-tile-hover) calc(var(--mica-tiles) * 100%), transparent);
+}
+[data-list-id="guildsnav"] [class*="listItem"]:has([class*="selected"]) [class*="blobContainer"] {
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--mi-tile-select) calc(var(--mica-tiles) * 100%), transparent),
+    0 0 0 5px color-mix(in srgb, var(--mi-tile-stroke) calc(var(--mica-tiles) * 100%), transparent);
+  animation: mi-launch 420ms var(--mi-ease);
+}
+/* Press: the icon dips, then springs back on release */
+[data-list-id="guildsnav"] [class*="listItem"]:active [class*="blobContainer"] {
+  transform: scale(.88);
+  transition-duration: var(--mi-t-fast);
 }
 
 [class*="circleIconButton"] {
@@ -636,8 +783,10 @@ section[class*="title_"], [class*="chat_"] > section {
   color: var(--mi-text-1) !important;
   border: 1px solid var(--mi-stroke-surface) !important;
   border-radius: var(--mi-r) !important;
-  box-shadow: var(--mi-shadow-flyout) !important;
+  box-shadow: inset 3px 0 0 var(--mi-accent), var(--mi-shadow-flyout) !important;
+  animation: mi-toast var(--mi-t-slow) var(--mi-ease);
 }
+[class*="newMessagesBar"] *, [class*="jumpToPresentBar"] * { color: var(--mi-text-1) !important; }
 
 /* Links */
 [class*="markup"] a[href] { color: var(--mi-accent-text) !important; }
@@ -771,7 +920,39 @@ form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
   box-shadow: var(--mi-shadow-flyout) !important;
   animation: mi-flyout var(--mi-t-slow) var(--mi-ease);
 }
+/* Context menus get the Win11 reveal: slide down while the top edge unclips */
+[class*="menu_"]:not([class*="menuIcon"]):not([class*="menuItem"]) {
+  animation: mi-menu var(--mi-t-slow) var(--mi-ease);
+  min-width: 200px;
+}
 [class*="menu_"] [class*="scroller"] { padding: 4px !important; }
+
+/* Icon column on the left, like Win11 menus. Items with submenus keep their
+   chevron on the right. */
+[class*="menu_"] [class*="item_"]:has(> [class*="iconContainer"]):not([aria-haspopup="true"]) {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 12px;
+}
+[class*="menu_"] [class*="item_"]:has(> [class*="iconContainer"]):not([aria-haspopup="true"]) > [class*="iconContainer"] {
+  margin: 0 !important;
+  width: 16px;
+  flex: none;
+  color: var(--mi-text-2);
+}
+[class*="menu_"] [class*="item_"]:has(> [class*="iconContainer"]):not([aria-haspopup="true"]) > [class*="label_"] { flex: 1; }
+/* Rows without an icon line their text up with the icon column */
+[class*="menu_"]:has([class*="iconContainer"]) [class*="item_"]:not(:has(> [class*="iconContainer"])) {
+  padding-left: 36px !important;
+}
+/* Shortcuts and IDs on the right read like keyboard accelerators */
+[class*="menu_"] [class*="hint_"], [class*="menu_"] [class*="subtext_"] {
+  color: var(--mi-text-3) !important;
+  font-size: 12px !important;
+  font-variant-numeric: tabular-nums;
+}
+[class*="menu_"] [aria-haspopup="true"] [class*="caret"],
+[class*="menu_"] [aria-haspopup="true"] svg { color: var(--mi-text-2) !important; }
 
 [class*="menu_"] [class*="item_"] {
   position: relative;
@@ -793,6 +974,15 @@ form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
 [class*="menu_"] [role="separator"], [class*="menu_"] [class*="separator"] {
   border-color: var(--mi-stroke-divider) !important;
   background: var(--mi-stroke-divider) !important;
+  height: 1px !important;
+  margin: 4px -4px !important;
+}
+[class*="menu_"] [class*="groupLabel"], [class*="menu_"] [class*="header_"] {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  color: var(--mi-text-2) !important;
 }
 
 /* Autocomplete rows */
@@ -824,6 +1014,8 @@ form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
   font-size: 12px !important;
   font-weight: 400 !important;
   padding: 5px 8px 7px !important;
+  max-width: 320px;
+  animation: mi-fade var(--mi-t) linear;
 }
 [class*="tooltip_"] [class*="tooltipContent"] { color: var(--mi-text-1) !important; }
 [class*="tooltipPointer"] { display: none !important; }
@@ -844,15 +1036,97 @@ form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
   background: var(--mi-dialog-footer) !important;
   border-top: 1px solid var(--mi-stroke-divider) !important;
   box-shadow: none !important;
+  padding: 24px !important;
+  gap: 8px;
+}
+/* ContentDialog: equal-width buttons across the footer */
+:is([class*="root_"][class*="modal"], [class*="focusLock"] > [class*="root_"]) [class*="footer_"] > button[class*="button_"] {
+  flex: 1 1 0;
+  min-width: 120px;
+  margin: 0 !important;
+}
+:is([class*="root_"][class*="modal"], [class*="focusLock"] > [class*="root_"]) [class*="header_"] h1,
+:is([class*="root_"][class*="modal"], [class*="focusLock"] > [class*="root_"]) [class*="header_"] h2 {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
 }
 
+/* =========================================================
+   QUICK SWITCHER (Start menu / Search flyout)
+   ========================================================= */
 [class*="quickswitcher"] {
   background: var(--mi-acrylic) !important;
   -webkit-backdrop-filter: blur(var(--mica-blur)) saturate(150%);
   backdrop-filter: blur(var(--mica-blur)) saturate(150%);
   border: 1px solid var(--mi-stroke-surface) !important;
   border-radius: var(--mi-r) !important;
+  box-shadow: var(--mi-shadow-dialog) !important;
+  padding: 24px 24px 0 !important;
+  animation: mi-start var(--mi-t-slow) var(--mi-ease);
 }
+/* Pill search box at the top, accent underline while typing */
+[class*="quickswitcher"] input {
+  height: 36px;
+  padding: 0 16px 0 40px !important;
+  font-size: 14px !important;
+  background-color: var(--mi-fill-input) !important;
+  /* magnifier glyph */
+  background-image: radial-gradient(circle at 20px 50%, transparent 5px, var(--mi-text-2) 5.5px, var(--mi-text-2) 6.5px, transparent 7px) !important;
+  background-repeat: no-repeat !important;
+  border: 1px solid var(--mi-stroke-ctl) !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 -1px 0 var(--mi-stroke-strong) !important;
+  transition: box-shadow var(--mi-t-fast) linear, background-color var(--mi-t-fast) linear;
+}
+[class*="quickswitcher"] input:focus {
+  background-color: var(--mi-fill-input-focus) !important;
+  box-shadow: inset 0 -2px 0 var(--mi-accent) !important;
+  outline: none !important;
+}
+/* "Recommended"-style section headings */
+[class*="quickswitcher"] [class*="header_"],
+[class*="quickswitcher"] [class*="sectionHeader"] {
+  font-family: var(--mica-font) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  color: var(--mi-text-1) !important;
+  padding: 16px 8px 8px !important;
+}
+[class*="quickswitcher"] [class*="result_"] {
+  position: relative;
+  border-radius: var(--mi-r-ctl) !important;
+  min-height: 40px;
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="quickswitcher"] [class*="resultFocused"] {
+  background: var(--mi-subtle-hover) !important;
+}
+[class*="quickswitcher"] [class*="resultFocused"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--mi-accent);
+  transform: translateY(-50%);
+  animation: mi-pill var(--mi-t-slow) var(--mi-ease);
+}
+/* The tip strip at the bottom becomes Start's footer bar */
+[class*="quickswitcher"] [class*="protip"] {
+  margin: 16px -24px 0 !important;
+  padding: 14px 24px !important;
+  background: var(--mi-dialog-footer) !important;
+  border-top: 1px solid var(--mi-stroke-divider) !important;
+  color: var(--mi-text-3) !important;
+  font-size: 12px !important;
+  text-transform: none !important;
+}
+[class*="quickswitcher"] [class*="protip"] * { text-transform: none !important; }
 
 /* =========================================================
    BUTTONS (Accent, Standard, Subtle)
@@ -1016,8 +1290,13 @@ div[class*="checked"][class*="container_"],
   position: relative;
   border-radius: var(--mi-r-ctl) !important;
   color: var(--mi-text-1) !important;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  padding-inline: 12px !important;
   transition: background var(--mi-t-fast) linear;
 }
+[class*="side_"] [class*="item_"]:active { background: var(--mi-subtle-press) !important; }
 [class*="side_"] [class*="item_"]:hover { background: var(--mi-subtle-hover) !important; }
 [class*="side_"] [class*="item_"][class*="selected"] {
   background: var(--mi-subtle-select) !important;
@@ -1055,6 +1334,47 @@ div[class*="checked"][class*="container_"],
   border: 1px solid var(--mi-stroke) !important;
   border-radius: var(--mi-r) !important;
 }
+
+/* Page title: Win11 Settings' big breadcrumb header */
+[class*="contentColumn"] > h2:first-child,
+[class*="contentColumn"] > div:first-child > h2:first-child {
+  font-family: var(--mica-font-display) !important;
+  font-size: 28px !important;
+  line-height: 36px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  color: var(--mi-text-1) !important;
+  margin-bottom: 24px !important;
+}
+[class*="contentColumn"] > h2:first-child::before,
+[class*="contentColumn"] > div:first-child > h2:first-child::before {
+  content: "Settings  \203A  ";
+  white-space: pre;
+  color: var(--mi-text-3);
+}
+
+/* Each toggle row becomes a Win11 setting card: stacked, 2px apart,
+   with a hover fill. Discord's dividers between rows go away. */
+[class*="contentColumn"] [class*="container_"]:has(> [class*="labelRow"]) {
+  background: var(--mi-card) !important;
+  border: 1px solid var(--mi-stroke) !important;
+  border-radius: var(--mi-r-ctl) !important;
+  padding: 14px 16px !important;
+  margin: 0 0 2px !important;
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="contentColumn"] [class*="container_"]:has(> [class*="labelRow"]):hover {
+  background: var(--mi-fill-ctl-hover) !important;
+}
+[class*="contentColumn"] [class*="container_"]:has(> [class*="labelRow"]) > [class*="divider"] { display: none !important; }
+[class*="contentColumn"] [class*="container_"]:has(> [class*="labelRow"]) [class*="note_"] { margin-top: 2px !important; }
+[class*="contentColumn"] [class*="container_"]:has(> [class*="labelRow"]) [class*="note_"] * {
+  color: var(--mi-text-3) !important;
+  font-size: 12px !important;
+}
+/* Leave a gap after the last card in a group, before the next heading */
+[class*="contentColumn"] [class*="container_"]:has(> [class*="labelRow"]) + :not([class*="container_"]) { margin-top: 24px !important; }
 
 /* =========================================================
    VOICE / VIDEO CALLS
@@ -1150,25 +1470,84 @@ div[class*="checked"][class*="container_"],
 /* =========================================================
    NOTICES & TOASTS (InfoBar)
    ========================================================= */
+/* InfoBar: tinted bar with a coloured status icon on the left */
 [class*="notice_"] {
-  background: var(--mi-accent) !important;
-  color: var(--mi-on-accent) !important;
+  --mi-ib: var(--mi-accent);
+  --mi-ib-glyph: "i";
+  background: color-mix(in srgb, var(--mi-ib) 14%, var(--mi-base)) !important;
+  color: var(--mi-text-1) !important;
+  border-bottom: 1px solid var(--mi-stroke) !important;
+  box-shadow: inset 3px 0 0 var(--mi-ib) !important;
   font-size: 13px !important;
+  gap: 4px;
+}
+[class*="notice_"]::before {
+  content: var(--mi-ib-glyph);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--mi-ib);
+  color: var(--mi-on-accent);
+  font: 700 11px/1 var(--mica-font);
 }
 [class*="notice_"] * { color: inherit !important; }
 [class*="notice_"] button {
-  background: transparent !important;
-  border: 1px solid currentColor !important;
+  background: var(--mi-fill-ctl) !important;
+  border: 1px solid var(--mi-stroke-ctl) !important;
+  border-bottom-color: var(--mi-stroke-ctl-bottom) !important;
   border-radius: var(--mi-r-ctl) !important;
+  color: var(--mi-text-1) !important;
 }
-[class*="notice_"][class*="colorDanger"] { background: var(--mi-critical) !important; color: #fff !important; }
+[class*="notice_"] button:hover { background: var(--mi-fill-ctl-hover) !important; }
+[class*="notice_"]:is([class*="colorDanger"], [class*="colorError"]) {
+  --mi-ib: var(--mi-critical);
+  --mi-ib-glyph: "\2715";
+}
+[class*="notice_"]:is([class*="colorDanger"], [class*="colorError"])::before { color: #fff; }
+[class*="notice_"][class*="colorWarning"] { --mi-ib: var(--mi-caution); --mi-ib-glyph: "!"; }
+[class*="notice_"][class*="colorWarning"]::before { color: #000; }
+[class*="notice_"]:is([class*="colorSuccess"], [class*="colorSpotify"]) { --mi-ib: var(--mi-success); --mi-ib-glyph: "\2713"; }
+[class*="notice_"]:is([class*="colorSuccess"], [class*="colorSpotify"])::before { color: var(--mi-focus-inner); }
 
-[class*="toast_"] {
+/* Notification Center toasts: Acrylic card that slides in from the right */
+[class*="toast_"], .vc-toast {
   background: var(--mi-acrylic) !important;
-  -webkit-backdrop-filter: blur(var(--mica-blur));
-  backdrop-filter: blur(var(--mica-blur));
+  -webkit-backdrop-filter: blur(var(--mica-blur)) saturate(150%);
+  backdrop-filter: blur(var(--mica-blur)) saturate(150%);
   border: 1px solid var(--mi-stroke-surface) !important;
   border-radius: var(--mi-r) !important;
-  box-shadow: var(--mi-shadow-flyout) !important;
+  box-shadow: var(--mi-shadow-dialog) !important;
   color: var(--mi-text-1) !important;
+  padding: 12px 16px !important;
+  animation: mi-toast var(--mi-t-slow) var(--mi-ease);
+}
+
+/* =========================================================
+   PROGRESS (ProgressBar / ProgressRing)
+   ========================================================= */
+[class*="progressBar"] {
+  background: var(--mi-stroke-strong) !important;
+  border-radius: 999px !important;
+  overflow: hidden;
+}
+[class*="progressBar"] > div, [class*="progressBar"] [class*="progress_"] {
+  background: var(--mi-accent) !important;
+  border-radius: 999px !important;
+}
+[class*="spinningCircle"] circle { stroke: var(--mi-accent) !important; }
+
+/* =========================================================
+   CARD ELEVATION (hover lift)
+   ========================================================= */
+:is([class*="mainCard"], [class*="nowPlayingColumn"] [class*="card"], [class*="vc-addon-card"], [class*="peopleListItem"]) {
+  transition: background var(--mi-t-fast) linear, transform var(--mi-t) var(--mi-ease), box-shadow var(--mi-t) var(--mi-ease) !important;
+}
+:is([class*="mainCard"], [class*="nowPlayingColumn"] [class*="card"], [class*="vc-addon-card"]):hover {
+  transform: translateY(calc(var(--mica-lift) * -2px));
+  box-shadow: 0 calc(var(--mica-lift) * 8px) calc(var(--mica-lift) * 16px) rgba(0, 0, 0, calc(var(--mica-lift) * 0.14)) !important;
 }

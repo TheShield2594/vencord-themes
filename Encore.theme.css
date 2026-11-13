@@ -1,8 +1,8 @@
 /**
  * @name Encore
- * @description Spotify-inspired theme. Black app frame, floating rounded panels, a tinted header gradient, round green play-button controls and a Now Playing user bar. Dark + light.
+ * @description Spotify-inspired theme. Black app frame, floating panels, playlist-hero channel headers, numbered track-list members, green play buttons that slide up on hover, a Now Playing bar with a progress line and equalizer, Wrapped-style profiles. Dark + light.
  * @author Brandon
- * @version 1.0.0
+ * @version 1.1.0
  * @source https://github.com/TheShield2594/vencord-themes
  */
 
@@ -16,7 +16,11 @@
   --encore-header-tint: var(--encore-accent);  /* colour of the gradient at the top of the chat */
   --encore-radius: 8px;          /* panel corners */
   --encore-gap: 8px;             /* space between the floating panels; 0px for flush */
-  --encore-eq: 1;                /* 1 = animated equalizer while in voice, 0 = still bars */
+  --encore-eq: 1;                /* 1 = animated equalizers (voice bar, selected channel), 0 = still bars */
+  --encore-track-numbers: 1;     /* 1 = number member-list rows like a track list, 0 = off */
+  --encore-play-reveal: 1;       /* 1 = green play button slides up on hovered server icons and cards, 0 = off */
+  --encore-wrapped-a: #f037a5;   /* Wrapped-style profile banner gradient, first colour */
+  --encore-wrapped-b: #1e3264;   /* ...second colour */
   --encore-font: 'Figtree', 'Circular', 'Helvetica Neue', Arial, sans-serif;
   --encore-font-mono: ui-monospace, 'JetBrains Mono', 'Cascadia Code', Menlo, Consolas, monospace;
   --encore-anim: .2s cubic-bezier(.3,0,.4,1);
@@ -981,4 +985,428 @@ div[class*="checked"][class*="container_"] svg path { fill: var(--e-on-accent) !
   color: var(--e-on-invert) !important;
   border-radius: var(--e-radius) !important;
   font-weight: 600;
+}
+
+/* =========================================================
+   SIGNATURE DETAILS
+   Everything below is Spotify-specific chrome layered on top of
+   the base theme. Each block degrades to the base look if Discord
+   renames the classes it targets.
+   ========================================================= */
+
+/* --- Shared tokens for this section --- */
+:root {
+  /* Play triangle, black, used inside the green play buttons */
+  --e-play-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 1.7v12.6a.7.7 0 0 0 1.05.6l10.9-6.3a.7.7 0 0 0 0-1.2L4.05 1.1A.7.7 0 0 0 3 1.7z'/%3E%3C/svg%3E");
+  --e-liked: linear-gradient(135deg, #450af5, #8e8ee5 55%, #c4efd9);
+}
+:is(.theme-dark, .theme-darker, .theme-midnight, .visual-refresh.theme-dark, .visual-refresh .theme-dark) {
+  --e-menu: #282828;
+  --e-menu-hover: #3e3e3e;
+  --e-tooltip: #282828;
+  --e-on-tooltip: #ffffff;
+  --e-progress-track: rgba(255,255,255,.18);
+}
+:is(.theme-light, .visual-refresh.theme-light, .visual-refresh .theme-light) {
+  --e-menu: #ffffff;
+  --e-menu-hover: #ededed;
+  --e-tooltip: #282828;           /* Spotify keeps tooltips dark in every mode */
+  --e-on-tooltip: #ffffff;
+  --e-progress-track: rgba(0,0,0,.14);
+}
+
+@keyframes e-progress {
+  from { background-size: 0% 2px, 100% 2px, 12px 12px, auto; background-position: 0 0, 0 0, 0% -5px, 0 0; }
+  to   { background-size: 100% 2px, 100% 2px, 12px 12px, auto; background-position: 0 0, 0 0, 100% -5px, 0 0; }
+}
+@keyframes e-like {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.22); }
+  65%  { transform: scale(.94); }
+  100% { transform: scale(1); }
+}
+@keyframes e-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------------------------------------------------------
+   PLAYLIST HERO at the start of every channel
+   The channel welcome block becomes a playlist header: square
+   "cover", small eyebrow, a huge bold title, blurred tint behind.
+   --------------------------------------------------------- */
+[class*="messagesWrapper"] div:has(> [class*="emptyChannelIcon"]) {
+  position: relative;
+  isolation: isolate;
+  padding: 56px 24px 28px !important;
+  margin: 0 0 16px !important;
+  border-radius: var(--e-radius);
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--e-panel) 65%, transparent) 100%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--encore-header-tint) calc(var(--e-tint-strength) + 22%), var(--e-panel)) 0%,
+      color-mix(in srgb, var(--encore-header-tint) var(--e-tint-strength), var(--e-panel)) 100%) !important;
+}
+/* Soft blurred bloom of the tint, like the artwork bleeding into the header */
+[class*="messagesWrapper"] div:has(> [class*="emptyChannelIcon"])::after {
+  content: "";
+  position: absolute;
+  inset: -40% -10% auto 30%;
+  height: 160%;
+  z-index: -1;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--encore-header-tint) 70%, transparent), transparent);
+  filter: blur(40px);
+  opacity: .55;
+  pointer-events: none;
+}
+/* The channel icon becomes the square playlist cover */
+[class*="messagesWrapper"] [class*="emptyChannelIcon"] {
+  width: 96px !important;
+  height: 96px !important;
+  border-radius: 4px !important;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--encore-header-tint) 80%, #000), color-mix(in srgb, var(--encore-header-tint) 35%, #000)) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5) !important;
+  display: grid !important;
+  place-items: center;
+}
+[class*="messagesWrapper"] [class*="emptyChannelIcon"] svg { width: 48px !important; height: 48px !important; color: #fff !important; }
+
+/* Eyebrow + giant title */
+[class*="messagesWrapper"] [class*="emptyChannelIcon"] + h3 {
+  font-size: clamp(40px, 6vw, 72px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -.045em !important;
+  line-height: 1 !important;
+  margin: 18px 0 10px !important;
+  color: var(--e-fg) !important;
+  text-wrap: balance;
+}
+[class*="messagesWrapper"] [class*="emptyChannelIcon"] + h3::before {
+  content: "PLAYLIST";
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  line-height: 1;
+  color: var(--e-fg);
+  opacity: .9;
+}
+/* Description line reads like "Made by · 50 songs" metadata */
+[class*="messagesWrapper"] [class*="emptyChannelIcon"] + h3 + div,
+[class*="messagesWrapper"] [class*="emptyChannelIcon"] ~ [class*="description"] {
+  font-size: 14px !important;
+  font-weight: 500;
+  color: var(--e-fg-2) !important;
+}
+
+/* ---------------------------------------------------------
+   SERVER RAIL: green play button slides up on hover
+   It sits on the blob container, outside the SVG mask, so it is
+   not clipped. Only real server icons (with an image) get it.
+   --------------------------------------------------------- */
+[data-list-id="guildsnav"] [class*="blobContainer"]:has(img) { position: relative; }
+[data-list-id="guildsnav"] [class*="blobContainer"]:has(img)::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 22px;
+  height: 22px;
+  z-index: 3;
+  border-radius: 50%;
+  background: var(--encore-accent) var(--e-play-glyph) 58% 50% / 9px no-repeat;
+  box-shadow: 0 6px 10px rgba(0,0,0,.45);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--encore-anim), transform var(--encore-anim);
+  pointer-events: none;
+}
+[data-list-id="guildsnav"] [class*="listItem"]:hover [class*="blobContainer"]:has(img)::after {
+  opacity: var(--encore-play-reveal);
+  transform: none;
+}
+
+/* Home / DMs button: the Liked Songs tile */
+[data-list-id="guildsnav"] [class*="childWrapper"]:has(svg):not(:has(img)) {
+  background: var(--e-liked) !important;
+  color: #fff !important;
+}
+[data-list-id="guildsnav"] [class*="childWrapper"]:has(svg):not(:has(img)) svg {
+  color: #fff !important;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
+}
+
+/* ---------------------------------------------------------
+   CHANNEL LIST: the playing track gets an equalizer
+   The selected channel's icon is replaced by green bars.
+   --------------------------------------------------------- */
+[class*="modeSelected"] [class*="iconContainer"] {
+  background:
+    linear-gradient(var(--encore-accent), var(--encore-accent)) 3px  calc(100% - 3px) / 3px 10px no-repeat,
+    linear-gradient(var(--encore-accent), var(--encore-accent)) 8px  calc(100% - 3px) / 3px 6px  no-repeat,
+    linear-gradient(var(--encore-accent), var(--encore-accent)) 13px calc(100% - 3px) / 3px 10px no-repeat,
+    linear-gradient(var(--encore-accent), var(--encore-accent)) 18px calc(100% - 3px) / 3px 5px  no-repeat !important;
+  animation: e-eq 1.1s ease-in-out infinite;
+}
+[class*="modeSelected"] [class*="iconContainer"] > svg { opacity: 0 !important; }
+
+/* ---------------------------------------------------------
+   MEMBER LIST: a numbered track list
+   Each role group restarts the count. Hovering a row swaps its
+   number for a play glyph, exactly like a Spotify track row.
+   (Discord only renders visible rows, so far down a long list the
+   count restarts at the first row it has drawn.)
+   --------------------------------------------------------- */
+[class*="members_"] [class*="membersGroup"] { counter-reset: e-track; }
+[class*="members_"] [class*="member_"] { counter-increment: e-track; }
+[class*="members_"] [class*="member_"] [class*="layout_"]::before {
+  content: counter(e-track);
+  flex: none;
+  width: calc(var(--encore-track-numbers) * 18px);
+  height: 16px;
+  margin-right: calc(var(--encore-track-numbers) * 10px);
+  overflow: hidden;
+  opacity: var(--encore-track-numbers);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--e-subtle);
+}
+[class*="members_"] [class*="member_"]:hover [class*="layout_"]::before {
+  content: "";
+  background-color: var(--e-fg);
+  -webkit-mask: var(--e-play-glyph) right center / 11px no-repeat;
+  mask: var(--e-play-glyph) right center / 11px no-repeat;
+}
+/* Member names read as track titles, activity as the artist line */
+[class*="members_"] [class*="member_"] [class*="name_"] { font-weight: 600; color: var(--e-fg) !important; }
+[class*="members_"] [class*="member_"] [class*="subText"],
+[class*="members_"] [class*="member_"] [class*="activity"] { font-size: 12.5px !important; }
+/* Group headers like "Popular" section titles */
+[class*="members_"] [class*="membersGroup"] {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: var(--e-fg) !important;
+  letter-spacing: -.01em !important;
+}
+
+/* ---------------------------------------------------------
+   NOW PLAYING BAR (user panel)
+   Controls sit in a centred transport pill. In voice, a thin
+   progress line runs along the top edge; hovering the bar turns
+   it green and shows the knob. No position change on the panel.
+   --------------------------------------------------------- */
+section[class*="panels"] [class*="container_"]:has([class*="avatarWrapper"]) {
+  gap: 6px;
+  padding-block: 8px !important;
+}
+section[class*="panels"] [class*="container_"]:has([class*="avatarWrapper"]) > :last-child:not([class*="avatarWrapper"]) {
+  background: var(--e-card);
+  border-radius: 999px;
+  padding: 2px;
+}
+section[class*="panels"] [class*="avatarWrapper"]:hover [class*="panelTitleContainer"],
+section[class*="panels"] [class*="avatarWrapper"]:hover [class*="nameTag"] [class*="title"] {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+section[class*="panels"]:has([class*="rtcConnectionStatus"]) {
+  --e-progress-fill: var(--e-fg);
+  --e-knob: transparent;
+  background:
+    linear-gradient(var(--e-progress-fill), var(--e-progress-fill)) 0 0 / 0% 2px no-repeat,
+    linear-gradient(var(--e-progress-track), var(--e-progress-track)) 0 0 / 100% 2px no-repeat,
+    radial-gradient(circle, var(--e-knob) 5px, transparent 5.5px) 0% -5px / 12px 12px no-repeat,
+    linear-gradient(90deg, color-mix(in srgb, var(--encore-accent) 14%, var(--e-frame)), var(--e-frame) 70%) !important;
+  animation: e-progress 240s linear infinite;
+}
+section[class*="panels"]:has([class*="rtcConnectionStatus"]):hover {
+  --e-progress-fill: var(--encore-accent);
+  --e-knob: var(--e-fg);
+}
+
+/* ---------------------------------------------------------
+   ACTIVE TOGGLES get Spotify's green dot underneath
+   (shuffle / repeat style), e.g. the member-list toggle.
+   --------------------------------------------------------- */
+section[class*="title_"] [class*="toolbar"] [class*="iconWrapper"][class*="selected"] {
+  color: var(--e-accent-fg) !important;
+  background: radial-gradient(circle at 50% calc(100% - 1px), var(--encore-accent) 2px, transparent 2.5px) !important;
+}
+
+/* ---------------------------------------------------------
+   WRAPPED profiles
+   Users without a custom banner get a bold duotone with a lime
+   disc; names are set big and heavy like a Wrapped card.
+   --------------------------------------------------------- */
+:is([class*="userPopoutOuter"], [class*="userProfileOuter"], [class*="userProfileModal"]) [class*="banner_"]:not([style*="url("]) {
+  background:
+    radial-gradient(circle at 88% 115%, #cdf564 0 34px, transparent 35px),
+    radial-gradient(120% 140% at 0% 0%, var(--encore-wrapped-a) 0%, transparent 60%),
+    linear-gradient(135deg, var(--encore-wrapped-a), var(--encore-wrapped-b)) !important;
+}
+:is([class*="userPopoutOuter"], [class*="userProfileOuter"], [class*="userProfileModal"]) [class*="banner_"]:not([style*="url("])::after {
+  background: repeating-linear-gradient(-45deg, rgba(255,255,255,.07) 0 10px, transparent 10px 22px);
+}
+:is([class*="userPopoutOuter"], [class*="userProfileOuter"]) :is(h1, [class*="nickname"]) {
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  letter-spacing: -.035em !important;
+  line-height: 1.1 !important;
+}
+:is([class*="userPopoutOuter"], [class*="userProfileOuter"]) [class*="userTag"],
+:is([class*="userPopoutOuter"], [class*="userProfileOuter"]) [class*="discriminator"] {
+  font-weight: 600;
+  color: var(--e-muted) !important;
+}
+
+/* ---------------------------------------------------------
+   CARDS: friends, forum posts and Active Now
+   #181818 resting, #282828 on hover, green play reveal on the
+   forum and Active Now cards.
+   --------------------------------------------------------- */
+[class*="peopleListItem"] {
+  background: var(--e-card) !important;
+  margin: 0 0 8px !important;
+  padding-inline: 12px !important;
+  border: none !important;
+}
+[class*="peopleListItem"]:hover { background: var(--e-hover) !important; }
+[class*="peopleListItem"] [class*="actionButton"] {
+  background: var(--e-frame) !important;
+  border-radius: 999px !important;
+  transition: transform var(--encore-anim), background var(--encore-anim), color var(--encore-anim);
+}
+[class*="peopleListItem"] [class*="actionButton"]:hover {
+  background: var(--encore-accent) !important;
+  color: var(--e-on-accent) !important;
+  transform: scale(1.06);
+}
+
+[class*="mainCard"] { position: relative; }
+[class*="mainCard"]::after,
+[class*="nowPlayingColumn"] [class*="card"]::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--encore-accent) var(--e-play-glyph) 58% 50% / 15px no-repeat;
+  box-shadow: 0 8px 8px rgba(0,0,0,.3);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .3s ease, transform .3s ease;
+  pointer-events: none;
+}
+[class*="mainCard"]:hover::after,
+[class*="nowPlayingColumn"] [class*="card"]:hover::after {
+  opacity: var(--encore-play-reveal);
+  transform: none;
+}
+
+/* Active Now column as a "Made for you" shelf */
+[class*="nowPlayingColumn"] h2,
+[class*="nowPlayingColumn"] [class*="header_"] {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.02em !important;
+  text-transform: none !important;
+  color: var(--e-fg) !important;
+}
+[class*="nowPlayingColumn"] [class*="card"] {
+  position: relative;
+  padding: 12px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  animation: e-rise .35s cubic-bezier(.3,0,.4,1) both;
+}
+[class*="nowPlayingColumn"] [class*="card"]:nth-child(2) { animation-delay: .05s; }
+[class*="nowPlayingColumn"] [class*="card"]:nth-child(3) { animation-delay: .1s; }
+[class*="nowPlayingColumn"] [class*="card"]:nth-child(4) { animation-delay: .15s; }
+
+/* Friends header title, big and bold like a library page */
+[class*="peopleColumn"] [class*="title_"],
+section[class*="title_"] [class*="titleWrapper"] h1 { letter-spacing: -.02em !important; }
+
+/* ---------------------------------------------------------
+   SEARCH: Spotify's pill. Hover adds a faint ring, focus a
+   2px white (black in light mode) ring.
+   --------------------------------------------------------- */
+[class*="search_"] [class*="searchBar"],
+[class*="searchBar"] {
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: box-shadow var(--encore-anim), background var(--encore-anim), width .25s cubic-bezier(.3,0,.4,1) !important;
+}
+[class*="search_"] [class*="searchBar"]:hover,
+[class*="searchBar"]:hover { box-shadow: inset 0 0 0 1px var(--e-line-strong); }
+[class*="search_"] [class*="searchBar"]:focus-within,
+[class*="searchBar"]:focus-within { box-shadow: inset 0 0 0 2px var(--e-fg); border-color: transparent !important; }
+[class*="searchBar"] [class*="icon"] { color: var(--e-muted) !important; }
+[class*="quickswitcher"] input:focus { box-shadow: inset 0 0 0 2px var(--e-fg) !important; }
+
+/* ---------------------------------------------------------
+   CONTEXT MENUS, TOOLTIPS, TOASTS
+   --------------------------------------------------------- */
+[class*="menu_"] {
+  background: var(--e-menu) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 16px 24px rgba(0,0,0,.3), 0 6px 8px rgba(0,0,0,.2) !important;
+}
+[class*="menu_"] [class*="item_"] {
+  border-radius: 2px !important;
+  padding-block: 10px !important;
+  color: var(--e-fg-2) !important;
+}
+[class*="menu_"] [class*="item_"][class*="focused"] {
+  background: var(--e-menu-hover) !important;
+  color: var(--e-fg) !important;
+  text-decoration: none;
+}
+[class*="menu_"] [class*="colorDanger"] { color: var(--e-danger) !important; }
+[class*="menu_"] [class*="colorDanger"][class*="focused"] { background: var(--e-danger-fill) !important; color: #fff !important; }
+
+[class*="tooltip_"] {
+  background: var(--e-tooltip) !important;
+  color: var(--e-on-tooltip) !important;
+  border-radius: 4px !important;
+}
+[class*="tooltip_"] [class*="tooltipContent"] { color: var(--e-on-tooltip) !important; }
+[class*="tooltipPointer"] { border-top-color: var(--e-tooltip) !important; }
+
+/* Blue "Added to Liked Songs" toast */
+[class*="toast_"]:not([class*="ontainer"]),
+[class*="toast"][class*="visual-refresh"]:not([class*="ontainer"]) {
+  background: #2e77d0 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
+  font-weight: 600;
+  box-shadow: 0 16px 24px rgba(0,0,0,.3) !important;
+}
+[class*="toast_"]:not([class*="ontainer"]) * { color: #fff !important; }
+
+/* ---------------------------------------------------------
+   LIKE: your own reactions pop like tapping the heart
+   --------------------------------------------------------- */
+[class*="reactionMe"] {
+  animation: e-like .38s cubic-bezier(.3,0,.4,1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--encore-accent) 18%, transparent) !important;
+}
+[class*="reactionMe"] [class*="reactionCount"] { color: var(--e-accent-fg) !important; }
+
+/* Verified-style bot tag: compact green pill, black check */
+[class*="botTag"] {
+  font-size: 10px !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase;
+  padding-inline: 5px !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--encore-accent) 40%, transparent);
 }

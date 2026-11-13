@@ -11,7 +11,7 @@ All of them support dark, light, Darker and Midnight, and Discord's 2025 visual 
 | **Mica** (`Mica.theme.css`) | Windows 11 / Fluent-inspired. Mica backdrop, Acrylic flyouts, the accent pill on selected items, Segoe UI Variable, Win11 controls. |
 | **Tonal** (`Tonal.theme.css`) | Material You-inspired. One seed colour builds the whole tonal palette; expressive shapes, pill indicators, icons that morph and bounce. |
 | **Operator** (`Operator.theme.css`) | Inspired by boutique synth hardware. Brushed-aluminium chassis (graphite in dark), an LCD channel header, knob buttons, LEDs, four key colours. |
-| **Encore** (`Encore.theme.css`) | Spotify-inspired. Black frame with floating panels, bold Figtree type, green pill buttons, a Now Playing user panel with an equalizer in voice. |
+| **Encore** (`Encore.theme.css`) | Spotify-inspired. Black frame with floating panels, playlist-style channel headers, a numbered track-list member list, green play buttons that slide up on hover, a Now Playing user panel with an equalizer and progress line in voice. |
 
 ## Install
 
@@ -152,7 +152,10 @@ Operator loads Inter and JetBrains Mono from Google Fonts.
 | `--encore-header-tint` | `var(--encore-accent)` | Colour of the gradient at the top of the chat, Friends and settings views |
 | `--encore-radius` | `8px` | Panel corners. Rows, cards and modals scale from it |
 | `--encore-gap` | `8px` | Space between the floating panels; `0px` makes them flush |
-| `--encore-eq` | `1` | Animated equalizer while you're in voice; `0` shows still bars |
+| `--encore-eq` | `1` | Animated equalizers (user panel in voice, selected channel); `0` shows still bars |
+| `--encore-track-numbers` | `1` | Numbers member-list rows like a track list (play glyph on hover); `0` turns it off |
+| `--encore-play-reveal` | `1` | Green play button slides up on hovered server icons, forum posts and Active Now cards; `0` turns it off |
+| `--encore-wrapped-a` / `-b` | `#f037a5` / `#1e3264` | The two colours of the Wrapped-style banner on profiles without a custom banner |
 
 Encore loads Figtree from Google Fonts.
 
