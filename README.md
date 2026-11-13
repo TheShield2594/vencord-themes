@@ -1,13 +1,17 @@
 # Vencord Themes
 
-Three full Discord themes for [Vencord](https://vencord.dev) (also works in Vesktop and BetterDiscord).
-All three support dark, light, Darker and Midnight, and Discord's 2025 visual refresh.
+Seven full Discord themes for [Vencord](https://vencord.dev) (also works in Vesktop and BetterDiscord).
+All of them support dark, light, Darker and Midnight, and Discord's 2025 visual refresh.
 
 | Theme | Look |
 | --- | --- |
 | **Clarity** (`Clarity.theme.css`) | visionOS-inspired and minimal. Neutral glass lit from above, neutral selection instead of colored fills, capsule controls, accent used only for actions. |
 | **Orchard** (`Orchard.theme.css`) | Apple-style. Liquid Glass materials, SF typography, iOS switches, macOS menus, a Dock-style server rail, iMessage bubbles. |
 | **Nothing** (`Nothing.theme.css`) | Nothing OS-inspired. Monochrome, dot-matrix type, a dot-grid backdrop, floating cards, one red accent. |
+| **Mica** (`Mica.theme.css`) | Windows 11 / Fluent-inspired. Mica backdrop, Acrylic flyouts, the accent pill on selected items, Segoe UI Variable, Win11 controls. |
+| **Tonal** (`Tonal.theme.css`) | Material You-inspired. One seed colour builds the whole tonal palette; expressive shapes, pill indicators, icons that morph and bounce. |
+| **Operator** (`Operator.theme.css`) | Inspired by boutique synth hardware. Brushed-aluminium chassis (graphite in dark), an LCD channel header, knob buttons, LEDs, four key colours. |
+| **Encore** (`Encore.theme.css`) | Spotify-inspired. Black frame with floating panels, bold Figtree type, green pill buttons, a Now Playing user panel with an equalizer in voice. |
 
 ## Install
 
@@ -25,6 +29,22 @@ https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Orchard.them
 https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Nothing.theme.css
 ```
 
+```
+https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Mica.theme.css
+```
+
+```
+https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Tonal.theme.css
+```
+
+```
+https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Operator.theme.css
+```
+
+```
+https://raw.githubusercontent.com/TheShield2594/vencord-themes/main/Encore.theme.css
+```
+
 **Local (to customise):** download the `.css` file, open Vencord Settings → Themes → Open Themes Folder, drop it in, and enable it.
 
 **BetterDiscord:** download the `.css` file, open Settings → Themes → Open Themes Folder, drop it in, and enable it. All files already use the `.theme.css` name BetterDiscord needs.
@@ -39,6 +59,8 @@ Each theme has a settings block at the top of the file. To change a setting, edi
   --orchard-accent-dark: #BF5AF2;   /* Orchard: purple accent */
   --orchard-bubbles: off;           /* Orchard: plain messages */
   --n-accent: #c2410c;              /* Nothing: burnt orange (5.2:1 with white text) */
+  --tonal-seed: #006A60;            /* Tonal: a teal palette */
+  --encore-eq: 0;                   /* Encore: still equalizer bars */
 }
 ```
 
@@ -83,8 +105,59 @@ Orchard respects the OS settings *Reduce motion* and *Reduce transparency*, and 
 
 Nothing loads Doto, Space Grotesk and Space Mono from Google Fonts.
 
+### Mica
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `--mica-accent-dark` / `-light` | `#60CDFF` / `#005FB8` | Accent for buttons, toggles, selection pills, focus underlines and links. Dark mode puts black text on it and light mode white, so keep the dark accent light and the light accent deep |
+| `--mica-wallpaper-dark` / `-light` | gradients | The "desktop" Mica tints itself from; use `url(...) center / cover` for a photo |
+| `--mica-radius` | `8px` | Corners of cards, flyouts and dialogs. Controls use half of it |
+| `--mica-gap` | `6px` | Space around the chat card; `0px` for edge-to-edge |
+| `--mica-blur` | `30px` | Acrylic blur strength for menus, popouts and the user panel |
+
+Mica loads no web fonts; it uses Segoe UI Variable when your system has it, and falls back to Inter or the system font. It respects *Reduce motion* and *Reduce transparency*; with reduced transparency, Mica and Acrylic become solid.
+
+### Tonal
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `--tonal-seed` | `#6750A4` | The one colour the whole palette is built from (primary, containers, tinted surfaces). Medium-to-dark colours work best |
+| `--tonal-tertiary` | `#7D5260` | Companion accent for mentions, the "new mentions" bar and highlights |
+| `--tonal-radius` | `28px` | Pane and dialog corners; cards, fields, chips and tooltips scale from it |
+| `--tonal-gap` | `8px` | Space between floating panes; `0px` for flush |
+| `--tonal-expressive` | `1` | Squish-and-overshoot spring on icons, reactions and menus; `0` keeps the shape changes without the bounce |
+
+Tonal loads Google Sans Flex, Roboto Flex and Roboto Mono from Google Fonts.
+
+### Operator
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `--op-accent` | `#ff5a00` | Main accent: buttons, selection LED, focus, sliders. Black text sits on it, so keep it bright |
+| `--op-blue` | `#0071bb` | Links, embed edge, bot tags, mic knob |
+| `--op-green` | `#00a85a` | Online status, unread LEDs, switches, typing dots, headset knob |
+| `--op-white` | `#e8e8e4` | Neutral key colour, settings knob |
+| `--op-orange` | `#ff5a00` | Mentions, badges, danger, muted and deafened knobs |
+| `--op-texture` | `1` | Brushed-metal grain; `0` for flat surfaces |
+| `--op-radius` | `6px` | Key and module corners |
+| `--op-gap` | `8px` | Space between modules; `0px` for a flush layout |
+
+Operator loads Inter and JetBrains Mono from Google Fonts.
+
+### Encore
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `--encore-accent` | `#1ED760` | Accent for buttons, the active channel, toggles, badges and the equalizer. Black text and icons sit on it, so keep it bright |
+| `--encore-header-tint` | `var(--encore-accent)` | Colour of the gradient at the top of the chat, Friends and settings views |
+| `--encore-radius` | `8px` | Panel corners. Rows, cards and modals scale from it |
+| `--encore-gap` | `8px` | Space between the floating panels; `0px` makes them flush |
+| `--encore-eq` | `1` | Animated equalizer while you're in voice; `0` shows still bars |
+
+Encore loads Figtree from Google Fonts.
+
 ## Notes
 
 - Orchard's on/off switches use CSS style queries, which need Chromium 111 or newer. That covers the Discord desktop app, Vesktop and Chrome. In Firefox the switchable features stay off.
-- A few rules match Discord's English button labels (traffic lights, the mute and deafen buttons in Nothing). In other languages those parts fall back to Discord's own styling.
+- A few rules match Discord's English button labels (Orchard's traffic lights; the mute, deafen and disconnect buttons in Nothing, Mica, Tonal, Operator and Encore). In other languages those parts fall back to Discord's own styling.
 - Discord renames its CSS classes now and then. If something looks off after a Discord update, please open an issue.

@@ -1,0 +1,1228 @@
+/**
+ * @name Tonal
+ * @description Material You–inspired theme. One seed colour builds the whole tonal palette: tinted surfaces, pill indicators, expressive shapes and springy motion. Dark + light.
+ * @author Brandon
+ * @version 1.0.0
+ * @source https://github.com/TheShield2594/vencord-themes
+ */
+
+/* Two imports on purpose: if one family is unavailable, the other still loads */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700&family=Roboto+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&display=swap');
+
+/* =========================================================
+   SETTINGS: tweak these
+   ========================================================= */
+:root {
+  --tonal-seed: #6750A4;        /* the one colour everything is built from; mid-to-dark hues work best */
+  --tonal-tertiary: #7D5260;    /* companion accent for mentions and highlights */
+  --tonal-radius: 28px;         /* pane corners; cards, menus and chips scale from it */
+  --tonal-gap: 8px;             /* space between floating panes; 0px for flush */
+  --tonal-expressive: 1;        /* 1 = squish-and-overshoot shape motion, 0 = calm */
+  --tonal-font: 'Google Sans Flex', 'Google Sans', 'Roboto Flex', Roboto, system-ui, sans-serif;
+  --tonal-font-mono: 'Roboto Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+}
+
+/* =========================================================
+   TOKENS: derived, no need to edit
+   ========================================================= */
+:root {
+  --t-r-xl: var(--tonal-radius);                       /* panes, dialogs */
+  --t-r-lg: calc(var(--tonal-radius) * .57);           /* cards, menus (16px) */
+  --t-r-md: calc(var(--tonal-radius) * .43);           /* FABs, fields (12px) */
+  --t-r-sm: calc(var(--tonal-radius) * .29);           /* chips (8px) */
+  --t-r-xs: calc(var(--tonal-radius) * .14);           /* tooltips (4px) */
+
+  --t-emphasized: cubic-bezier(.2, 0, 0, 1);
+  --t-decel: cubic-bezier(.05, .7, .1, 1);
+  --t-accel: cubic-bezier(.3, 0, .8, .15);
+  --t-short: 150ms;
+  --t-medium: 300ms;
+  --t-long: 500ms;
+}
+
+/* =========================================================
+   PALETTES: M3 colour roles from the seed
+   ========================================================= */
+:is(.theme-dark, .theme-darker, .theme-midnight, .visual-refresh.theme-dark, .visual-refresh .theme-dark) {
+  color-scheme: dark;
+
+  --t-primary: color-mix(in oklab, var(--tonal-seed) 45%, white);
+  --t-on-primary: color-mix(in oklab, var(--tonal-seed) 45%, black);
+  --t-primary-container: color-mix(in oklab, var(--tonal-seed) 70%, black);
+  --t-on-primary-container: color-mix(in oklab, var(--tonal-seed) 15%, white);
+
+  --t-secondary: color-mix(in oklab, var(--tonal-seed) 25%, #cfcfcf);
+  --t-secondary-container: color-mix(in oklab, var(--tonal-seed) 35%, #333333);
+  --t-on-secondary-container: color-mix(in oklab, var(--tonal-seed) 12%, white);
+
+  --t-tertiary: color-mix(in oklab, var(--tonal-tertiary) 45%, white);
+  --t-tertiary-container: color-mix(in oklab, var(--tonal-tertiary) 65%, black);
+  --t-on-tertiary-container: color-mix(in oklab, var(--tonal-tertiary) 15%, white);
+
+  --t-error: #F2B8B5;
+  --t-on-error: #601410;
+  --t-error-container: #8C1D18;
+  --t-on-error-container: #F9DEDC;
+  --t-green: #6DD58C;
+  --t-amber: #F9BE34;
+
+  --t-surface: color-mix(in oklab, var(--tonal-seed) 5%, #121212);
+  --t-surface-lowest: color-mix(in oklab, var(--tonal-seed) 4%, #0c0c0d);
+  --t-surface-low: color-mix(in oklab, var(--tonal-seed) 6%, #191919);
+  --t-surface-container: color-mix(in oklab, var(--tonal-seed) 8%, #1d1d1e);
+  --t-surface-high: color-mix(in oklab, var(--tonal-seed) 9%, #272728);
+  --t-surface-highest: color-mix(in oklab, var(--tonal-seed) 11%, #323233);
+
+  --t-on-surface: color-mix(in oklab, var(--tonal-seed) 6%, #e6e6e6);
+  --t-on-surface-variant: color-mix(in oklab, var(--tonal-seed) 10%, #c8c8c8); /* ≥6:1 on every surface */
+  --t-outline: color-mix(in oklab, var(--tonal-seed) 12%, #8f8f8f);           /* ≥3:1 for borders and the off switch */
+  --t-outline-variant: color-mix(in oklab, var(--tonal-seed) 15%, #444444);
+
+  --t-inverse-surface: var(--t-on-surface);
+  --t-inverse-on-surface: var(--t-surface-container);
+  --t-inverse-primary: color-mix(in oklab, var(--tonal-seed) 90%, black);
+
+  --t-state: white;             /* state layers draw with on-surface */
+  --t-scrim: rgba(0, 0, 0, .6);
+  --t-elev-1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+  --t-elev-2: 0 1px 2px rgba(0,0,0,.3), 0 2px 6px 2px rgba(0,0,0,.15);
+  --t-elev-3: 0 4px 8px 3px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.3);
+}
+
+:is(.theme-light, .visual-refresh.theme-light, .visual-refresh .theme-light) {
+  color-scheme: light;
+
+  --t-primary: color-mix(in oklab, var(--tonal-seed) 80%, black);   /* keeps white labels ≥4.5:1 even for orange seeds */
+  --t-on-primary: #ffffff;
+  --t-primary-container: color-mix(in oklab, var(--tonal-seed) 18%, white);
+  --t-on-primary-container: color-mix(in oklab, var(--tonal-seed) 45%, black);
+
+  --t-secondary: color-mix(in oklab, var(--tonal-seed) 30%, #5a5a5a);
+  --t-secondary-container: color-mix(in oklab, var(--tonal-seed) 14%, #ececec);
+  --t-on-secondary-container: color-mix(in oklab, var(--tonal-seed) 35%, #1a1a1a);
+
+  --t-tertiary: color-mix(in oklab, var(--tonal-tertiary) 90%, black);
+  --t-tertiary-container: color-mix(in oklab, var(--tonal-tertiary) 18%, white);
+  --t-on-tertiary-container: color-mix(in oklab, var(--tonal-tertiary) 45%, black);
+
+  --t-error: #B3261E;
+  --t-on-error: #ffffff;
+  --t-error-container: #F9DEDC;
+  --t-on-error-container: #410E0B;
+  --t-green: #146C2E;
+  --t-amber: #8B5000;
+
+  --t-surface: color-mix(in oklab, var(--tonal-seed) 3%, #fdfdfd);
+  --t-surface-lowest: #ffffff;
+  --t-surface-low: color-mix(in oklab, var(--tonal-seed) 4%, #f8f8f8);
+  --t-surface-container: color-mix(in oklab, var(--tonal-seed) 6%, #f2f2f2);
+  --t-surface-high: color-mix(in oklab, var(--tonal-seed) 7%, #ececec);
+  --t-surface-highest: color-mix(in oklab, var(--tonal-seed) 9%, #e6e6e6);
+
+  --t-on-surface: color-mix(in oklab, var(--tonal-seed) 8%, #1c1c1c);
+  --t-on-surface-variant: color-mix(in oklab, var(--tonal-seed) 12%, #464646); /* ≥6:1 on every surface */
+  --t-outline: color-mix(in oklab, var(--tonal-seed) 10%, #6f6f6f);           /* ≥3:1 for borders and the off switch */
+  --t-outline-variant: color-mix(in oklab, var(--tonal-seed) 12%, #c6c6c6);
+
+  --t-inverse-surface: color-mix(in oklab, var(--tonal-seed) 6%, #313131);
+  --t-inverse-on-surface: color-mix(in oklab, var(--tonal-seed) 5%, #f2f2f2);
+  --t-inverse-primary: color-mix(in oklab, var(--tonal-seed) 45%, white);
+
+  --t-state: black;
+  --t-scrim: rgba(0, 0, 0, .32);
+  --t-elev-1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+  --t-elev-2: 0 1px 2px rgba(0,0,0,.3), 0 2px 6px 2px rgba(0,0,0,.15);
+  --t-elev-3: 0 1px 3px rgba(0,0,0,.3), 0 4px 8px 3px rgba(0,0,0,.15);
+}
+
+/* =========================================================
+   DISCORD VARIABLE MAPPING
+   ========================================================= */
+:is(.theme-dark, .theme-darker, .theme-midnight, .theme-light,
+    .visual-refresh.theme-dark, .visual-refresh .theme-dark,
+    .visual-refresh.theme-light, .visual-refresh .theme-light) {
+  /* State layers: 8% hover, 12% press/focus, 10% drag (M3 spec) */
+  --t-hover: color-mix(in srgb, var(--t-on-surface) 8%, transparent);
+  --t-press: color-mix(in srgb, var(--t-on-surface) 12%, transparent);
+  --t-primary-hover: color-mix(in srgb, var(--t-primary) 8%, transparent);
+  --t-primary-press: color-mix(in srgb, var(--t-primary) 12%, transparent);
+
+  --background-primary: var(--t-surface);
+  --background-secondary: var(--t-surface-low);
+  --background-secondary-alt: var(--t-surface-container);
+  --background-tertiary: var(--t-surface-container);
+  --background-accent: var(--t-surface-highest);
+  --background-floating: var(--t-surface-container);
+  --background-nested-floating: var(--t-surface-high);
+  --background-base-low: var(--t-surface-low);
+  --background-base-lower: var(--t-surface-container);
+  --background-base-lowest: var(--t-surface-container);
+  --background-surface-high: var(--t-surface-high);
+  --background-surface-higher: var(--t-surface-highest);
+  --background-surface-highest: var(--t-surface-highest);
+  --background-mobile-primary: var(--t-surface);
+  --background-mobile-secondary: var(--t-surface-low);
+  --background-modifier-hover: var(--t-hover);
+  --background-modifier-active: var(--t-press);
+  --background-modifier-selected: var(--t-secondary-container);
+  --background-modifier-accent: var(--t-outline-variant);
+  --background-message-hover: color-mix(in srgb, var(--t-on-surface) 4%, transparent);
+  --background-mentioned: color-mix(in srgb, var(--t-tertiary-container) 55%, transparent);
+  --background-mentioned-hover: color-mix(in srgb, var(--t-tertiary-container) 70%, transparent);
+  --chat-background: var(--t-surface);
+  --chat-background-default: var(--t-surface);
+  --channeltextarea-background: var(--t-surface-high);
+  --modal-background: var(--t-surface-high);
+  --modal-footer-background: var(--t-surface-container);
+  --input-background: var(--t-surface-highest);
+  --deprecated-card-bg: var(--t-surface-container);
+  --home-background: var(--t-surface);
+  --bg-overlay-chat: var(--t-surface);
+  --bg-overlay-app-frame: var(--t-surface-container);
+
+  --text-normal: var(--t-on-surface);
+  --text-default: var(--t-on-surface);
+  --text-strong: var(--t-on-surface);
+  --text-muted: var(--t-on-surface-variant);
+  --text-link: var(--t-primary);
+  --text-brand: var(--t-primary);
+  --header-primary: var(--t-on-surface);
+  --header-secondary: var(--t-on-surface-variant);
+  --interactive-normal: var(--t-on-surface-variant);
+  --interactive-hover: var(--t-on-surface);
+  --interactive-active: var(--t-on-surface);
+  --interactive-muted: var(--t-outline-variant);
+  --channels-default: var(--t-on-surface-variant);
+  --channel-icon: var(--t-on-surface-variant);
+
+  --brand-500: var(--t-primary);
+  --brand-560: color-mix(in srgb, var(--t-primary) 88%, var(--t-state));
+  --brand-600: color-mix(in srgb, var(--t-primary) 80%, var(--t-state));
+  --brand-experiment: var(--t-primary);
+  --brand-experiment-560: color-mix(in srgb, var(--t-primary) 88%, var(--t-state));
+  --control-brand-foreground: var(--t-primary);
+  --control-brand-foreground-new: var(--t-primary);
+  --mention-foreground: var(--t-on-primary-container);
+  --mention-background: var(--t-primary-container);
+
+  --border-subtle: var(--t-outline-variant);
+  --border-faint: color-mix(in srgb, var(--t-outline-variant) 60%, transparent);
+  --border-normal: var(--t-outline-variant);
+  --border-strong: var(--t-outline);
+
+  --status-positive: var(--t-green);
+  --status-positive-background: var(--t-green);
+  --status-warning: var(--t-amber);
+  --status-danger: var(--t-error);
+  --status-danger-background: var(--t-error);
+  --info-warning-foreground: var(--t-amber);
+  --text-danger: var(--t-error);
+  --text-positive: var(--t-green);
+  --scrollbar-thin-thumb: var(--t-outline-variant);
+  --scrollbar-auto-thumb: var(--t-outline-variant);
+  --scrollbar-auto-track: transparent;
+
+  --font-primary: var(--tonal-font);
+  --font-display: var(--tonal-font);
+  --font-headline: var(--tonal-font);
+  --font-code: var(--tonal-font-mono);
+
+  --radius-xs: var(--t-r-xs);
+  --radius-sm: var(--t-r-sm);
+  --radius-md: var(--t-r-md);
+  --radius-lg: var(--t-r-lg);
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+/* Squish, then overshoot: the M3 Expressive shape spring.
+   --tonal-expressive scales the overshoot; 0 keeps the shape morph but drops the bounce. */
+@keyframes t-squish {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(calc(1 - .07 * var(--tonal-expressive))); }
+  70%  { transform: scale(calc(1 + .05 * var(--tonal-expressive))); }
+  100% { transform: scale(1); }
+}
+@keyframes t-enter {
+  from { opacity: 0; transform: translateY(-6px) scale(calc(1 - .04 * var(--tonal-expressive))); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes t-grow {
+  0%   { transform: scaleX(.4); opacity: 0; }
+  70%  { transform: scaleX(calc(1 + .06 * var(--tonal-expressive))); opacity: 1; }
+  100% { transform: scaleX(1); }
+}
+
+/* Respect "Reduce Motion" (OS setting or Discord's own toggle).
+   Loading indicators are excluded so they keep signalling that something is loading. */
+@media (prefers-reduced-motion: reduce) {
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+}
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+* { -webkit-font-smoothing: antialiased; }
+body { font-family: var(--tonal-font); font-optical-sizing: auto; }
+::selection { background: var(--t-primary-container); color: var(--t-on-primary-container); }
+
+::-webkit-scrollbar { width: 8px !important; height: 8px !important; }
+::-webkit-scrollbar-thumb {
+  background: var(--t-outline-variant) !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+  border-radius: 999px !important;
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--t-outline) !important; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent !important; border: none !important; }
+
+/* Keyboard focus: M3 focus ring (3px secondary, offset) */
+:is(button, a, [role="button"], [role="tab"], [role="switch"], [role="menuitem"], [tabindex="0"]):focus-visible {
+  outline: 3px solid var(--t-secondary) !important;
+  outline-offset: 2px;
+}
+
+/* Title bar */
+[class*="titleBar"], [class*="bar_"][class*="base"] {
+  background: var(--t-surface-container) !important;
+}
+
+/* =========================================================
+   LAYOUT: tinted frame, floating panes
+   ========================================================= */
+[class*="base_"], [class*="content_"]:has(> [class*="sidebar_"]) { background: var(--t-surface-container) !important; }
+
+[class*="sidebar_"] {
+  margin: var(--tonal-gap) 0 !important;
+  border-radius: var(--t-r-xl) !important;
+  overflow: hidden;
+}
+main[class*="chat_"], [class*="chat_"]:has(> [class*="content_"]) {
+  margin: var(--tonal-gap) !important;
+  border-radius: var(--t-r-xl) !important;
+  overflow: hidden;
+  background: var(--t-surface) !important;
+}
+[class*="membersWrap"] {
+  margin: var(--tonal-gap) var(--tonal-gap) var(--tonal-gap) 0 !important;
+  border-radius: var(--t-r-xl) !important;
+  overflow: hidden;
+}
+[class*="membersWrap"] [class*="members_"] { border-left: none !important; }
+
+[class*="chatContent"], [class*="container"][class*="pageWrapper"] { background: var(--t-surface) !important; }
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+h1, h2,
+[class*="titleWrapper"] h1,
+[class*="headerContent"] h2,
+[class*="emptyChannelIcon"] + h3 {
+  font-family: var(--tonal-font) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Category headers & section labels: M3 "label small" */
+[class*="containerDefault"] h3,
+[class*="membersGroup"],
+[class*="sectionTitle"],
+[class*="eyebrow"],
+[class*="privateChannelsHeaderContainer"] {
+  font-family: var(--tonal-font) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: .04em !important;
+  text-transform: none !important;
+  color: var(--t-on-surface-variant) !important;
+}
+
+[class*="timestamp"] time, [class*="timestamp_"] {
+  font-size: 11px !important;
+  color: var(--t-on-surface-variant) !important;
+  font-variant-numeric: tabular-nums;
+}
+[class*="username_"] { font-weight: 600 !important; }
+
+/* Bot / APP tags: small tonal chip */
+[class*="botTag"] {
+  background: var(--t-primary-container) !important;
+  color: var(--t-on-primary-container) !important;
+  border-radius: var(--t-r-xs) !important;
+  font-weight: 600;
+}
+[class*="botTag"] svg path { fill: var(--t-on-primary-container) !important; }
+
+/* =========================================================
+   SERVER LIST: navigation rail
+   ========================================================= */
+nav[class*="guilds"] { background: var(--t-surface-container) !important; }
+
+/* Drop Discord's SVG masks so the icon shape can morph in CSS */
+[class*="guilds_"] [class*="listItem_"] foreignObject,
+[class*="guilds_"] [class*="wrapper_"] foreignObject {
+  mask: none !important;
+  -webkit-mask: none !important;
+}
+
+[class*="guilds_"] [class*="listItem_"] [class*="childWrapper_"],
+[class*="guilds_"] [class*="listItem_"] img[class*="icon_"],
+[class*="guilds_"] [class*="listItem_"] [class*="icon_"]:not(svg),
+[class*="guilds_"] [class*="folderIconWrapper_"],
+[class*="guilds_"] [class*="expandedFolderBackground_"],
+[class*="guilds_"] [class*="circleIconButton_"] {
+  border-radius: 50% !important;
+  transition: border-radius var(--t-medium) var(--t-emphasized),
+              background var(--t-short) var(--t-emphasized),
+              color var(--t-short) var(--t-emphasized) !important;
+}
+
+/* Hover and selected: circle morphs into a rounded square */
+[class*="guilds_"] [class*="listItem_"]:hover :is([class*="childWrapper_"], img[class*="icon_"], [class*="icon_"]:not(svg), [class*="folderIconWrapper_"], [class*="circleIconButton_"]),
+[class*="guilds_"] [class*="selected_"] :is([class*="childWrapper_"], img[class*="icon_"], [class*="icon_"]:not(svg)),
+[class*="guilds_"] :is([class*="childWrapper_"], img[class*="icon_"])[class*="selected"] {
+  border-radius: 32% !important;
+}
+[class*="guilds_"] [class*="expandedFolderBackground_"] { border-radius: var(--t-r-lg) !important; }
+
+/* The spring: scale the whole icon box (transforms inside <foreignObject> get clipped) */
+[class*="guilds_"] [class*="blobContainer_"],
+[class*="guilds_"] [class*="listItem_"] > [class*="wrapper_"] { transform-origin: center; }
+[class*="guilds_"] [class*="listItem_"]:hover [class*="blobContainer_"] {
+  animation: t-squish var(--t-long) var(--t-emphasized);
+}
+[class*="guilds_"] [class*="listItem_"]:active [class*="blobContainer_"] {
+  transform: scale(.92);
+  transition: transform 90ms var(--t-emphasized);
+}
+
+/* Home, add server, discover: tonal buttons */
+[class*="guilds_"] [class*="listItem_"] [class*="childWrapper_"],
+[class*="guilds_"] [class*="circleIconButton_"] {
+  background: var(--t-surface-highest) !important;
+  color: var(--t-on-surface-variant) !important;
+}
+[class*="guilds_"] [class*="listItem_"]:hover [class*="childWrapper_"],
+[class*="guilds_"] [class*="circleIconButton_"]:hover,
+[class*="guilds_"] [class*="selected_"] [class*="childWrapper_"] {
+  background: var(--t-primary-container) !important;
+  color: var(--t-on-primary-container) !important;
+}
+/* Add server: a FAB */
+[class*="guilds_"] [class*="circleIconButton_"] { border-radius: 32% !important; }
+[class*="guilds_"] [class*="circleIconButton_"]:hover { border-radius: 50% !important; }
+
+/* Selection pill */
+[class*="guilds_"] [class*="pill_"] [class*="item_"] {
+  background: var(--t-primary) !important;
+  width: 4px !important;
+  border-radius: 0 999px 999px 0 !important;
+  transition: height var(--t-medium) var(--t-emphasized) !important;
+}
+
+[class*="guildSeparator"] {
+  background: var(--t-outline-variant) !important;
+  height: 2px !important;
+  width: 24px !important;
+  border-radius: 999px;
+}
+
+/* Hide the empty "new mentions" bars at the top/bottom of the channel list */
+[class*="unreadMentionsIndicator"]:not(:has([class*="unreadMentionsBar"] *)),
+[class*="unreadMentionsBar"]:empty { background: transparent !important; }
+[class*="unreadMentionsBar"] {
+  background: var(--t-tertiary-container) !important;
+  color: var(--t-on-tertiary-container) !important;
+  border-radius: 999px !important;
+  margin: 4px 8px !important;
+  font-weight: 600;
+}
+
+/* =========================================================
+   CHANNEL SIDEBAR: navigation drawer
+   ========================================================= */
+[class*="sidebar_"] { background: var(--t-surface-low) !important; }
+[class*="sidebar_"] header {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+[class*="sidebar_"] header:hover { background: var(--t-hover) !important; }
+
+[class*="containerDefault"] [class*="link_"] {
+  border-radius: 999px !important;
+  margin: 1px 8px !important;
+  padding-left: 12px !important;
+  transition: background var(--t-short) var(--t-emphasized);
+}
+[class*="containerDefault"] [class*="link_"]:hover { background: var(--t-hover) !important; }
+[class*="containerDefault"] [class*="link_"]:active { background: var(--t-press) !important; }
+
+/* Active indicator: the M3 pill in secondary-container */
+[class*="modeSelected"] [class*="link_"] {
+  background: var(--t-secondary-container) !important;
+  animation: t-grow var(--t-medium) var(--t-emphasized);
+  transform-origin: left center;
+}
+[class*="modeSelected"] :is([class*="name_"], [class*="icon_"]) {
+  color: var(--t-on-secondary-container) !important;
+  font-weight: 600;
+}
+[class*="modeUnread"] [class*="name_"] { color: var(--t-on-surface) !important; font-weight: 600; }
+[class*="containerDefault"] [class*="unread_"] {
+  background: var(--t-primary) !important;
+  border-radius: 999px;
+}
+
+/* DM list */
+[class*="privateChannels"] [class*="interactive_"],
+[class*="privateChannels"] [class*="channel_"] [class*="link_"] {
+  border-radius: 999px !important;
+}
+[class*="privateChannels"] [class*="interactiveSelected"],
+[class*="privateChannels"] [class*="selected_"] [class*="link_"] {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+}
+
+/* Voice channel users */
+[class*="voiceUser"] { border-radius: 999px !important; }
+[class*="avatarSpeaking"] {
+  box-shadow: inset 0 0 0 2px var(--t-green), inset 0 0 0 3px var(--t-surface-low) !important;
+}
+
+/* =========================================================
+   USER PANEL (bottom left): an elevated card
+   ========================================================= */
+section[class*="panels"] {
+  /* no position override: Discord anchors this panel to the bottom itself */
+  background: var(--t-surface-high) !important;
+  margin: var(--tonal-gap) !important;
+  border-radius: calc(var(--t-r-lg) + 4px) !important;
+  box-shadow: var(--t-elev-1) !important;
+  overflow: hidden;
+}
+section[class*="panels"] [class*="container_"],
+section[class*="panels"] > section { background: transparent !important; }
+section[class*="panels"] > div + div { border-top: 1px solid var(--t-outline-variant) !important; }
+
+section[class*="panels"] [class*="avatarWrapper"] {
+  border-radius: 999px !important;
+  transition: background var(--t-short) var(--t-emphasized);
+}
+section[class*="panels"] [class*="avatarWrapper"]:hover { background: var(--t-hover) !important; }
+section[class*="panels"] [class*="panelTitleContainer"],
+section[class*="panels"] [class*="nameTag"] [class*="title"] {
+  font-weight: 600 !important;
+  color: var(--t-on-surface) !important;
+}
+section[class*="panels"] [class*="panelSubtextContainer"],
+section[class*="panels"] [class*="nameTag"] [class*="subtext"] {
+  color: var(--t-on-surface-variant) !important;
+}
+
+/* Icon buttons: standard M3 icon buttons with a state layer */
+section[class*="panels"] button {
+  border-radius: 999px !important;
+  color: var(--t-on-surface-variant) !important;
+  transition: background var(--t-short) var(--t-emphasized), border-radius var(--t-medium) var(--t-emphasized) !important;
+}
+section[class*="panels"] button:hover { background: var(--t-hover) !important; color: var(--t-on-surface) !important; }
+section[class*="panels"] button:active { background: var(--t-press) !important; border-radius: var(--t-r-md) !important; }
+
+/* Toggled (muted / deafened): filled error-container, squarer shape */
+section[class*="panels"] button[aria-label="Unmute"],
+section[class*="panels"] button[aria-label="Undeafen"],
+section[class*="panels"] button[aria-checked="true"][role="switch"] {
+  background: var(--t-error-container) !important;
+  color: var(--t-on-error-container) !important;
+  border-radius: var(--t-r-md) !important;
+}
+section[class*="panels"] [class*="strikethrough"] { color: var(--t-on-error-container) !important; }
+
+/* Voice connected section */
+[class*="rtcConnectionStatusConnected"] { color: var(--t-green) !important; }
+[class*="rtcConnectionStatus"] [class*="labelWrapper"] { font-weight: 600 !important; }
+[class*="actionButtons"] button {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+  border-radius: 999px !important;
+  transition: border-radius var(--t-medium) var(--t-emphasized), background var(--t-short) !important;
+}
+[class*="actionButtons"] button:hover { border-radius: var(--t-r-md) !important; }
+section[class*="panels"] button[aria-label="Disconnect"] {
+  background: var(--t-error) !important;
+  color: var(--t-on-error) !important;
+}
+
+/* =========================================================
+   STATUS DOTS
+   ========================================================= */
+rect[fill="#23a55a"], rect[fill="var(--status-positive)"], [class*="statusOnline"] { fill: var(--t-green) !important; }
+rect[fill="#f0b232"], [class*="statusIdle"] { fill: var(--t-amber) !important; }
+rect[fill="#f23f43"], rect[fill="#f23f42"], [class*="statusDND"] { fill: var(--t-error) !important; }
+rect[fill="#80848e"], [class*="statusOffline"] { fill: var(--t-outline) !important; }
+
+/* =========================================================
+   CHAT
+   ========================================================= */
+section[class*="title_"], [class*="chat_"] > section {
+  background: var(--t-surface) !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+[class*="message_"] { transition: background var(--t-short) var(--t-emphasized); }
+
+[class*="mentioned_"] {
+  background: var(--background-mentioned) !important;
+  border-radius: var(--t-r-lg);
+  margin: 2px 8px !important;
+}
+[class*="mentioned_"]::before {
+  background: var(--t-tertiary) !important;
+  width: 4px !important;
+  border-radius: 999px;
+  top: 8px !important; bottom: 8px !important;
+}
+
+[class*="markup"] span[class*="mention"] {
+  background: var(--mention-background) !important;
+  color: var(--mention-foreground) !important;
+  border-radius: var(--t-r-sm) !important;
+  padding: 0 5px !important;
+  font-weight: 500;
+}
+[class*="markup"] span[class*="mention"]:hover {
+  background: var(--t-primary) !important;
+  color: var(--t-on-primary) !important;
+}
+
+[class*="divider_"][class*="isUnread"] { border-color: var(--t-error) !important; }
+[class*="divider_"][class*="isUnread"] span[class*="unreadPill"],
+[class*="unreadPill"] {
+  background: var(--t-error) !important;
+  color: var(--t-on-error) !important;
+  border-radius: 999px !important;
+  font-weight: 600;
+}
+[class*="divider_"] span[class*="content"] {
+  font-size: 12px !important;
+  font-weight: 500;
+  color: var(--t-on-surface-variant) !important;
+}
+
+/* "New messages" / "Jump to present": snackbar */
+[class*="newMessagesBar"], [class*="jumpToPresentBar"] {
+  background: var(--t-inverse-surface) !important;
+  color: var(--t-inverse-on-surface) !important;
+  border-radius: var(--t-r-sm) !important;
+  box-shadow: var(--t-elev-3);
+}
+[class*="jumpToPresentBar"] button, [class*="newMessagesBar"] button { color: var(--t-inverse-primary) !important; }
+
+/* Message hover toolbar */
+[class*="buttonsInner"], [class*="buttons_"] [class*="wrapper_"] {
+  background: var(--t-surface-container) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  box-shadow: var(--t-elev-2) !important;
+}
+[class*="buttonsInner"] [class*="button_"] { border-radius: 999px !important; }
+
+/* Replies & quotes */
+[class*="repliedMessage"]::before { border-color: var(--t-outline-variant) !important; }
+[class*="blockquoteDivider"] { background: var(--t-primary) !important; border-radius: 999px; width: 4px !important; }
+
+/* Links */
+[class*="markup"] a[href] { color: var(--t-primary) !important; }
+[class*="markup"] a[href]:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+/* Spoilers */
+[class*="spoilerContent"][class*="hidden"], [class*="spoilerText"][class*="hidden"] {
+  background: var(--t-surface-highest) !important;
+  border-radius: var(--t-r-xs) !important;
+}
+
+/* =========================================================
+   EMBEDS, MEDIA, POLLS, THREADS
+   ========================================================= */
+article[class*="embedFull"] {
+  background: var(--t-surface-container) !important;
+  border: none !important;
+  border-left: 4px solid var(--t-primary) !important;
+  border-radius: var(--t-r-lg) !important;
+}
+[class*="imageWrapper"], [class*="mosaicItem"], [class*="attachment_"] {
+  border-radius: var(--t-r-lg) !important;
+  overflow: hidden;
+}
+[class*="attachment_"], [class*="wrapper_"][class*="file"] {
+  background: var(--t-surface-container) !important;
+  border: 1px solid var(--t-outline-variant) !important;
+}
+
+[class*="pollContainer"] {
+  background: var(--t-surface-container) !important;
+  border: none !important;
+  border-radius: var(--t-r-xl) !important;
+}
+[class*="pollContainer"] [class*="answer"] {
+  border-radius: 999px !important;
+  background: var(--t-surface-high) !important;
+  border-color: transparent !important;
+}
+[class*="pollContainer"] [class*="answer"][class*="selected"],
+[class*="pollContainer"] [class*="answer"][aria-checked="true"] {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+}
+
+[class*="threadSidebar"] { background: var(--t-surface) !important; border-radius: var(--t-r-xl) !important; }
+[class*="mainCard"] {
+  background: var(--t-surface-container) !important;
+  border: none !important;
+  border-radius: var(--t-r-lg) !important;
+  transition: background var(--t-short), box-shadow var(--t-medium) var(--t-emphasized);
+}
+[class*="mainCard"]:hover { background: var(--t-surface-high) !important; box-shadow: var(--t-elev-1); }
+
+/* =========================================================
+   REACTIONS: filter chips
+   ========================================================= */
+[class*="reaction_"] {
+  background: transparent !important;
+  border: 1px solid var(--t-outline-variant) !important;
+  border-radius: var(--t-r-sm) !important;
+  transition: background var(--t-short) var(--t-emphasized), border-radius var(--t-medium) var(--t-emphasized);
+}
+[class*="reaction_"]:hover { background: var(--t-hover) !important; border-radius: var(--t-r-md) !important; }
+[class*="reactionMe"] {
+  background: var(--t-secondary-container) !important;
+  border-color: transparent !important;
+}
+[class*="reactionMe"] [class*="reactionCount"] { color: var(--t-on-secondary-container) !important; }
+[class*="reactionCount"] { font-weight: 600; color: var(--t-on-surface-variant) !important; }
+[class*="reaction_"]:active { animation: t-squish var(--t-medium) var(--t-emphasized); }
+
+/* =========================================================
+   CODE
+   ========================================================= */
+code, pre code, [class*="markup"] code.inline {
+  font-family: var(--tonal-font-mono) !important;
+  background: var(--t-surface-container) !important;
+  border: none !important;
+  border-radius: var(--t-r-xs) !important;
+}
+[class*="markup"] code.inline { padding: 1px 5px !important; color: var(--t-on-surface) !important; }
+pre code {
+  border-radius: var(--t-r-lg) !important;
+  padding: 14px 16px !important;
+  background: var(--t-surface-lowest) !important;
+  border: 1px solid var(--t-outline-variant) !important;
+}
+
+/* =========================================================
+   MESSAGE INPUT
+   ========================================================= */
+form [class*="channelTextArea"] [class*="scrollableContainer"],
+form [class*="channelTextArea"] {
+  background: var(--t-surface-high) !important;
+  border: none !important;
+  border-radius: var(--t-r-xl) !important;   /* pill at one line, rounded rect when it grows */
+  transition: background var(--t-short), box-shadow var(--t-short) var(--t-emphasized);
+}
+form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
+  background: var(--t-surface-highest) !important;
+  box-shadow: inset 0 0 0 2px var(--t-primary);
+}
+[class*="placeholder_"] { color: var(--t-on-surface-variant) !important; }
+
+/* Attach (+) button: a small FAB in primary-container */
+[class*="attachWrapper"] [class*="attachButton"],
+[class*="channelTextArea"] button[class*="attachButton"] {
+  background: var(--t-primary-container) !important;
+  color: var(--t-on-primary-container) !important;
+  border-radius: var(--t-r-md) !important;
+  margin-right: 6px !important;
+  transition: border-radius var(--t-medium) var(--t-emphasized) !important;
+}
+[class*="attachWrapper"] [class*="attachButton"]:hover { border-radius: 50% !important; }
+[class*="attachWrapper"] [class*="attachButton"] svg { color: var(--t-on-primary-container) !important; }
+
+/* Send button (if enabled): filled FAB */
+[class*="channelTextArea"] button[aria-label="Send Message"],
+[class*="channelTextArea"] [class*="sendButton"] {
+  background: var(--t-primary) !important;
+  color: var(--t-on-primary) !important;
+  border-radius: var(--t-r-md) !important;
+  transition: border-radius var(--t-medium) var(--t-emphasized) !important;
+}
+[class*="channelTextArea"] button[aria-label="Send Message"]:hover,
+[class*="channelTextArea"] [class*="sendButton"]:hover { border-radius: 50% !important; }
+
+[class*="typing_"] [class*="dots"] circle,
+[class*="typingDots"] circle { fill: var(--t-primary) !important; }
+[class*="characterCount"] [class*="error"] { color: var(--t-error) !important; }
+
+/* Autocomplete (slash commands, mentions) */
+[class*="autocomplete_"] {
+  background: var(--t-surface-container) !important;
+  border: none !important;
+  border-radius: var(--t-r-lg) !important;
+  box-shadow: var(--t-elev-2) !important;
+}
+[class*="autocomplete_"] [class*="selected"] {
+  background: var(--t-secondary-container) !important;
+  border-radius: var(--t-r-md) !important;
+}
+
+/* =========================================================
+   MEMBER LIST
+   ========================================================= */
+[class*="members_"], [class*="membersWrap"] { background: var(--t-surface-low) !important; }
+[class*="member_"] [class*="layout_"] {
+  border-radius: 999px !important;
+  margin: 0 8px;
+  transition: background var(--t-short) var(--t-emphasized);
+}
+[class*="member_"]:hover [class*="layout_"] { background: var(--t-hover) !important; }
+
+/* =========================================================
+   MENUS, POPOUTS, MODALS, TOOLTIPS
+   ========================================================= */
+[class*="menu_"] {
+  background: var(--t-surface-container) !important;
+  border: none !important;
+  border-radius: var(--t-r-lg) !important;
+  box-shadow: var(--t-elev-2) !important;
+  padding: 6px !important;
+  animation: t-enter var(--t-medium) var(--t-decel);
+  transform-origin: top center;
+}
+[class*="menu_"] [class*="item_"] {
+  border-radius: var(--t-r-md) !important;
+  min-height: 36px;
+  font-weight: 500;
+  color: var(--t-on-surface) !important;
+}
+[class*="menu_"] [class*="item_"][class*="focused"] {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+}
+[class*="menu_"] [class*="colorDanger"] { color: var(--t-error) !important; }
+[class*="menu_"] [class*="colorDanger"][class*="focused"] {
+  background: var(--t-error-container) !important;
+  color: var(--t-on-error-container) !important;
+}
+[class*="menu_"] [class*="separator"] { border-color: var(--t-outline-variant) !important; }
+
+[class*="popout_"], [class*="userPopoutOuter"], [class*="userProfileOuter"] {
+  background: var(--t-surface-container) !important;
+  border: none !important;
+  border-radius: var(--t-r-xl) !important;
+  box-shadow: var(--t-elev-3) !important;
+  animation: t-enter var(--t-medium) var(--t-decel);
+}
+[class*="userPopoutInner"], [class*="userProfileInner"] { border-radius: var(--t-r-xl) !important; }
+
+/* Dialogs: M3 basic dialog, 28px corners, surface-container-high */
+[class*="root_"][class*="modal"], [class*="focusLock"] > [class*="root_"] {
+  background: var(--t-surface-high) !important;
+  border: none !important;
+  border-radius: var(--t-r-xl) !important;
+  box-shadow: var(--t-elev-3) !important;
+  animation: t-enter var(--t-long) var(--t-decel);
+}
+[class*="root_"][class*="modal"] [class*="footer"] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+[class*="backdrop_"] { background: var(--t-scrim) !important; }
+
+/* Plain tooltip: inverse surface */
+[class*="tooltip_"] {
+  background: var(--t-inverse-surface) !important;
+  color: var(--t-inverse-on-surface) !important;
+  font-size: 12px !important;
+  font-weight: 500;
+  border-radius: var(--t-r-xs) !important;
+  padding: 6px 10px !important;
+  box-shadow: none !important;
+}
+[class*="tooltipPointer"] { border-top-color: var(--t-inverse-surface) !important; }
+
+/* Profile roles & badges: assist chips */
+[class*="role_"], [class*="rolePill"] {
+  background: transparent !important;
+  border: 1px solid var(--t-outline-variant) !important;
+  border-radius: var(--t-r-sm) !important;
+}
+
+/* Quick switcher: search bar on a dialog */
+[class*="quickswitcher"] {
+  background: var(--t-surface-high) !important;
+  border-radius: var(--t-r-xl) !important;
+  box-shadow: var(--t-elev-3) !important;
+}
+[class*="quickswitcher"] input {
+  background: var(--t-surface-highest) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding-left: 20px !important;
+}
+[class*="quickswitcher"] [class*="selected"] {
+  background: var(--t-secondary-container) !important;
+  border-radius: 999px !important;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+button[class*="button_"] {
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em;
+  transition: border-radius var(--t-medium) var(--t-emphasized),
+              background var(--t-short) var(--t-emphasized),
+              box-shadow var(--t-short) var(--t-emphasized) !important;
+}
+/* Expressive press: the pill flattens into a rounded square */
+button[class*="button_"]:active { border-radius: var(--t-r-md) !important; }
+
+/* Filled */
+button[class*="colorBrand"], button[class*="lookFilled"][class*="colorBrand"] {
+  background: var(--t-primary) !important;
+  color: var(--t-on-primary) !important;
+}
+button[class*="colorBrand"]:hover {
+  background: color-mix(in srgb, var(--t-primary) 92%, var(--t-on-primary)) !important;
+  box-shadow: var(--t-elev-1);
+}
+/* Tonal */
+button[class*="colorPrimary"], button[class*="colorGrey"], button[class*="colorSecondary"] {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+}
+button[class*="colorPrimary"]:hover, button[class*="colorGrey"]:hover, button[class*="colorSecondary"]:hover {
+  background: color-mix(in srgb, var(--t-secondary-container) 90%, var(--t-on-secondary-container)) !important;
+}
+/* Outlined & text */
+button[class*="lookOutlined"] {
+  background: transparent !important;
+  border: 1px solid var(--t-outline) !important;
+  color: var(--t-primary) !important;
+}
+button[class*="lookLink"], button[class*="lookBlank"][class*="button_"] { color: var(--t-primary) !important; }
+button[class*="lookOutlined"]:hover, button[class*="lookLink"]:hover { background: var(--t-primary-hover) !important; }
+/* Danger & success */
+button[class*="colorRed"], button[class*="colorDanger"] {
+  background: var(--t-error) !important;
+  color: var(--t-on-error) !important;
+}
+button[class*="colorGreen"], button[class*="colorPositive"] {
+  background: var(--t-green) !important;
+  color: var(--t-surface) !important;
+}
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+input[class*="input_"], [class*="inputDefault"], textarea[class*="textArea"],
+[class*="searchBar"], [class*="search_"] [class*="searchBar"] {
+  background: var(--t-surface-highest) !important;
+  border: none !important;
+  border-radius: var(--t-r-sm) var(--t-r-sm) 0 0 !important;   /* M3 filled field */
+  box-shadow: inset 0 -1px 0 var(--t-on-surface-variant) !important;
+  color: var(--t-on-surface) !important;
+  transition: box-shadow var(--t-short) var(--t-emphasized) !important;
+}
+input[class*="input_"]:focus, textarea[class*="textArea"]:focus, [class*="inputDefault"]:focus {
+  box-shadow: inset 0 -2px 0 var(--t-primary) !important;
+}
+/* Search bars are pills (M3 search bar) */
+[class*="searchBar"], [class*="search_"] [class*="searchBar"] {
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+[class*="search_"] [class*="searchBar"]:focus-within { box-shadow: inset 0 0 0 2px var(--t-primary) !important; }
+
+/* Selects */
+[class*="select_"] {
+  background: var(--t-surface-highest) !important;
+  border: none !important;
+  border-radius: var(--t-r-sm) !important;
+}
+[class*="option_"][aria-selected="true"] {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+}
+
+/* =========================================================
+   M3 SWITCH: 52×32 track, small outlined thumb grows when on
+   ========================================================= */
+[class*="container_"][class*="default_"]:has(> input[type="checkbox"]),
+[class*="container_"]:has(> [class*="slider_"]):has(> input[type="checkbox"]) {
+  background: var(--t-surface-highest) !important;
+  box-shadow: inset 0 0 0 2px var(--t-outline) !important;
+  border-radius: 999px !important;
+  width: 52px !important;
+  height: 32px !important;
+  opacity: 1 !important;
+  transition: background var(--t-medium) var(--t-emphasized), box-shadow var(--t-medium) var(--t-emphasized) !important;
+}
+[class*="container_"][class*="checked_"]:has(> input[type="checkbox"]) {
+  background: var(--t-primary) !important;
+  box-shadow: inset 0 0 0 2px var(--t-primary) !important;
+}
+[class*="container_"]:has(> input[type="checkbox"]) > svg[class*="slider_"] {
+  display: none !important;   /* hide Discord's knob */
+}
+[class*="container_"][class*="default_"]:has(> input[type="checkbox"])::after,
+[class*="container_"]:has(> [class*="slider_"]):has(> input[type="checkbox"])::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--t-outline);
+  transition: left var(--t-medium) var(--t-emphasized),
+              top var(--t-medium) var(--t-emphasized),
+              width var(--t-medium) var(--t-emphasized),
+              height var(--t-medium) var(--t-emphasized),
+              background var(--t-medium) var(--t-emphasized);
+  pointer-events: none;
+}
+[class*="container_"][class*="checked_"]:has(> input[type="checkbox"])::after {
+  top: 4px;
+  left: 24px;
+  width: 24px;
+  height: 24px;
+  background: var(--t-on-primary);
+}
+/* Pressed: the thumb swells to 28px */
+[class*="container_"]:has(> input[type="checkbox"]):active::after {
+  top: 2px; left: 2px; width: 28px; height: 28px;
+}
+[class*="container_"][class*="checked_"]:has(> input[type="checkbox"]):active::after { left: 22px; }
+[class*="container_"][class*="disabled_"]:has(> input[type="checkbox"]) { opacity: .38 !important; }
+
+/* Checkboxes & radios */
+[class*="checkbox_"]:not([class*="checkboxWrapper"]) {
+  border-radius: 2px !important;
+  border-color: var(--t-on-surface-variant) !important;
+}
+[class*="checkboxWrapper_"] [class*="checked_"],
+[class*="checkbox_"][class*="checked_"] {
+  background: var(--t-primary) !important;
+  border-color: var(--t-primary) !important;
+  color: var(--t-on-primary) !important;
+}
+[class*="radioBar"] {
+  border-radius: var(--t-r-lg) !important;
+  background: var(--t-surface-container) !important;
+}
+[class*="radioBar"][class*="selected"], [class*="radioBar"][aria-checked="true"] {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+}
+
+/* Sliders: thick active track, bar-shaped handle (M3 Expressive) */
+[class*="slider_"] [class*="bar_"] {
+  background: var(--t-secondary-container) !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+}
+[class*="barFill"] { background: var(--t-primary) !important; border-radius: 999px !important; }
+[class*="grabber"] {
+  background: var(--t-primary) !important;
+  border: 3px solid var(--t-surface-high) !important;
+  width: 10px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  margin-top: -10px !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+[class*="numberBadge"] {
+  background: var(--t-error) !important;
+  color: var(--t-on-error) !important;
+  font-weight: 600;
+  border-radius: 999px !important;
+}
+[class*="lowerBadge"] [class*="numberBadge"] { box-shadow: 0 0 0 3px var(--t-surface-container); }
+[class*="textBadge"], [class*="premiumBadge"] { border-radius: 999px !important; }
+
+/* =========================================================
+   TABS & PICKERS
+   ========================================================= */
+/* Friends tab bar: segmented chips */
+[class*="tabBar"] [class*="item_"] {
+  border-radius: 999px !important;
+  font-weight: 500;
+  transition: background var(--t-short) var(--t-emphasized);
+}
+[class*="tabBar"] [class*="item_"]:hover { background: var(--t-hover) !important; }
+[class*="tabBar"] [class*="item_"][class*="selected"] {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+}
+
+[class*="emojiPicker"], [class*="contentWrapper"][class*="picker"] {
+  background: var(--t-surface-container) !important;
+}
+[class*="emojiItem"] {
+  border-radius: var(--t-r-sm) !important;
+  transition: border-radius var(--t-medium) var(--t-emphasized);
+}
+[class*="emojiItem"][class*="Selected"] {
+  background: var(--t-secondary-container) !important;
+  border-radius: 50% !important;
+}
+[class*="navButton"] { border-radius: 999px !important; }
+[class*="navButton"][class*="navButtonActive"] {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+}
+[class*="categoryItem"][class*="selected"] [class*="itemInner"],
+[class*="categoryIcon"][class*="selected"] {
+  background: var(--t-secondary-container) !important;
+  border-radius: var(--t-r-md) !important;
+}
+
+/* =========================================================
+   SETTINGS PAGES
+   ========================================================= */
+[class*="standardSidebarView"] { background: var(--t-surface-container) !important; }
+[class*="standardSidebarView"] [class*="sidebarRegion"] { background: var(--t-surface-container) !important; }
+[class*="standardSidebarView"] [class*="contentRegion"] {
+  background: var(--t-surface) !important;
+  border-radius: var(--t-r-xl) 0 0 var(--t-r-xl);
+}
+[class*="side_"] [class*="item_"] {
+  border-radius: 999px !important;
+  padding-left: 16px !important;
+  font-weight: 500;
+  transition: background var(--t-short) var(--t-emphasized);
+}
+[class*="side_"] [class*="item_"]:hover { background: var(--t-hover) !important; }
+[class*="side_"] [class*="item_"][class*="selected"] {
+  background: var(--t-secondary-container) !important;
+  color: var(--t-on-secondary-container) !important;
+  font-weight: 600;
+}
+[class*="side_"] [class*="header_"] {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: .04em;
+  text-transform: none !important;
+  color: var(--t-on-surface-variant) !important;
+}
+[class*="side_"] [class*="separator_"] { background: var(--t-outline-variant) !important; }
+[class*="closeButton"] {
+  border-radius: 999px !important;
+  border-color: var(--t-outline) !important;
+  transition: border-radius var(--t-medium) var(--t-emphasized);
+}
+[class*="closeButton"]:hover { background: var(--t-hover) !important; border-radius: var(--t-r-md) !important; }
+
+/* Settings cards (Vencord plugins, connections, etc.) */
+[class*="card_"]:not([class*="cardPrimary"]):not([class*="emoji"]) {
+  border-radius: var(--t-r-lg) !important;
+}
+
+/* =========================================================
+   VOICE / VIDEO CALLS
+   ========================================================= */
+[class*="callContainer"], [class*="videoGrid"] { background: var(--t-surface-lowest) !important; }
+[class*="tile_"] {
+  border-radius: var(--t-r-xl) !important;
+  background: var(--t-surface-container) !important;
+  transition: box-shadow var(--t-short) var(--t-emphasized);
+}
+[class*="tile_"][class*="speaking"], [class*="tileSpeaking"] {
+  box-shadow: inset 0 0 0 3px var(--t-green) !important;
+}
+[class*="controlButton"] {
+  border-radius: 999px !important;
+  transition: border-radius var(--t-medium) var(--t-emphasized), background var(--t-short) !important;
+}
+[class*="controlButton"]:hover { border-radius: var(--t-r-md) !important; }
+[class*="controlButton"][class*="red"], button[class*="disconnect"] {
+  background: var(--t-error) !important;
+  color: var(--t-on-error) !important;
+  border-radius: var(--t-r-md) !important;
+}
+
+/* =========================================================
+   HOME / FRIENDS / DMS
+   ========================================================= */
+[class*="peopleColumn"] { background: var(--t-surface) !important; }
+[class*="nowPlayingColumn"] { background: var(--t-surface-low) !important; }
+[class*="peopleListItem"] {
+  border-radius: var(--t-r-lg) !important;
+  margin: 0 8px !important;
+  border-top: none !important;
+  transition: background var(--t-short) var(--t-emphasized);
+}
+[class*="peopleListItem"]:hover { background: var(--t-hover) !important; }
+[class*="nowPlayingColumn"] [class*="card"] {
+  background: var(--t-surface-container) !important;
+  border: none !important;
+  border-radius: var(--t-r-lg) !important;
+}
+/* Add Friend button */
+[class*="tabBar"] [class*="addFriend"] {
+  background: var(--t-primary) !important;
+  color: var(--t-on-primary) !important;
+  border-radius: 999px !important;
+}
+[class*="tabBar"] [class*="addFriend"][class*="selected"] {
+  background: var(--t-primary-container) !important;
+  color: var(--t-on-primary-container) !important;
+}
+
+/* =========================================================
+   TOASTS & NOTICES
+   ========================================================= */
+[class*="notice_"] {
+  background: var(--t-primary-container) !important;
+  color: var(--t-on-primary-container) !important;
+  font-weight: 500;
+  border-radius: 0 0 var(--t-r-lg) var(--t-r-lg) !important;
+}
+[class*="notice_"] button {
+  border-color: var(--t-on-primary-container) !important;
+  color: var(--t-on-primary-container) !important;
+  border-radius: 999px !important;
+}
+[class*="notice_"][class*="colorDanger"] {
+  background: var(--t-error-container) !important;
+  color: var(--t-on-error-container) !important;
+}
+[class*="toast_"] {
+  background: var(--t-inverse-surface) !important;
+  color: var(--t-inverse-on-surface) !important;
+  border-radius: var(--t-r-sm) !important;
+  box-shadow: var(--t-elev-3) !important;
+}
