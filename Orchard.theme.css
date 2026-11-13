@@ -1,9 +1,9 @@
 /**
  * @name Orchard
  * @author Brandon
- * @version 1.1.2
+ * @version 1.2.0
  * @description A full Apple-style Discord theme. Liquid Glass materials, SF typography, iOS controls, macOS menus, grouped settings, spring motion. Works in dark and light mode.
- * @source https://github.com/TheShield2594
+ * @source https://github.com/TheShield2594/vencord-themes
  */
 
 /* ==========================================================================
@@ -25,7 +25,7 @@
   --orchard-liquid-glass: on;    /* specular rim + top sheen on glass panels */
   --orchard-bubbles: on;         /* iMessage-style message bubbles (cozy mode only) */
 
-  /* Accent: pick any Apple system color (or enable an accent addon file) */
+  /* Accent: pick any Apple system color */
   --orchard-accent-dark: #0A84FF;   /* Blue. Try #BF5AF2 purple, #FF375F pink, #32D74B green, #FF9F0A orange */
   --orchard-accent-light: #007AFF;
 
@@ -72,10 +72,8 @@
 /* ==========================================================================
    2. PALETTES — macOS / iOS system colors
    ========================================================================== */
-.theme-dark,
-:root.theme-dark,
-.theme-darker,
-.theme-midnight {
+:is(.theme-dark, .theme-darker, .theme-midnight,
+    .visual-refresh.theme-dark, .visual-refresh .theme-dark) {
   --o-accent: var(--orchard-accent-dark);
   --o-accent-hover: color-mix(in srgb, var(--orchard-accent-dark) 85%, white);
   --o-accent-soft: color-mix(in srgb, var(--orchard-accent-dark) 22%, transparent);
@@ -130,8 +128,7 @@
   color-scheme: dark;
 }
 
-.theme-light,
-:root.theme-light {
+:is(.theme-light, .visual-refresh.theme-light, .visual-refresh .theme-light) {
   --o-accent: var(--orchard-accent-light);
   --o-accent-hover: color-mix(in srgb, var(--orchard-accent-light) 85%, black);
   --o-accent-soft: color-mix(in srgb, var(--orchard-accent-light) 16%, transparent);
@@ -190,7 +187,9 @@
    3. MAP DISCORD'S VARIABLES → ORCHARD
    Both the classic names and the 2025 "visual refresh" names are covered.
    ========================================================================== */
-.theme-dark, .theme-light, .theme-darker, .theme-midnight {
+:is(.theme-dark, .theme-light, .theme-darker, .theme-midnight,
+    .visual-refresh.theme-dark, .visual-refresh .theme-dark,
+    .visual-refresh.theme-light, .visual-refresh .theme-light) {
   /* Classic */
   --background-primary: var(--o-mat-ultrathin);
   --background-secondary: var(--o-mat-thin);
@@ -947,24 +946,24 @@ article[class*="embed"] {
 }
 
 /* Xcode "Default (Dark)" syntax palette */
-.theme-dark .hljs-keyword, .theme-dark .hljs-selector-tag, .theme-dark .hljs-literal { color: #FF7AB2 !important; font-weight: 600; }
-.theme-dark .hljs-string, .theme-dark .hljs-attr-value { color: #FF8170 !important; }
-.theme-dark .hljs-number { color: #D9C97C !important; }
-.theme-dark .hljs-comment, .theme-dark .hljs-quote { color: #7F8C98 !important; font-style: italic; }
-.theme-dark .hljs-title, .theme-dark .hljs-title.function_, .theme-dark .hljs-section { color: #67B7A4 !important; }
-.theme-dark .hljs-type, .theme-dark .hljs-built_in, .theme-dark .hljs-class .hljs-title { color: #DABAFF !important; }
-.theme-dark .hljs-attr, .theme-dark .hljs-attribute, .theme-dark .hljs-variable { color: #6BDFFF !important; }
-.theme-dark .hljs-meta, .theme-dark .hljs-tag { color: #FD8F3F !important; }
+:is(.theme-dark, .theme-darker, .theme-midnight) :is(.hljs-keyword, .hljs-selector-tag, .hljs-literal) { color: #FF7AB2 !important; font-weight: 600; }
+:is(.theme-dark, .theme-darker, .theme-midnight) :is(.hljs-string, .hljs-attr-value) { color: #FF8170 !important; }
+:is(.theme-dark, .theme-darker, .theme-midnight) :is(.hljs-number) { color: #D9C97C !important; }
+:is(.theme-dark, .theme-darker, .theme-midnight) :is(.hljs-comment, .hljs-quote) { color: #7F8C98 !important; font-style: italic; }
+:is(.theme-dark, .theme-darker, .theme-midnight) :is(.hljs-title, .hljs-title.function_, .hljs-section) { color: #67B7A4 !important; }
+:is(.theme-dark, .theme-darker, .theme-midnight) :is(.hljs-type, .hljs-built_in, .hljs-class .hljs-title) { color: #DABAFF !important; }
+:is(.theme-dark, .theme-darker, .theme-midnight) :is(.hljs-attr, .hljs-attribute, .hljs-variable) { color: #6BDFFF !important; }
+:is(.theme-dark, .theme-darker, .theme-midnight) :is(.hljs-meta, .hljs-tag) { color: #FD8F3F !important; }
 
 /* Xcode "Default (Light)" */
-.theme-light .hljs-keyword, .theme-light .hljs-selector-tag, .theme-light .hljs-literal { color: #AD3DA4 !important; font-weight: 600; }
-.theme-light .hljs-string, .theme-light .hljs-attr-value { color: #D12F1B !important; }
-.theme-light .hljs-number { color: #272AD8 !important; }
-.theme-light .hljs-comment, .theme-light .hljs-quote { color: #707F8C !important; font-style: italic; }
-.theme-light .hljs-title, .theme-light .hljs-title.function_, .theme-light .hljs-section { color: #3E8087 !important; }
-.theme-light .hljs-type, .theme-light .hljs-built_in, .theme-light .hljs-class .hljs-title { color: #4B21B0 !important; }
-.theme-light .hljs-attr, .theme-light .hljs-attribute, .theme-light .hljs-variable { color: #0F68A0 !important; }
-.theme-light .hljs-meta, .theme-light .hljs-tag { color: #78492A !important; }
+.theme-light :is(.hljs-keyword, .hljs-selector-tag, .hljs-literal) { color: #AD3DA4 !important; font-weight: 600; }
+.theme-light :is(.hljs-string, .hljs-attr-value) { color: #D12F1B !important; }
+.theme-light :is(.hljs-number) { color: #272AD8 !important; }
+.theme-light :is(.hljs-comment, .hljs-quote) { color: #707F8C !important; font-style: italic; }
+.theme-light :is(.hljs-title, .hljs-title.function_, .hljs-section) { color: #3E8087 !important; }
+.theme-light :is(.hljs-type, .hljs-built_in, .hljs-class .hljs-title) { color: #4B21B0 !important; }
+.theme-light :is(.hljs-attr, .hljs-attribute, .hljs-variable) { color: #0F68A0 !important; }
+.theme-light :is(.hljs-meta, .hljs-tag) { color: #78492A !important; }
 
 /* Blockquotes */
 [class*="blockquoteDivider_"] { background: var(--o-label-4) !important; border-radius: 999px !important; width: 3px !important; }
@@ -1700,21 +1699,27 @@ input[class*="input_"]:focus,
 }
 
 /* Respect "Reduce Motion" (OS setting or Discord's own) */
+/* Short single-run animations instead of `none`, so Discord's spinners still render.
+   Transforms are left alone: switch knobs and the GIF picker layout depend on them. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 1ms !important;
-    transition-duration: 1ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
   }
 }
 .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
-  animation: none !important;
-  transform: none !important;
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
 }
 
 /* Respect "Reduce Transparency" — swap glass for solid surfaces */
 @media (prefers-reduced-transparency: reduce) {
   :root { --orchard-blur: 0px; }
-  .theme-dark, .theme-light {
+  :is(.theme-dark, .theme-light, .theme-darker, .theme-midnight,
+      .visual-refresh.theme-dark, .visual-refresh .theme-dark,
+      .visual-refresh.theme-light, .visual-refresh .theme-light) {
     --o-mat-ultrathin: var(--o-solid-1);
     --o-mat-thin: var(--o-solid-1);
     --o-mat-regular: var(--o-solid-2);
@@ -1990,8 +1995,8 @@ kbd, [class*="keybind_"], [class*="key_"][class*="keyCombo"] {
   [class*="cozy_"] [class*="messageContent_"]:has(.emoji.jumboable)::before { display: none !important; }
 
   /* Bubble picks up the mention tint when you're pinged */
-  [class*="mentioned_"] [class*="messageContent_"]:not([class*="repliedTextContent"]):not(:empty),
-  [class*="mentioned_"] [class*="messageContent_"]::before {
+  [class*="mentioned_"][class*="cozy_"] [class*="messageContent_"]:not([class*="repliedTextContent"]):not(:empty),
+  [class*="mentioned_"][class*="cozy_"] [class*="messageContent_"]::before {
     background: color-mix(in srgb, var(--o-yellow) 22%, var(--o-bubble)) !important;
   }
 

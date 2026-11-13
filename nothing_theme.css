@@ -2,7 +2,8 @@
  * @name Nothing
  * @description Premium Nothing OS–inspired theme. Monochrome, dot-matrix, one red accent. Dark + light.
  * @author Brandon
- * @version 2.0.0
+ * @version 2.1.0
+ * @source https://github.com/TheShield2594/vencord-themes
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
@@ -28,7 +29,8 @@
 /* =========================================================
    PALETTES
    ========================================================= */
-.theme-dark, .theme-darker, .theme-midnight {
+:is(.theme-dark, .theme-darker, .theme-midnight, .visual-refresh.theme-dark, .visual-refresh .theme-dark) {
+  color-scheme: dark;
   --n-bg: #000000;
   --n-surface: #0b0b0b;
   --n-raised: #141414;
@@ -37,14 +39,16 @@
   --n-line-strong: #333333;
   --n-fg: #ffffff;
   --n-fg-2: #d9d9d9;
-  --n-muted: #7d7d7d;
+  --n-muted: #858585;           /* ≥4.5:1 on every dark surface */
   --n-dotcolor: #1d1d1d;
+  --n-accent-fg: color-mix(in srgb, var(--n-accent) 80%, white); /* accent as text: readable on black */
   --n-hover: rgba(255,255,255,.045);
   --n-select: rgba(255,255,255,.09);
   --n-shadow: 0 20px 60px rgba(0,0,0,.55);
 }
 
-.theme-light {
+:is(.theme-light, .visual-refresh.theme-light, .visual-refresh .theme-light) {
+  color-scheme: light;
   --n-bg: #f2f2f2;
   --n-surface: #ffffff;
   --n-raised: #ffffff;
@@ -53,8 +57,9 @@
   --n-line-strong: #cfcfcf;
   --n-fg: #000000;
   --n-fg-2: #1a1a1a;
-  --n-muted: #7a7a7a;
+  --n-muted: #6b6b6b;           /* ≥4.5:1 on #f2f2f2 and white */
   --n-dotcolor: #d6d6d6;
+  --n-accent-fg: var(--n-accent);
   --n-hover: rgba(0,0,0,.04);
   --n-select: rgba(0,0,0,.08);
   --n-shadow: 0 20px 60px rgba(0,0,0,.12);
@@ -63,7 +68,12 @@
 /* =========================================================
    DISCORD VARIABLE MAPPING
    ========================================================= */
-.theme-dark, .theme-darker, .theme-midnight, .theme-light {
+:is(.theme-dark, .theme-darker, .theme-midnight, .theme-light,
+    .visual-refresh.theme-dark, .visual-refresh .theme-dark,
+    .visual-refresh.theme-light, .visual-refresh .theme-light) {
+  /* One dot pattern, honours --n-dot-opacity everywhere it is used */
+  --n-dot-fill: radial-gradient(color-mix(in srgb, var(--n-dotcolor) calc(var(--n-dot-opacity) * 100%), transparent) 1px, transparent 1.2px);
+
   --background-primary: var(--n-bg);
   --background-secondary: var(--n-surface);
   --background-secondary-alt: var(--n-surface);
@@ -118,7 +128,7 @@
   --brand-experiment: var(--n-accent);
   --brand-experiment-560: color-mix(in srgb, var(--n-accent) 85%, black);
   --control-brand-foreground: var(--n-accent);
-  --mention-foreground: var(--n-accent);
+  --mention-foreground: var(--n-accent-fg);
   --mention-background: color-mix(in srgb, var(--n-accent) 15%, transparent);
 
   --border-subtle: var(--n-line);
@@ -156,8 +166,19 @@
   0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--n-accent) 60%, transparent); }
   100% { box-shadow: 0 0 0 8px transparent; }
 }
+/* Respect "Reduce Motion" (OS setting or Discord's own toggle).
+   Short single-run animations instead of `none` so Discord's spinners still render. */
 @media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
 }
 
 /* =========================================================
@@ -178,7 +199,7 @@
 /* Dot grid backdrop */
 [class*="chatContent"], [class*="chat_"], [class*="container"][class*="pageWrapper"] {
   background-color: var(--n-bg) !important;
-  background-image: radial-gradient(color-mix(in srgb, var(--n-dotcolor) calc(var(--n-dot-opacity) * 100%), transparent) 1px, transparent 1.2px) !important;
+  background-image: var(--n-dot-fill) !important;
   background-size: var(--n-dot-size) var(--n-dot-size) !important;
 }
 
@@ -316,7 +337,7 @@ nav[class*="guilds"] { background: var(--n-bg) !important; border-right: 1px sol
 /* =========================================================
    CHANNEL SIDEBAR
    ========================================================= */
-[class*="sidebar_"] { background: var(--n-surface) !important; border-right: 1px solid var(--n-line); }
+[class*="sidebar_"] { background: var(--n-surface) !important; }
 
 [class*="containerDefault"] [class*="link_"] {
   border-radius: 999px !important;
@@ -354,7 +375,7 @@ nav[class*="guilds"] { background: var(--n-bg) !important; border-right: 1px sol
 section[class*="panels"] {
   /* no position override: Discord anchors this panel to the bottom itself */
   background-color: var(--n-raised) !important;
-  background-image: radial-gradient(var(--n-dotcolor) 1px, transparent 1.2px) !important;
+  background-image: var(--n-dot-fill) !important;
   background-size: 10px 10px !important;
   margin: var(--n-gap, 8px) !important;
   border: 1px solid var(--n-line) !important;
@@ -460,7 +481,7 @@ section[class*="panels"] [class*="strikethrough"] { color: #fff !important; }
   color: var(--n-muted) !important;
 }
 /* Ping bars become dots */
-[class*="ping"] svg path { fill: var(--n-fg) !important; }
+section[class*="panels"] [class*="ping"] svg path { fill: var(--n-fg) !important; }
 
 /* Voice action row (camera, screen share, activities, soundboard) */
 [class*="actionButtons"] button {
@@ -505,9 +526,9 @@ section[class*="title_"], [class*="chat_"] > section {
 }
 [class*="mentioned_"]::before { display: none !important; }
 
-span[class*="mention"] {
+[class*="markup"] span[class*="mention"] {
   background: var(--mention-background) !important;
-  color: var(--n-accent) !important;
+  color: var(--n-accent-fg) !important;
   border-radius: 999px !important;
   padding: 0 6px !important;
   font-weight: 600;
@@ -569,6 +590,14 @@ code, pre code, [class*="markup"] code.inline {
 }
 pre code { border-radius: var(--n-radius-sm) !important; padding: 12px !important; }
 
+/* Links share the text colour, so underline them to keep them recognisable */
+[class*="markup"] a[href] {
+  text-decoration: underline !important;
+  text-decoration-color: var(--n-muted) !important;
+  text-underline-offset: 2px;
+}
+[class*="markup"] a[href]:hover { text-decoration-color: var(--n-accent) !important; }
+
 [class*="blockquoteDivider"] { background: var(--n-accent) !important; border-radius: 999px; }
 [class*="repliedMessage"]::before { border-color: var(--n-line-strong) !important; }
 
@@ -607,7 +636,7 @@ pre code { border-radius: var(--n-radius-sm) !important; padding: 12px !importan
 form [class*="channelTextArea"] [class*="scrollableContainer"] {
   background: var(--n-surface) !important;
   border: 1px solid var(--n-line) !important;
-  border-radius: 999px !important;
+  border-radius: 22px !important;   /* full pill at one line, rounded rect when it grows */
   transition: border-color var(--n-anim);
 }
 form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
@@ -646,7 +675,7 @@ form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
    ========================================================= */
 [class*="menu_"], [class*="popout_"], [class*="autocomplete_"],
 [class*="userPopoutOuter"], [class*="userProfileOuter"],
-[class*="root_"][class*="modal"], [class*="focusLock"] [class*="root_"] {
+[class*="root_"][class*="modal"], [class*="focusLock"] > [class*="root_"] {
   background: var(--n-raised) !important;
   border: 1px solid var(--n-line) !important;
   border-radius: var(--n-radius) !important;
@@ -674,7 +703,7 @@ form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
   font-size: 11px !important;
   text-transform: uppercase;
   letter-spacing: .1em;
-  border-radius: 999px !important;
+  border-radius: 14px !important;   /* pill at one line, still readable when it wraps */
   padding: 6px 12px !important;
 }
 [class*="tooltipPointer"] { border-top-color: var(--n-fg) !important; }
@@ -743,7 +772,8 @@ input[class*="input_"], [class*="inputDefault"], textarea[class*="textArea"],
   border-radius: 999px !important;
   font-family: var(--n-font-ui) !important;
 }
-input[class*="input_"]:focus { border-color: var(--n-fg) !important; }
+textarea[class*="textArea"] { border-radius: var(--n-radius-sm) !important; }
+input[class*="input_"]:focus, textarea[class*="textArea"]:focus { border-color: var(--n-fg) !important; }
 
 /* Switches */
 [class*="control_"][class*="container_"] {
@@ -774,8 +804,8 @@ div[class*="checked"][class*="container_"] {
   background: var(--n-accent) !important;
   font-family: var(--n-font-mono) !important;
   font-weight: 700;
+  animation: n-pulse 1.6s ease-out 2;
 }
-[class*="numberBadge"] { animation: n-pulse 1.6s ease-out 2; }
 
 /* =========================================================
    SETTINGS PAGES
@@ -783,7 +813,7 @@ div[class*="checked"][class*="container_"] {
 [class*="standardSidebarView"] [class*="sidebarRegion"] { background: var(--n-surface) !important; }
 [class*="standardSidebarView"] [class*="contentRegion"] {
   background-color: var(--n-bg) !important;
-  background-image: radial-gradient(var(--n-dotcolor) 1px, transparent 1.2px);
+  background-image: var(--n-dot-fill);
   background-size: var(--n-dot-size) var(--n-dot-size);
 }
 [class*="side_"] [class*="item_"] {
