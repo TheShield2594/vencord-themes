@@ -9,7 +9,7 @@ All of them support dark, light, Darker and Midnight, and Discord's 2025 visual 
 | **Orchard** (`Orchard.theme.css`) | Apple-style. Liquid Glass materials, SF typography, iOS switches, macOS menus, a Dock-style server rail, iMessage bubbles. |
 | **Nothing** (`Nothing.theme.css`) | Nothing OS-inspired. Monochrome, dot-matrix type, a dot-grid backdrop, floating cards, one red accent. |
 | **Mica** (`Mica.theme.css`) | Windows 11 / Fluent-inspired. Mica backdrop, Acrylic flyouts, the accent pill on selected items, Segoe UI Variable, Win11 controls. |
-| **Tonal** (`Tonal.theme.css`) | Material You-inspired. One seed colour builds the whole tonal palette; expressive shapes, pill indicators, icons that morph and bounce. |
+| **Tonal** (`Tonal.theme.css`) | Material You-inspired. One seed colour builds the whole tonal palette; bottom-sheet dialogs, an M3 search view, shape-morphing avatars and loaders, wavy progress bars, chips and cards. |
 | **Operator** (`Operator.theme.css`) | Inspired by boutique synth hardware. Brushed-aluminium chassis (graphite in dark), an LCD channel header, knob buttons, LEDs, four key colours. |
 | **Encore** (`Encore.theme.css`) | Spotify-inspired. Black frame with floating panels, playlist-style channel headers, a numbered track-list member list, green play buttons that slide up on hover, a Now Playing user panel with an equalizer and progress line in voice. |
 
@@ -126,8 +126,9 @@ Mica loads no web fonts; it uses Segoe UI Variable when your system has it, and 
 | `--tonal-radius` | `28px` | Pane and dialog corners; cards, fields, chips and tooltips scale from it |
 | `--tonal-gap` | `8px` | Space between floating panes; `0px` for flush |
 | `--tonal-expressive` | `1` | Squish-and-overshoot spring on icons, reactions and menus; `0` keeps the shape changes without the bounce |
+| `--tonal-shapes` | `1` | On hover, avatars morph into the scalloped M3 "cookie" shape and rotate; `0` keeps them round |
 
-Tonal loads Google Sans Flex, Roboto Flex and Roboto Mono from Google Fonts.
+Tonal loads Google Sans Flex, Roboto Flex and Roboto Mono from Google Fonts. The shape morphs need `@property` (Chromium, or Firefox 128+); without it avatars stay round.
 
 ### Operator
 
