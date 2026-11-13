@@ -32,7 +32,7 @@ Each theme has a settings block at the top of the file. To change a setting, edi
 :root {
   --orchard-accent-dark: #BF5AF2;   /* Orchard: purple accent */
   --orchard-bubbles: off;           /* Orchard: plain messages */
-  --n-accent: #ff6a00;              /* Nothing: orange accent */
+  --n-accent: #c2410c;              /* Nothing: burnt orange (5.2:1 with white text) */
 }
 ```
 
