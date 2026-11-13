@@ -1,0 +1,1174 @@
+/**
+ * @name Mica
+ * @description Windows 11 / Fluent Design–inspired theme. Mica backdrop, Acrylic flyouts, Segoe UI Variable, accent pill indicators and Win11 controls. Dark + light.
+ * @author Brandon
+ * @version 1.0.0
+ * @source https://github.com/TheShield2594/vencord-themes
+ */
+
+/* =========================================================
+   SETTINGS: tweak these, or override them in QuickCSS
+   ========================================================= */
+:root {
+  /* Accent. Dark mode puts black text on the accent, light mode white text,
+     so keep the dark accent light and the light accent deep. */
+  --mica-accent-dark: #60CDFF;
+  --mica-accent-light: #005FB8;
+
+  /* The "desktop" Mica samples. Use url("https://...") center / cover for a photo. */
+  --mica-wallpaper-dark:
+    radial-gradient(1200px 800px at 0% 0%, #1d3557 0%, transparent 60%),
+    radial-gradient(1000px 900px at 100% 100%, #33224d 0%, transparent 60%),
+    radial-gradient(900px 700px at 100% 0%, #133a4a 0%, transparent 55%),
+    linear-gradient(160deg, #15181e 0%, #101216 100%);
+  --mica-wallpaper-light:
+    radial-gradient(1200px 800px at 0% 0%, #bcd6f7 0%, transparent 60%),
+    radial-gradient(1000px 900px at 100% 100%, #e3d3f5 0%, transparent 60%),
+    radial-gradient(900px 700px at 100% 0%, #c7ecf2 0%, transparent 55%),
+    linear-gradient(160deg, #eef2f8 0%, #e7ebf2 100%);
+
+  --mica-radius: 8px;      /* windows, cards, flyouts; controls use half */
+  --mica-gap: 6px;         /* space around the content card; 0px for edge-to-edge */
+  --mica-blur: 30px;       /* Acrylic blur strength */
+
+  --mica-font: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --mica-font-display: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --mica-font-mono: "Cascadia Code", "Cascadia Mono", Consolas, ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* =========================================================
+   TOKENS: derived values
+   ========================================================= */
+:root {
+  --mi-r: var(--mica-radius);
+  --mi-r-ctl: calc(var(--mica-radius) / 2);
+  --mi-ease: cubic-bezier(0, 0, 0, 1);         /* Fluent "fast out, slow in" */
+  --mi-ease-exit: cubic-bezier(1, 0, 1, 1);
+  --mi-t-fast: 83ms;
+  --mi-t: 167ms;
+  --mi-t-slow: 250ms;
+  --mi-critical: #C42B1C;                     /* white text 5.9:1 */
+}
+
+/* =========================================================
+   PALETTES (Windows 11 WinUI tokens)
+   ========================================================= */
+:is(.theme-dark, .theme-darker, .theme-midnight, .visual-refresh.theme-dark, .visual-refresh .theme-dark) {
+  color-scheme: dark;
+
+  --mi-accent: var(--mica-accent-dark);
+  --mi-accent-hover: color-mix(in srgb, var(--mica-accent-dark) 90%, transparent);
+  --mi-accent-press: color-mix(in srgb, var(--mica-accent-dark) 80%, transparent);
+  --mi-accent-text: color-mix(in srgb, var(--mica-accent-dark) 70%, white);   /* links */
+  --mi-on-accent: #000000;
+  /* Discord draws white text on its brand colour in many places; feed it a deep accent so that stays readable */
+  --mi-brand: color-mix(in srgb, var(--mica-accent-dark) 35%, #00264d);
+
+  --mi-wallpaper: var(--mica-wallpaper-dark);
+  --mi-tint: rgba(32, 32, 32, 0.82);          /* Mica luminosity layer */
+  --mi-base: #202020;                         /* solid fallback of Mica */
+  --mi-layer: rgba(58, 58, 58, 0.30);         /* content layer over Mica */
+  --mi-layer-solid: #272727;
+  --mi-card: rgba(255, 255, 255, 0.0512);
+  --mi-card-solid: #2b2b2b;
+  --mi-card-2: rgba(255, 255, 255, 0.0326);
+  --mi-flyout: #2c2c2c;
+  --mi-acrylic: rgba(44, 44, 44, 0.86);
+  --mi-dialog: #2b2b2b;
+  --mi-dialog-footer: #202020;
+  --mi-smoke: rgba(0, 0, 0, 0.30);
+
+  --mi-fill-ctl: rgba(255, 255, 255, 0.0605);
+  --mi-fill-ctl-hover: rgba(255, 255, 255, 0.0837);
+  --mi-fill-ctl-press: rgba(255, 255, 255, 0.0326);
+  --mi-fill-input: rgba(255, 255, 255, 0.0605);
+  --mi-fill-input-focus: #1f1f1f;
+  --mi-subtle-hover: rgba(255, 255, 255, 0.0605);
+  --mi-subtle-press: rgba(255, 255, 255, 0.0419);
+  --mi-subtle-select: rgba(255, 255, 255, 0.0837);
+
+  --mi-stroke: rgba(255, 255, 255, 0.0698);           /* card stroke */
+  --mi-stroke-ctl: rgba(255, 255, 255, 0.0930);        /* control top/sides */
+  --mi-stroke-ctl-bottom: rgba(255, 255, 255, 0.0698); /* control bottom (elevation) */
+  --mi-stroke-strong: rgba(255, 255, 255, 0.5442);     /* input underline, toggle outline */
+  --mi-stroke-surface: rgba(117, 117, 117, 0.40);      /* flyout edge */
+  --mi-stroke-divider: rgba(255, 255, 255, 0.0837);
+  --mi-stroke-accent-top: rgba(255, 255, 255, 0.08);
+  --mi-stroke-accent-bottom: rgba(0, 0, 0, 0.14);
+
+  --mi-text-1: #ffffff;
+  --mi-text-2: rgba(255, 255, 255, 0.786);
+  --mi-text-3: #a0a0a0;                       /* ≥5:1 on every dark surface */
+  --mi-text-disabled: rgba(255, 255, 255, 0.3628);
+
+  --mi-success: #6CCB5F;
+  --mi-caution: #FCE100;
+  --mi-danger-text: #FF99A4;
+  --mi-offline: #8a8a8a;
+
+  --mi-scroll: rgba(255, 255, 255, 0.36);
+  --mi-shadow-flyout: 0 8px 16px rgba(0, 0, 0, 0.26);
+  --mi-shadow-dialog: 0 32px 64px rgba(0, 0, 0, 0.37), 0 2px 21px rgba(0, 0, 0, 0.37);
+  --mi-shadow-card: 0 2px 4px rgba(0, 0, 0, 0.26);
+  --mi-code: rgba(0, 0, 0, 0.22);
+}
+
+:is(.theme-light, .visual-refresh.theme-light, .visual-refresh .theme-light) {
+  color-scheme: light;
+
+  --mi-accent: var(--mica-accent-light);
+  --mi-accent-hover: color-mix(in srgb, var(--mica-accent-light) 90%, transparent);
+  --mi-accent-press: color-mix(in srgb, var(--mica-accent-light) 80%, transparent);
+  --mi-accent-text: color-mix(in srgb, var(--mica-accent-light) 80%, black);
+  --mi-on-accent: #ffffff;
+  --mi-brand: var(--mica-accent-light);
+
+  --mi-wallpaper: var(--mica-wallpaper-light);
+  --mi-tint: rgba(243, 243, 243, 0.84);
+  --mi-base: #f3f3f3;
+  --mi-layer: rgba(255, 255, 255, 0.50);
+  --mi-layer-solid: #f9f9f9;
+  --mi-card: rgba(255, 255, 255, 0.70);
+  --mi-card-solid: #fbfbfb;
+  --mi-card-2: rgba(246, 246, 246, 0.50);
+  --mi-flyout: #f9f9f9;
+  --mi-acrylic: rgba(252, 252, 252, 0.86);
+  --mi-dialog: #ffffff;
+  --mi-dialog-footer: #f3f3f3;
+  --mi-smoke: rgba(0, 0, 0, 0.30);
+
+  --mi-fill-ctl: rgba(255, 255, 255, 0.70);
+  --mi-fill-ctl-hover: rgba(249, 249, 249, 0.50);
+  --mi-fill-ctl-press: rgba(249, 249, 249, 0.30);
+  --mi-fill-input: rgba(255, 255, 255, 0.70);
+  --mi-fill-input-focus: #ffffff;
+  --mi-subtle-hover: rgba(0, 0, 0, 0.0373);
+  --mi-subtle-press: rgba(0, 0, 0, 0.0241);
+  --mi-subtle-select: rgba(0, 0, 0, 0.0578);
+
+  --mi-stroke: rgba(0, 0, 0, 0.0578);
+  --mi-stroke-ctl: rgba(0, 0, 0, 0.0578);
+  --mi-stroke-ctl-bottom: rgba(0, 0, 0, 0.1622);
+  --mi-stroke-strong: rgba(0, 0, 0, 0.4458);
+  --mi-stroke-surface: rgba(117, 117, 117, 0.40);
+  --mi-stroke-divider: rgba(0, 0, 0, 0.0803);
+  --mi-stroke-accent-top: rgba(255, 255, 255, 0.08);
+  --mi-stroke-accent-bottom: rgba(0, 0, 0, 0.40);
+
+  --mi-text-1: rgba(0, 0, 0, 0.896);
+  --mi-text-2: rgba(0, 0, 0, 0.75);
+  --mi-text-3: #5f5f5f;                       /* ≥5:1 on #f3f3f3 and white */
+  --mi-text-disabled: rgba(0, 0, 0, 0.3614);
+
+  --mi-success: #0F7B0F;
+  --mi-caution: #9D5D00;
+  --mi-danger-text: #C42B1C;
+  --mi-offline: #7a7a7a;
+
+  --mi-scroll: rgba(0, 0, 0, 0.45);
+  --mi-shadow-flyout: 0 8px 16px rgba(0, 0, 0, 0.14);
+  --mi-shadow-dialog: 0 32px 64px rgba(0, 0, 0, 0.19), 0 2px 21px rgba(0, 0, 0, 0.15);
+  --mi-shadow-card: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --mi-code: rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================================
+   DISCORD VARIABLE MAPPING
+   ========================================================= */
+:is(.theme-dark, .theme-darker, .theme-midnight, .theme-light,
+    .visual-refresh.theme-dark, .visual-refresh .theme-dark,
+    .visual-refresh.theme-light, .visual-refresh .theme-light) {
+  --mi-mica: linear-gradient(var(--mi-tint), var(--mi-tint)), var(--mi-wallpaper);
+
+  --background-primary: var(--mi-layer-solid);
+  --background-secondary: var(--mi-base);
+  --background-secondary-alt: var(--mi-card-solid);
+  --background-tertiary: var(--mi-base);
+  --background-accent: var(--mi-card-solid);
+  --background-floating: var(--mi-flyout);
+  --background-nested-floating: var(--mi-card-solid);
+  --background-base-low: var(--mi-base);
+  --background-base-lower: var(--mi-base);
+  --background-base-lowest: var(--mi-base);
+  --background-surface-high: var(--mi-flyout);
+  --background-surface-higher: var(--mi-card-solid);
+  --background-surface-highest: var(--mi-card-solid);
+  --background-mobile-primary: var(--mi-layer-solid);
+  --background-mobile-secondary: var(--mi-base);
+  --background-modifier-hover: var(--mi-subtle-hover);
+  --background-modifier-active: var(--mi-subtle-press);
+  --background-modifier-selected: var(--mi-subtle-select);
+  --background-modifier-accent: var(--mi-stroke-divider);
+  --background-message-hover: var(--mi-subtle-hover);
+  --background-mentioned: color-mix(in srgb, var(--mi-accent) 9%, transparent);
+  --background-mentioned-hover: color-mix(in srgb, var(--mi-accent) 13%, transparent);
+  --chat-background: transparent;
+  --chat-background-default: transparent;
+  --channeltextarea-background: var(--mi-fill-input);
+  --modal-background: var(--mi-dialog);
+  --modal-footer-background: var(--mi-dialog-footer);
+  --input-background: var(--mi-fill-input);
+  --deprecated-card-bg: var(--mi-card-solid);
+  --home-background: var(--mi-layer-solid);
+
+  --text-normal: var(--mi-text-1);
+  --text-default: var(--mi-text-1);
+  --text-strong: var(--mi-text-1);
+  --text-muted: var(--mi-text-3);
+  --text-link: var(--mi-accent-text);
+  --header-primary: var(--mi-text-1);
+  --header-secondary: var(--mi-text-2);
+  --interactive-normal: var(--mi-text-2);
+  --interactive-hover: var(--mi-text-1);
+  --interactive-active: var(--mi-text-1);
+  --interactive-muted: var(--mi-text-disabled);
+  --channels-default: var(--mi-text-2);
+  --channel-icon: var(--mi-text-3);
+
+  --brand-500: var(--mi-brand);
+  --brand-560: color-mix(in srgb, var(--mi-brand) 88%, black);
+  --brand-600: color-mix(in srgb, var(--mi-brand) 78%, black);
+  --brand-experiment: var(--mi-brand);
+  --brand-experiment-560: color-mix(in srgb, var(--mi-brand) 88%, black);
+  --control-brand-foreground: var(--mi-accent-text);
+  --mention-foreground: var(--mi-accent-text);
+  --mention-background: color-mix(in srgb, var(--mi-accent) 16%, transparent);
+
+  --border-subtle: var(--mi-stroke);
+  --border-faint: var(--mi-stroke);
+  --border-strong: var(--mi-stroke-ctl-bottom);
+
+  --status-positive: var(--mi-success);
+  --status-warning: var(--mi-caution);
+  --status-danger: var(--mi-critical);
+  --scrollbar-thin-thumb: var(--mi-scroll);
+  --scrollbar-auto-thumb: var(--mi-scroll);
+  --scrollbar-auto-track: transparent;
+
+  --font-primary: var(--mica-font);
+  --font-display: var(--mica-font-display);
+  --font-headline: var(--mica-font-display);
+  --font-code: var(--mica-font-mono);
+
+  --radius-xs: var(--mi-r-ctl);
+  --radius-sm: var(--mi-r-ctl);
+  --radius-md: var(--mi-r);
+  --radius-lg: var(--mi-r);
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+@keyframes mi-flyout {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes mi-dialog {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes mi-pill {
+  from { transform: translateY(-50%) scaleY(0); }
+  to   { transform: translateY(-50%) scaleY(1); }
+}
+
+/* Respect "Reduce Motion" (OS setting or Discord's own toggle).
+   Loading indicators are excluded so they keep signalling that something is loading. */
+@media (prefers-reduced-motion: reduce) {
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+  :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *)),
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::before,
+.reduce-motion :not(:is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"], :is([class*="spinner"], [class*="spinning"], [class*="wanderingCubes"], [class*="pulsingEllipsis"]) *))::after {
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+}
+
+/* Respect "Reduce transparency": Mica and Acrylic become solid, like Windows does */
+@media (prefers-reduced-transparency: reduce) {
+  :is(.theme-dark, .theme-darker, .theme-midnight, .theme-light,
+      .visual-refresh.theme-dark, .visual-refresh .theme-dark,
+      .visual-refresh.theme-light, .visual-refresh .theme-light) {
+    --mi-mica: linear-gradient(var(--mi-base), var(--mi-base));
+    --mi-acrylic: var(--mi-flyout);
+    --mi-layer: var(--mi-layer-solid);
+    --mica-blur: 0px;
+  }
+}
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+body, #app-mount {
+  font-family: var(--mica-font);
+  background: var(--mi-mica);
+  background-attachment: fixed;
+}
+* { -webkit-font-smoothing: antialiased; }
+::selection { background: var(--mi-accent); color: var(--mi-on-accent); }
+
+/* Win11 scrollbars: thin, rounded, no track */
+::-webkit-scrollbar { width: 8px !important; height: 8px !important; }
+::-webkit-scrollbar-thumb {
+  background: var(--mi-scroll) !important;
+  background-clip: padding-box !important;
+  border: 2px solid transparent !important;
+  border-radius: 999px !important;
+}
+::-webkit-scrollbar-thumb:hover { border-width: 1px !important; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent !important; border: none !important; }
+
+/* Keyboard focus: the Win11 double focus ring */
+:focus-visible {
+  outline: 2px solid var(--mi-text-1) !important;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--mi-base) !important;
+}
+
+/* =========================================================
+   MICA BACKDROP & LAYOUT
+   The frame (title bar, server list, channel list, member list) sits
+   on Mica; the chat is a content layer card on top, like Win11 Settings.
+   ========================================================= */
+#app-mount [class^="bg_"], #app-mount [class*=" bg_"] {
+  background: var(--mi-mica) !important;
+  background-attachment: fixed !important;
+}
+[class*="base_"], [class*="content_"]:has(> [class*="sidebar_"]),
+nav[class*="guilds"], [class*="guilds_"] [class*="scroller"],
+[class*="sidebar_"], [class*="sidebar_"] :is(nav, header, [class*="scroller"], [class*="sidebarList"], [class*="privateChannels"]),
+[class*="titleBar"], [class*="base_"] > [class*="bar_"],
+[class*="membersWrap"], [class*="members_"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* The content layer */
+main[class*="chat_"], [class*="chat_"]:has(> [class*="content_"]),
+[class*="page_"] > [class*="container_"]:has([class*="peopleColumn"]) {
+  margin: 0 var(--mica-gap) var(--mica-gap) 0 !important;
+  background: var(--mi-layer) !important;
+  border: 1px solid var(--mi-stroke) !important;
+  border-radius: var(--mi-r) !important;
+  box-shadow: var(--mi-shadow-card) !important;
+  overflow: hidden;
+}
+[class*="chatContent"], [class*="messagesWrapper"], [class*="chat_"] [class*="content_"] {
+  background: transparent !important;
+}
+/* When the member list is open the card spans chat + members */
+[class*="chat_"] [class*="content_"]:has(> [class*="membersWrap"]) { gap: 0; }
+[class*="membersWrap"] { border-left: 1px solid var(--mi-stroke-divider) !important; }
+
+/* =========================================================
+   TITLE BAR & CAPTION BUTTONS
+   ========================================================= */
+[class*="titleBar"] [class*="winButton"],
+[class*="bar_"] [class*="winButton"] {
+  border-radius: 0 !important;
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="winButton"]:hover { background: var(--mi-subtle-hover) !important; }
+[class*="winButtonClose"]:hover {
+  background: var(--mi-critical) !important;
+  color: #fff !important;
+}
+[class*="winButtonClose"]:hover svg { color: #fff !important; fill: #fff !important; }
+
+/* =========================================================
+   TYPOGRAPHY (Win11 type ramp)
+   ========================================================= */
+h1, h2,
+[class*="titleWrapper"] h1,
+[class*="title_"][class*="header"],
+[class*="headerContent"] h2 {
+  font-family: var(--mica-font-display) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Category & section headers: sentence case caption, not shouted */
+[class*="containerDefault"] h3,
+[class*="membersGroup"],
+[class*="sectionTitle"],
+[class*="eyebrow"],
+[class*="privateChannelsHeaderContainer"] {
+  font-family: var(--mica-font) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--mi-text-2) !important;
+}
+
+[class*="timestamp"] time, [class*="timestamp_"] {
+  font-size: 12px !important;
+  color: var(--mi-text-3) !important;
+}
+[class*="username_"] { font-weight: 600 !important; }
+
+[class*="botTag"] {
+  background: var(--mi-accent) !important;
+  color: var(--mi-on-accent) !important;
+  border-radius: var(--mi-r-ctl) !important;
+}
+[class*="botTag"] svg path { fill: var(--mi-on-accent) !important; }
+
+/* =========================================================
+   SERVER LIST
+   ========================================================= */
+[class*="pill_"] span[class*="item"] {
+  background: var(--mi-accent) !important;
+  border-radius: 999px !important;
+  width: 3px !important;
+  margin-left: 2px !important;
+  transition: height var(--mi-t) var(--mi-ease) !important;
+}
+
+[class*="circleIconButton"] {
+  background: var(--mi-fill-ctl) !important;
+  color: var(--mi-accent-text) !important;
+  border: 1px solid var(--mi-stroke-ctl);
+  border-bottom-color: var(--mi-stroke-ctl-bottom);
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="circleIconButton"]:hover {
+  background: var(--mi-accent) !important;
+  color: var(--mi-on-accent) !important;
+}
+
+[class*="guildSeparator"] {
+  background: var(--mi-stroke-divider) !important;
+  height: 1px !important;
+}
+[class*="folderIconWrapper"], [class*="expandedFolderBackground"] {
+  background: var(--mi-subtle-select) !important;
+  border-radius: var(--mi-r) !important;
+}
+
+[class*="unreadMentionsIndicator"]:not(:has([class*="unreadMentionsBar"] *)),
+[class*="unreadMentionsBar"]:empty { background: transparent !important; }
+[class*="unreadMentionsBar"] {
+  background: var(--mi-critical) !important;
+  color: #fff !important;
+  border-radius: var(--mi-r-ctl) !important;
+  margin: 4px 8px !important;
+}
+
+/* =========================================================
+   CHANNEL SIDEBAR (NavigationView)
+   ========================================================= */
+[class*="sidebar_"] header {
+  border-bottom: 1px solid var(--mi-stroke-divider) !important;
+}
+
+[class*="containerDefault"] [class*="link_"],
+[class*="privateChannels"] [class*="interactive_"] {
+  position: relative;
+  border-radius: var(--mi-r-ctl) !important;
+  margin-inline: 4px !important;
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="containerDefault"] [class*="link_"]:hover,
+[class*="privateChannels"] [class*="interactive_"]:hover { background: var(--mi-subtle-hover) !important; }
+[class*="containerDefault"] [class*="link_"]:active { background: var(--mi-subtle-press) !important; }
+
+/* Selected: subtle fill + the 3×16 accent pill */
+[class*="modeSelected"] [class*="link_"],
+[class*="privateChannels"] [class*="interactiveSelected"] {
+  background: var(--mi-subtle-select) !important;
+}
+[class*="modeSelected"] [class*="link_"]::before,
+[class*="privateChannels"] [class*="interactiveSelected"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--mi-accent);
+  transform: translateY(-50%);
+  animation: mi-pill var(--mi-t-slow) var(--mi-ease);
+  pointer-events: none;
+  z-index: 1;
+}
+[class*="modeSelected"] [class*="name_"] { color: var(--mi-text-1) !important; }
+[class*="modeUnread"] [class*="name_"] { color: var(--mi-text-1) !important; font-weight: 600; }
+
+/* Voice channel users */
+[class*="voiceUser"] { border-radius: var(--mi-r-ctl) !important; }
+[class*="avatarSpeaking"] {
+  box-shadow: inset 0 0 0 2px var(--mi-success), inset 0 0 0 3px var(--mi-base) !important;
+}
+
+/* =========================================================
+   USER PANEL (bottom left)
+   Discord positions this absolutely in the 2025 layout, so it is
+   only painted here, never repositioned.
+   ========================================================= */
+section[class*="panels"] {
+  background: var(--mi-acrylic) !important;
+  -webkit-backdrop-filter: blur(var(--mica-blur)) saturate(150%);
+  backdrop-filter: blur(var(--mica-blur)) saturate(150%);
+  margin: var(--mica-gap, 6px) !important;
+  border: 1px solid var(--mi-stroke-surface) !important;
+  border-radius: var(--mi-r) !important;
+  box-shadow: var(--mi-shadow-flyout) !important;
+  overflow: hidden;
+}
+section[class*="panels"] > div + div { border-top: 1px solid var(--mi-stroke-divider) !important; }
+
+section[class*="panels"] [class*="panelTitleContainer"],
+section[class*="panels"] [class*="nameTag"] [class*="title"] {
+  font-weight: 600 !important;
+  color: var(--mi-text-1) !important;
+}
+section[class*="panels"] [class*="panelSubtextContainer"],
+section[class*="panels"] [class*="nameTag"] [class*="subtext"] {
+  font-size: 12px !important;
+  color: var(--mi-text-3) !important;
+}
+
+/* Subtle buttons, like a Win11 command bar */
+section[class*="panels"] button {
+  border-radius: var(--mi-r-ctl) !important;
+  background: transparent !important;
+  color: var(--mi-text-1) !important;
+  transition: background var(--mi-t-fast) linear !important;
+}
+section[class*="panels"] button:hover { background: var(--mi-subtle-hover) !important; }
+section[class*="panels"] button:active { background: var(--mi-subtle-press) !important; }
+
+/* Muted / deafened: critical tint */
+section[class*="panels"] button[aria-label="Unmute"],
+section[class*="panels"] button[aria-label="Undeafen"],
+section[class*="panels"] button[aria-checked="true"][role="switch"] {
+  background: color-mix(in srgb, var(--mi-critical) 22%, transparent) !important;
+  color: var(--mi-danger-text) !important;
+}
+section[class*="panels"] [class*="strikethrough"] { color: var(--mi-danger-text) !important; }
+
+/* Voice connected */
+[class*="rtcConnectionStatusConnected"] { color: var(--mi-success) !important; }
+[class*="rtcConnectionStatus"] a, [class*="rtcConnectionStatus"] [class*="channel"] {
+  font-size: 12px !important;
+  color: var(--mi-text-3) !important;
+}
+[class*="actionButtons"] button {
+  border-radius: var(--mi-r-ctl) !important;
+  background: var(--mi-fill-ctl) !important;
+  border: 1px solid var(--mi-stroke-ctl) !important;
+  border-bottom-color: var(--mi-stroke-ctl-bottom) !important;
+}
+[class*="actionButtons"] button:hover { background: var(--mi-fill-ctl-hover) !important; }
+section[class*="panels"] button[aria-label="Disconnect"] {
+  background: var(--mi-critical) !important;
+  color: #fff !important;
+}
+section[class*="panels"] button[aria-label="Disconnect"]:hover {
+  background: color-mix(in srgb, var(--mi-critical) 90%, transparent) !important;
+}
+
+/* =========================================================
+   STATUS DOTS
+   ========================================================= */
+rect[fill="#23a55a"], rect[fill="var(--status-positive)"], [class*="statusOnline"] { fill: var(--mi-success) !important; }
+rect[fill="#f0b232"], [class*="statusIdle"] { fill: #F7B500 !important; }
+rect[fill="#f23f43"], rect[fill="#f23f42"], [class*="statusDND"] { fill: #E81123 !important; }
+rect[fill="#80848e"], [class*="statusOffline"] { fill: var(--mi-offline) !important; }
+
+/* =========================================================
+   CHAT
+   ========================================================= */
+section[class*="title_"], [class*="chat_"] > section {
+  background: transparent !important;
+  border-bottom: 1px solid var(--mi-stroke-divider) !important;
+  box-shadow: none !important;
+}
+
+[class*="message_"] {
+  border-radius: var(--mi-r-ctl);
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="message_"]:hover { background: var(--mi-subtle-hover) !important; }
+
+[class*="mentioned_"] {
+  background: var(--background-mentioned) !important;
+}
+[class*="mentioned_"]::before {
+  background: var(--mi-accent) !important;
+  width: 3px !important;
+  border-radius: 999px !important;
+  top: 6px !important;
+  bottom: 6px !important;
+}
+
+[class*="markup"] span[class*="mention"] {
+  background: var(--mention-background) !important;
+  color: var(--mi-accent-text) !important;
+  border-radius: var(--mi-r-ctl) !important;
+  padding: 0 3px !important;
+  font-weight: 600;
+}
+[class*="markup"] span[class*="mention"]:hover {
+  background: var(--mi-accent) !important;
+  color: var(--mi-on-accent) !important;
+}
+
+[class*="divider_"][class*="isUnread"] { border-color: var(--mi-critical) !important; }
+[class*="unreadPill"] { background: var(--mi-critical) !important; border-radius: var(--mi-r-ctl) !important; }
+[class*="unreadPill"] path { fill: var(--mi-critical) !important; }
+
+/* "New messages" / "Jump to present": InfoBar style */
+[class*="newMessagesBar"], [class*="jumpToPresentBar"] {
+  background: var(--mi-acrylic) !important;
+  -webkit-backdrop-filter: blur(var(--mica-blur));
+  backdrop-filter: blur(var(--mica-blur));
+  color: var(--mi-text-1) !important;
+  border: 1px solid var(--mi-stroke-surface) !important;
+  border-radius: var(--mi-r) !important;
+  box-shadow: var(--mi-shadow-flyout) !important;
+}
+
+/* Links */
+[class*="markup"] a[href] { color: var(--mi-accent-text) !important; }
+[class*="markup"] a[href]:hover { text-decoration: underline !important; }
+
+[class*="blockquoteDivider"] { background: var(--mi-stroke-strong) !important; border-radius: 999px; }
+[class*="repliedMessage"]::before { border-color: var(--mi-stroke-strong) !important; }
+
+/* Message hover toolbar: CommandBar */
+[class*="buttonsInner"], [class*="buttons_"] [class*="wrapper_"] {
+  background: var(--mi-acrylic) !important;
+  -webkit-backdrop-filter: blur(var(--mica-blur));
+  backdrop-filter: blur(var(--mica-blur));
+  border: 1px solid var(--mi-stroke-surface) !important;
+  border-radius: var(--mi-r) !important;
+  box-shadow: var(--mi-shadow-flyout) !important;
+}
+[class*="buttonsInner"] [class*="button_"] { border-radius: var(--mi-r-ctl) !important; }
+
+[class*="spoilerContent"][class*="hidden"], [class*="spoilerText"][class*="hidden"] {
+  background: var(--mi-text-3) !important;
+  border-radius: var(--mi-r-ctl) !important;
+}
+
+/* =========================================================
+   EMBEDS, ATTACHMENTS, REACTIONS, CODE
+   ========================================================= */
+article[class*="embedFull"] {
+  background: var(--mi-card) !important;
+  border: 1px solid var(--mi-stroke);
+  border-left-width: 4px;
+  border-radius: var(--mi-r) !important;
+}
+
+[class*="imageWrapper"], [class*="mosaicItem"], [class*="attachment_"] {
+  border-radius: var(--mi-r) !important;
+  overflow: hidden;
+}
+[class*="attachment_"], [class*="fileUpload"] {
+  background: var(--mi-card) !important;
+  border: 1px solid var(--mi-stroke) !important;
+}
+
+[class*="reaction_"] {
+  background: var(--mi-fill-ctl) !important;
+  border: 1px solid var(--mi-stroke-ctl) !important;
+  border-bottom-color: var(--mi-stroke-ctl-bottom) !important;
+  border-radius: var(--mi-r-ctl) !important;
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="reaction_"]:hover { background: var(--mi-fill-ctl-hover) !important; }
+[class*="reactionMe"] {
+  background: color-mix(in srgb, var(--mi-accent) 16%, transparent) !important;
+  border-color: color-mix(in srgb, var(--mi-accent) 60%, transparent) !important;
+}
+[class*="reactionCount"] { color: var(--mi-text-1) !important; font-weight: 600; }
+[class*="reactionMe"] [class*="reactionCount"] { color: var(--mi-accent-text) !important; }
+
+code, pre code, [class*="markup"] code.inline {
+  font-family: var(--mica-font-mono) !important;
+  background: var(--mi-code) !important;
+  border: 1px solid var(--mi-stroke) !important;
+  border-radius: var(--mi-r-ctl) !important;
+}
+pre code { border-radius: var(--mi-r) !important; padding: 10px 12px !important; }
+
+/* Threads & forums */
+[class*="threadSidebar"] {
+  background: var(--mi-layer-solid) !important;
+  border-left: 1px solid var(--mi-stroke-divider) !important;
+}
+[class*="mainCard"] {
+  background: var(--mi-card) !important;
+  border: 1px solid var(--mi-stroke) !important;
+  border-radius: var(--mi-r) !important;
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="mainCard"]:hover { background: var(--mi-fill-ctl-hover) !important; }
+
+/* Polls */
+[class*="pollContainer"] {
+  background: var(--mi-card) !important;
+  border: 1px solid var(--mi-stroke) !important;
+  border-radius: var(--mi-r) !important;
+}
+[class*="pollContainer"] [class*="answer"] { border-radius: var(--mi-r-ctl) !important; }
+
+/* =========================================================
+   MESSAGE INPUT (TextBox: underline turns accent on focus)
+   ========================================================= */
+form [class*="channelTextArea"] [class*="scrollableContainer"] {
+  background: var(--mi-fill-input) !important;
+  border: 1px solid var(--mi-stroke-ctl) !important;
+  border-radius: var(--mi-r) !important;
+  box-shadow: inset 0 -1px 0 var(--mi-stroke-strong) !important;
+  transition: background var(--mi-t-fast) linear, box-shadow var(--mi-t-fast) linear;
+}
+form [class*="channelTextArea"]:hover [class*="scrollableContainer"] { background: var(--mi-fill-ctl-hover) !important; }
+form [class*="channelTextArea"]:focus-within [class*="scrollableContainer"] {
+  background: var(--mi-fill-input-focus) !important;
+  box-shadow: inset 0 -2px 0 var(--mi-accent) !important;
+}
+[class*="placeholder_"] { color: var(--mi-text-3) !important; font-style: normal !important; }
+
+[class*="typing_"] [class*="dots"] circle,
+[class*="typingDots"] circle { fill: var(--mi-accent) !important; }
+[class*="typing_"] [class*="text"] { font-size: 12px !important; color: var(--mi-text-2) !important; }
+[class*="characterCount"] [class*="error"] { color: var(--mi-danger-text) !important; }
+
+/* =========================================================
+   MEMBER LIST
+   ========================================================= */
+[class*="member_"] [class*="layout_"] {
+  border-radius: var(--mi-r-ctl) !important;
+  margin: 0 4px;
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="member_"]:hover [class*="layout_"] { background: var(--mi-subtle-hover) !important; }
+
+/* =========================================================
+   FLYOUTS: MENUS, POPOUTS, AUTOCOMPLETE (Acrylic)
+   ========================================================= */
+[class*="menu_"]:not([class*="menuIcon"]):not([class*="menuItem"]),
+[class*="popout_"]:not([class*="userPopout"]),
+[class*="autocomplete_"] {
+  background: var(--mi-acrylic) !important;
+  -webkit-backdrop-filter: blur(var(--mica-blur)) saturate(150%);
+  backdrop-filter: blur(var(--mica-blur)) saturate(150%);
+  border: 1px solid var(--mi-stroke-surface) !important;
+  border-radius: var(--mi-r) !important;
+  box-shadow: var(--mi-shadow-flyout) !important;
+  animation: mi-flyout var(--mi-t-slow) var(--mi-ease);
+}
+[class*="menu_"] [class*="scroller"] { padding: 4px !important; }
+
+[class*="menu_"] [class*="item_"] {
+  position: relative;
+  border-radius: var(--mi-r-ctl) !important;
+  min-height: 32px;
+  font-weight: 400;
+  color: var(--mi-text-1) !important;
+}
+[class*="menu_"] [class*="item_"][class*="focused"] {
+  background: var(--mi-subtle-hover) !important;
+  color: var(--mi-text-1) !important;
+}
+[class*="menu_"] [class*="item_"]:active { background: var(--mi-subtle-press) !important; }
+[class*="menu_"] [class*="colorDanger"] { color: var(--mi-danger-text) !important; }
+[class*="menu_"] [class*="colorDanger"][class*="focused"] {
+  background: color-mix(in srgb, var(--mi-critical) 16%, transparent) !important;
+  color: var(--mi-danger-text) !important;
+}
+[class*="menu_"] [role="separator"], [class*="menu_"] [class*="separator"] {
+  border-color: var(--mi-stroke-divider) !important;
+  background: var(--mi-stroke-divider) !important;
+}
+
+/* Autocomplete rows */
+[class*="autocomplete_"] [class*="selected"] {
+  background: var(--mi-subtle-select) !important;
+  border-radius: var(--mi-r-ctl) !important;
+}
+
+/* Profile popouts: keep Nitro profile colours, add the Win11 frame */
+[class*="userPopoutOuter"], [class*="userProfileOuter"] {
+  border: 1px solid var(--mi-stroke-surface) !important;
+  border-radius: var(--mi-r) !important;
+  box-shadow: var(--mi-shadow-flyout) !important;
+  animation: mi-flyout var(--mi-t-slow) var(--mi-ease);
+}
+[class*="role_"], [class*="rolePill"] {
+  background: var(--mi-fill-ctl) !important;
+  border: 1px solid var(--mi-stroke-ctl) !important;
+  border-radius: var(--mi-r-ctl) !important;
+}
+
+/* Tooltips */
+[class*="tooltip_"] {
+  background: var(--mi-flyout) !important;
+  color: var(--mi-text-1) !important;
+  border: 1px solid var(--mi-stroke-surface);
+  border-radius: var(--mi-r-ctl) !important;
+  box-shadow: var(--mi-shadow-flyout) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  padding: 5px 8px 7px !important;
+}
+[class*="tooltip_"] [class*="tooltipContent"] { color: var(--mi-text-1) !important; }
+[class*="tooltipPointer"] { display: none !important; }
+
+/* =========================================================
+   DIALOGS (ContentDialog)
+   ========================================================= */
+[class*="backdrop_"] { background: var(--mi-smoke) !important; }
+
+[class*="root_"][class*="modal"], [class*="focusLock"] > [class*="root_"] {
+  background: var(--mi-dialog) !important;
+  border: 1px solid var(--mi-stroke-surface) !important;
+  border-radius: var(--mi-r) !important;
+  box-shadow: var(--mi-shadow-dialog) !important;
+  animation: mi-dialog var(--mi-t-slow) var(--mi-ease);
+}
+:is([class*="root_"][class*="modal"], [class*="focusLock"] > [class*="root_"]) [class*="footer_"] {
+  background: var(--mi-dialog-footer) !important;
+  border-top: 1px solid var(--mi-stroke-divider) !important;
+  box-shadow: none !important;
+}
+
+[class*="quickswitcher"] {
+  background: var(--mi-acrylic) !important;
+  -webkit-backdrop-filter: blur(var(--mica-blur)) saturate(150%);
+  backdrop-filter: blur(var(--mica-blur)) saturate(150%);
+  border: 1px solid var(--mi-stroke-surface) !important;
+  border-radius: var(--mi-r) !important;
+}
+
+/* =========================================================
+   BUTTONS (Accent, Standard, Subtle)
+   ========================================================= */
+button[class*="button_"] {
+  border-radius: var(--mi-r-ctl) !important;
+  font-family: var(--mica-font) !important;
+  font-weight: 400 !important;
+  font-size: 14px;
+  transition: background var(--mi-t-fast) linear, color var(--mi-t-fast) linear !important;
+}
+
+/* Accent */
+button[class*="colorBrand"], button[class*="button_"][class*="brand_"] {
+  background: var(--mi-accent) !important;
+  color: var(--mi-on-accent) !important;
+  border: 1px solid var(--mi-stroke-accent-top) !important;
+  border-bottom-color: var(--mi-stroke-accent-bottom) !important;
+}
+button[class*="colorBrand"] *, button[class*="button_"][class*="brand_"] * { color: var(--mi-on-accent) !important; }
+button[class*="colorBrand"]:hover, button[class*="button_"][class*="brand_"]:hover { background: var(--mi-accent-hover) !important; }
+button[class*="colorBrand"]:active, button[class*="button_"][class*="brand_"]:active { background: var(--mi-accent-press) !important; }
+
+/* Standard */
+button[class*="colorPrimary"], button[class*="lookOutlined"], button[class*="button_"][class*="secondary_"] {
+  background: var(--mi-fill-ctl) !important;
+  color: var(--mi-text-1) !important;
+  border: 1px solid var(--mi-stroke-ctl) !important;
+  border-bottom-color: var(--mi-stroke-ctl-bottom) !important;
+}
+button[class*="colorPrimary"]:hover, button[class*="lookOutlined"]:hover, button[class*="button_"][class*="secondary_"]:hover {
+  background: var(--mi-fill-ctl-hover) !important;
+}
+button[class*="colorPrimary"]:active, button[class*="lookOutlined"]:active, button[class*="button_"][class*="secondary_"]:active {
+  background: var(--mi-fill-ctl-press) !important;
+  color: var(--mi-text-2) !important;
+}
+
+/* Destructive */
+button[class*="colorRed"], button[class*="colorDanger"], button[class*="button_"][class*="critical"] {
+  background: var(--mi-critical) !important;
+  color: #fff !important;
+  border: 1px solid var(--mi-stroke-accent-top) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.3) !important;
+}
+button[class*="colorRed"]:hover, button[class*="colorDanger"]:hover { background: color-mix(in srgb, var(--mi-critical) 90%, transparent) !important; }
+
+/* Green "join" buttons stay green but get Win11 shape */
+button[class*="colorGreen"] {
+  background: #0F7B0F !important;
+  color: #fff !important;
+}
+
+/* Link-look buttons: hyperlink buttons */
+button[class*="lookLink"] { color: var(--mi-accent-text) !important; background: transparent !important; }
+button[class*="lookLink"]:hover { background: var(--mi-subtle-hover) !important; }
+
+/* =========================================================
+   INPUTS, TOGGLES, CHECKBOXES, SLIDERS
+   ========================================================= */
+input[class*="input_"], [class*="inputDefault"], textarea[class*="textArea"],
+[class*="searchBar"], [class*="search_"] [class*="searchBar"] {
+  background: var(--mi-fill-input) !important;
+  border: 1px solid var(--mi-stroke-ctl) !important;
+  border-radius: var(--mi-r-ctl) !important;
+  box-shadow: inset 0 -1px 0 var(--mi-stroke-strong) !important;
+  font-family: var(--mica-font) !important;
+  color: var(--mi-text-1) !important;
+}
+input[class*="input_"]:hover, [class*="inputDefault"]:hover { background: var(--mi-fill-ctl-hover) !important; }
+input[class*="input_"]:focus, [class*="inputDefault"]:focus, textarea[class*="textArea"]:focus,
+[class*="searchBar"]:focus-within {
+  background: var(--mi-fill-input-focus) !important;
+  box-shadow: inset 0 -2px 0 var(--mi-accent) !important;
+  outline: none !important;
+}
+
+/* ToggleSwitch: outlined when off, accent with on-accent knob when on */
+[class*="control_"][class*="container_"] {
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: inset 0 0 0 1px var(--mi-stroke-strong) !important;
+  transition: background var(--mi-t) var(--mi-ease), box-shadow var(--mi-t) var(--mi-ease) !important;
+}
+[class*="control_"][class*="container_"]:hover { background: var(--mi-subtle-hover) !important; }
+[class*="control_"][class*="container_"] [class*="slider"] rect { fill: var(--mi-text-2) !important; }
+[class*="control_"][class*="container_"] [class*="slider"] path { fill: transparent !important; }
+div[class*="checked"][class*="container_"],
+[class*="control_"][class*="container_"][class*="checked"] {
+  background: var(--mi-accent) !important;
+  box-shadow: none !important;
+}
+[class*="control_"][class*="container_"][class*="checked"]:hover { background: var(--mi-accent-hover) !important; }
+[class*="checked"] [class*="slider"] rect { fill: var(--mi-on-accent) !important; }
+
+/* CheckBox & RadioButton */
+[class*="checkbox_"] { border-radius: var(--mi-r-ctl) !important; }
+[class*="checkbox_"][class*="checked"] {
+  background: var(--mi-accent) !important;
+  border-color: var(--mi-accent) !important;
+}
+[class*="checkbox_"][class*="checked"] svg path { fill: var(--mi-on-accent) !important; }
+[class*="radioBar"] {
+  border-radius: var(--mi-r-ctl) !important;
+  background: var(--mi-card) !important;
+  border: 1px solid var(--mi-stroke) !important;
+}
+[class*="radioBar"][class*="selected"] {
+  border-color: var(--mi-accent) !important;
+  background: color-mix(in srgb, var(--mi-accent) 10%, var(--mi-card-solid)) !important;
+}
+
+/* Slider: accent rail + Win11 thumb (outer ring, accent core) */
+[class*="barFill"] { background: var(--mi-accent) !important; }
+[class*="grabber"] {
+  background: var(--mi-accent) !important;
+  border: 4px solid var(--mi-card-solid) !important;
+  box-shadow: 0 0 0 1px var(--mi-stroke-ctl-bottom) !important;
+  transition: border-width var(--mi-t-fast) var(--mi-ease);
+}
+[class*="grabber"]:hover { border-width: 3px !important; }
+
+/* Select / dropdowns */
+[class*="select_"], [class*="lookFilled"][class*="select"] {
+  background: var(--mi-fill-ctl) !important;
+  border: 1px solid var(--mi-stroke-ctl) !important;
+  border-bottom-color: var(--mi-stroke-ctl-bottom) !important;
+  border-radius: var(--mi-r-ctl) !important;
+}
+
+/* =========================================================
+   BADGES (InfoBadge)
+   ========================================================= */
+[class*="numberBadge"] {
+  background: var(--mi-critical) !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+[class*="textBadge"], [class*="newBadge"] {
+  background: var(--mi-accent) !important;
+  color: var(--mi-on-accent) !important;
+  border-radius: var(--mi-r-ctl) !important;
+}
+
+/* =========================================================
+   SETTINGS PAGES (NavigationView + cards)
+   ========================================================= */
+[class*="standardSidebarView"] {
+  background: var(--mi-mica) !important;
+  background-attachment: fixed !important;
+}
+[class*="standardSidebarView"] [class*="sidebarRegion"] { background: transparent !important; }
+[class*="standardSidebarView"] [class*="contentRegion"] {
+  background: var(--mi-layer) !important;
+  border-left: 1px solid var(--mi-stroke) !important;
+  border-top-left-radius: var(--mi-r);
+}
+[class*="standardSidebarView"] [class*="contentRegionScroller"] { background: transparent !important; }
+
+[class*="side_"] [class*="item_"] {
+  position: relative;
+  border-radius: var(--mi-r-ctl) !important;
+  color: var(--mi-text-1) !important;
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="side_"] [class*="item_"]:hover { background: var(--mi-subtle-hover) !important; }
+[class*="side_"] [class*="item_"][class*="selected"] {
+  background: var(--mi-subtle-select) !important;
+  color: var(--mi-text-1) !important;
+}
+[class*="side_"] [class*="item_"][class*="selected"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--mi-accent);
+  transform: translateY(-50%);
+  animation: mi-pill var(--mi-t-slow) var(--mi-ease);
+}
+[class*="side_"] [class*="header_"] {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--mi-text-2) !important;
+}
+[class*="side_"] [class*="separator"] { background: var(--mi-stroke-divider) !important; }
+
+[class*="closeButton"] {
+  border-radius: var(--mi-r-ctl) !important;
+  border-color: var(--mi-stroke-ctl) !important;
+}
+
+/* Settings "cards" (Vencord plugin cards, Discord setting groups) */
+[class*="card_"]:not([class*="mainCard"]), [class*="vc-addon-card"] {
+  background: var(--mi-card) !important;
+  border: 1px solid var(--mi-stroke) !important;
+  border-radius: var(--mi-r) !important;
+}
+
+/* =========================================================
+   VOICE / VIDEO CALLS
+   ========================================================= */
+[class*="callContainer"], [class*="videoGrid"] { background: var(--mi-base) !important; }
+[class*="tile_"] {
+  border-radius: var(--mi-r) !important;
+  background: var(--mi-card-solid) !important;
+  border: 1px solid var(--mi-stroke);
+}
+[class*="tile_"][class*="speaking"], [class*="tileSpeaking"] {
+  box-shadow: inset 0 0 0 2px var(--mi-accent) !important;
+}
+[class*="controlButton"] {
+  border-radius: var(--mi-r) !important;
+  background: var(--mi-fill-ctl) !important;
+  border: 1px solid var(--mi-stroke-ctl);
+}
+[class*="controlButton"]:hover { background: var(--mi-fill-ctl-hover) !important; }
+[class*="controlButton"][class*="red"], button[class*="disconnect"] {
+  background: var(--mi-critical) !important;
+  color: #fff !important;
+}
+
+/* =========================================================
+   HOME / FRIENDS / DMS
+   ========================================================= */
+[class*="peopleColumn"], [class*="nowPlayingColumn"] { background: transparent !important; }
+[class*="nowPlayingColumn"] { border-left: 1px solid var(--mi-stroke-divider) !important; }
+[class*="peopleListItem"] {
+  border-radius: var(--mi-r-ctl) !important;
+  transition: background var(--mi-t-fast) linear;
+}
+[class*="peopleListItem"]:hover { background: var(--mi-subtle-hover) !important; }
+[class*="nowPlayingColumn"] [class*="card"] {
+  background: var(--mi-card) !important;
+  border: 1px solid var(--mi-stroke);
+  border-radius: var(--mi-r) !important;
+}
+
+/* Pivot / SelectorBar: accent underline pill */
+[class*="tabBar"] [class*="item_"] {
+  position: relative;
+  border-radius: var(--mi-r-ctl) !important;
+  background: transparent !important;
+  color: var(--mi-text-2) !important;
+  transition: background var(--mi-t-fast) linear, color var(--mi-t-fast) linear;
+}
+[class*="tabBar"] [class*="item_"]:hover { background: var(--mi-subtle-hover) !important; color: var(--mi-text-1) !important; }
+[class*="tabBar"] [class*="item_"][class*="selected"] {
+  color: var(--mi-text-1) !important;
+  font-weight: 600;
+}
+[class*="tabBar"] [class*="item_"][class*="selected"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 16px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--mi-accent);
+  transform: translateX(-50%);
+}
+/* "Add Friend" keeps its call-to-action look */
+[class*="tabBar"] [class*="addFriend"] {
+  background: var(--mi-accent) !important;
+  color: var(--mi-on-accent) !important;
+}
+[class*="tabBar"] [class*="addFriend"][class*="selected"] {
+  background: transparent !important;
+  color: var(--mi-accent-text) !important;
+}
+
+/* =========================================================
+   EMOJI / GIF / STICKER PICKER
+   ========================================================= */
+[class*="emojiPicker"], [class*="contentWrapper"][class*="picker"] {
+  background: transparent !important;
+}
+[class*="emojiItem"] { border-radius: var(--mi-r-ctl) !important; }
+[class*="emojiItem"][class*="Selected"] { background: var(--mi-subtle-select) !important; }
+[class*="navButton"] { border-radius: var(--mi-r-ctl) !important; }
+[class*="navButton"][class*="navButtonActive"] {
+  background: var(--mi-subtle-select) !important;
+  color: var(--mi-text-1) !important;
+}
+[class*="categoryItem"][class*="selected"], [class*="categoryItemDefault"][class*="selected"] {
+  background: var(--mi-subtle-select) !important;
+  border-radius: var(--mi-r-ctl) !important;
+}
+
+/* =========================================================
+   NOTICES & TOASTS (InfoBar)
+   ========================================================= */
+[class*="notice_"] {
+  background: var(--mi-accent) !important;
+  color: var(--mi-on-accent) !important;
+  font-size: 13px !important;
+}
+[class*="notice_"] * { color: inherit !important; }
+[class*="notice_"] button {
+  background: transparent !important;
+  border: 1px solid currentColor !important;
+  border-radius: var(--mi-r-ctl) !important;
+}
+[class*="notice_"][class*="colorDanger"] { background: var(--mi-critical) !important; color: #fff !important; }
+
+[class*="toast_"] {
+  background: var(--mi-acrylic) !important;
+  -webkit-backdrop-filter: blur(var(--mica-blur));
+  backdrop-filter: blur(var(--mica-blur));
+  border: 1px solid var(--mi-stroke-surface) !important;
+  border-radius: var(--mi-r) !important;
+  box-shadow: var(--mi-shadow-flyout) !important;
+  color: var(--mi-text-1) !important;
+}
